@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const { getAllRecords } = require("../controllers/serp.controller");
+const { getAllTasks, sendTask } = require("../controllers/serp.controller");
 
-router.get("/getAllRecords", getAllRecords);
+router.post("/sendTask", sendTask);
+router.get("/getAllTasks", getAllTasks);
 
 module.exports = router;
