@@ -7,4 +7,7 @@ module.exports = {
     // NO_RECORDS_FOUND: "No records found.",
     // NO_DATA_FOUND: "No data found.",
   },
+  TASK: {
+    DATA_FETCH_SUCCESS: "Data fetched successfully.",
+  },
 };
