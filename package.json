@@ -11,6 +11,8 @@
     "cors": "^2.8.5",
     "debug": "~2.6.9",
     "express": "~4.16.1",
+    "express-validator": "^6.12.1",
+    "mongoose": "^5.13.7",
     "morgan": "~1.9.1"
   }
 }

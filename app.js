@@ -6,6 +6,7 @@ const logger = require("morgan");
 const https = require("https");
 const http = require("http");
 const cors = require("cors");
+const { mongoose } = require("./db/mongoose");
 let env = process.env.NODE_ENV || "development";
 const app = express();
 const port = process.env.PORT;
