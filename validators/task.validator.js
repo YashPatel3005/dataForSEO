@@ -9,5 +9,5 @@ exports.taskValidator = [
     .withMessage("Please enter valid location code.")
     .trim(),
   body("keyword").not().isEmpty().withMessage("Keyword is required.").trim(),
-  // body("domain").not().isEmpty().withMessage("Domain is required.").trim(),
+  body("domain").not().isEmpty().withMessage("Domain is required.").trim(),
 ];

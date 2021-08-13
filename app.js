@@ -21,6 +21,8 @@ app.use(cors());
 // VERSION 1:
 app.use("/api/v1", require("./v1/routes/index.routes"));
 
+require("./cronJobs/removeLastWeekData.cron");
+
 if (process.env.STAGE == "LIVE") {
   // let options = {
   //   key: fs.readFileSync('./keys/privkey.pem'),

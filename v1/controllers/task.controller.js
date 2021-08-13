@@ -44,23 +44,24 @@ exports.sendTask = async (req, res) => {
         }
       }
     }
-    result.rankGroup = result.rank_group;
-    result.rankAbsolute = result.rank_absolute;
-    delete result.rank_group;
-    delete result.rank_absolute;
 
-    console.log(result);
+    if (result) {
+      result.rankGroup = result.rank_group;
+      result.rankAbsolute = result.rank_absolute;
+      delete result.rank_group;
+      delete result.rank_absolute;
 
-    await Task.create({
-      keyword: seoData.data.tasks[0].result[0].keyword,
-      type: seoData.data.tasks[0].result[0].type,
-      seDomain: seoData.data.tasks[0].result[0].se_domain,
-      locationCode: seoData.data.tasks[0].result[0].location_code,
-      languageCode: seoData.data.tasks[0].result[0].language_code,
-      date: seoData.data.tasks[0].result[0].datetime,
-      item: result,
-      createdAt: dateFunction.currentUtcTime(),
-    });
+      await Task.create({
+        keyword: seoData.data.tasks[0].result[0].keyword,
+        type: seoData.data.tasks[0].result[0].type,
+        seDomain: seoData.data.tasks[0].result[0].se_domain,
+        locationCode: seoData.data.tasks[0].result[0].location_code,
+        languageCode: seoData.data.tasks[0].result[0].language_code,
+        date: seoData.data.tasks[0].result[0].datetime,
+        item: result,
+        createdAt: dateFunction.currentUtcTime(),
+      });
+    }
 
     return res.status(200).send({
       data: {}, // seoData.data.tasks[0].result
@@ -81,10 +82,20 @@ exports.sendTask = async (req, res) => {
 //get all Tasks
 exports.getAllTasks = async (req, res) => {
   try {
-    const result = await Task.find({});
+    let { limit, page } = req.query;
+    limit = parseInt(limit) || 10;
+    page = parseInt(page) || 1;
+
+    const result = await Task.find({})
+      .sort({ createdAt: -1 })
+      .skip(limit * (page - 1))
+      .limit(limit)
+      .lean();
+
+    const total = await Task.countDocuments({});
 
     return res.status(200).send({
-      data: result,
+      data: { result, total, limit, page },
       message: commonMessage.TASK.DATA_FETCH_SUCCESS,
       status: true,
     });
