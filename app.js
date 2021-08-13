@@ -1,22 +1,20 @@
 require("./config/config");
-const express = require("express");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
+global.express = require("express");
+const app = express();
+
 const https = require("https");
 const http = require("http");
-const cors = require("cors");
-const { mongoose } = require("./db/mongoose");
-let env = process.env.NODE_ENV || "development";
-const app = express();
-const port = process.env.PORT;
 
-app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
-app.use(cors());
+const middleWares = require("./middleware/index.middleware");
+
+let env = process.env.NODE_ENV || "development";
+const port = process.env.PORT;
+const { mongoose } = require("./db/mongoose");
+
+app.set("trust proxy", true);
+app.set("appRootPath", __dirname);
+
+middleWares(app);
 
 // VERSION 1:
 app.use("/api/v1", require("./v1/routes/index.routes"));
