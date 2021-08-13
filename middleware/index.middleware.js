@@ -84,13 +84,13 @@ module.exports = (app) => {
   app.use(express.static(path.join(appRootPath, "public")));
 
   app.use(logger("dev"));
-  // app.set("trust proxy", 1);
+
   app.use(
     session({
       cookie: { maxAge: 60000, secure: true },
       secret: "secret key...",
       resave: false,
-      saveUninitialized: false,
+      saveUninitialized: true,
     })
   );
 };
