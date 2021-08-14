@@ -9,5 +9,6 @@ module.exports = {
   },
   TASK: {
     DATA_FETCH_SUCCESS: "Data fetched successfully.",
+    VALID_DOMAIN: "Please enter valid domain.",
   },
 };

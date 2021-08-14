@@ -25,39 +25,37 @@ let taskSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
-  item: {
-    type: {
-      type: String,
-      default: null,
-    },
-    rankGroup: {
-      type: Number,
-      default: null,
-    },
-    rankAbsolute: {
-      type: Number,
-      default: null,
-    },
-    domain: {
-      type: String,
-      default: null,
-    },
-    title: {
-      type: String,
-      default: null,
-    },
-    description: {
-      type: String,
-      default: null,
-    },
-    url: {
-      type: String,
-      default: null,
-    },
-    breadcrumb: {
-      type: String,
-      default: null,
-    },
+  prevRankAbsolute: {
+    type: Number,
+    default: null,
+  },
+  rankGroup: {
+    type: Number,
+    default: null,
+  },
+  rankAbsolute: {
+    type: Number,
+    default: null,
+  },
+  domain: {
+    type: String,
+    default: null,
+  },
+  title: {
+    type: String,
+    default: null,
+  },
+  description: {
+    type: String,
+    default: null,
+  },
+  url: {
+    type: String,
+    default: null,
+  },
+  breadcrumb: {
+    type: String,
+    default: null,
   },
   createdAt: {
     type: Date,

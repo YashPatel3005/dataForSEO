@@ -1,4 +1,5 @@
 const axios = require("axios");
+const _ = require("lodash");
 
 const commonMessage = require("../../helpers/commonMessage.helper");
 const dateFunction = require("../../helpers/dateFunctions.helper.");
@@ -46,21 +47,45 @@ exports.sendTask = async (req, res) => {
     }
 
     if (result) {
+      result.keyword = seoData.data.tasks[0].result[0].keyword;
+      result.seDomain = seoData.data.tasks[0].result[0].se_domain;
+      result.locationCode = seoData.data.tasks[0].result[0].location_code;
+      result.languageCode = seoData.data.tasks[0].result[0].language_code;
+      result.date = dateFunction.getAfterMidnightTimeOfDate(
+        dateFunction.currentUtcTime()
+      );
+      result.createdAt = dateFunction.currentUtcTime();
+
       result.rankGroup = result.rank_group;
       result.rankAbsolute = result.rank_absolute;
+
       delete result.rank_group;
       delete result.rank_absolute;
 
-      await Task.create({
-        keyword: seoData.data.tasks[0].result[0].keyword,
-        type: seoData.data.tasks[0].result[0].type,
-        seDomain: seoData.data.tasks[0].result[0].se_domain,
-        locationCode: seoData.data.tasks[0].result[0].location_code,
-        languageCode: seoData.data.tasks[0].result[0].language_code,
-        date: seoData.data.tasks[0].result[0].datetime,
-        item: result,
-        createdAt: dateFunction.currentUtcTime(),
+      await Task.create(result);
+    } else {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.TASK.VALID_DOMAIN,
+        status: false,
       });
+      // result = {
+      //   type: null,
+      //   rankGroup: null,
+      //   rankAbsolute: null,
+      //   domain: null,
+      //   title: null,
+      //   description: null,
+      //   url: null,
+      //   breadcrumb: null,
+      //   keyword: keyword,
+      //   seDomain: null,
+      //   locationCode: null,
+      //   languageCode: null,
+      //   date: null,
+      //   createdAt: dateFunction.currentUtcTime(),
+      // };
+      // await Task.create(result);
     }
 
     return res.status(200).send({
@@ -83,15 +108,42 @@ exports.sendTask = async (req, res) => {
 exports.getAllTasks = async (req, res) => {
   try {
     let { limit, page } = req.query;
+
     limit = parseInt(limit) || 10;
     page = parseInt(page) || 1;
 
-    const result = await Task.find({})
-      .sort({ createdAt: -1 })
+    // SORTING STARTS
+    let field;
+    let value;
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(":");
+      field = sortBy[0];
+      if (sortBy[1] == "asc") {
+        value = 1;
+      } else {
+        value = -1;
+      }
+    } else {
+      field = "createdAt";
+      value = -1;
+    }
+    // SORTING ENDS
+
+    let projection = {
+      breadcrumb: 0,
+      languageCode: 0,
+      seDomain: 0,
+      type: 0,
+      description: 0,
+      title: 0,
+    };
+    let result = await Task.find({}, projection)
+      .sort({ [field]: value })
       .skip(limit * (page - 1))
       .limit(limit)
       .lean();
 
+    result = _.uniq(result, "keyword");
     const total = await Task.countDocuments({});
 
     return res.status(200).send({
