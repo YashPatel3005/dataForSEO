@@ -142,47 +142,45 @@ exports.getAllTasks = async (req, res) => {
       .skip(limit * (page - 1))
       .limit(limit)
       .lean();
-    // const total = await Task.countDocuments({});
+    const total = await Task.countDocuments({});
 
-    result = result.reduce(
-      (
-        arr,
-        {
-          keyword,
-          domain,
-          date,
-          url,
-          createdAt,
-          rankAbsolute,
-          rankGroup,
-          prevRankAbsolute,
-          locationCode,
-          _id,
-        }
-      ) => {
-        let found = arr.find((v) => v.keyword == keyword && v.domain == domain);
-        if (found) {
-          if (found.date < date) found.date = date;
-        } else
-          arr.push({
-            keyword,
-            date,
-            domain,
-            url,
-            createdAt,
-            rankAbsolute,
-            rankGroup,
-            prevRankAbsolute,
-            locationCode,
-            _id,
-          });
+    // result = result.reduce(
+    //   (
+    //     arr,
+    //     {
+    //       keyword,
+    //       domain,
+    //       date,
+    //       url,
+    //       createdAt,
+    //       rankAbsolute,
+    //       rankGroup,
+    //       prevRankAbsolute,
+    //       locationCode,
+    //       _id,
+    //     }
+    //   ) => {
+    //     let found = arr.find((v) => v.keyword == keyword && v.domain == domain);
+    //     if (found) {
+    //       if (found.date < date) found.date = date;
+    //     } else
+    //       arr.push({
+    //         keyword,
+    //         date,
+    //         domain,
+    //         url,
+    //         createdAt,
+    //         rankAbsolute,
+    //         rankGroup,
+    //         prevRankAbsolute,
+    //         locationCode,
+    //         _id,
+    //       });
 
-        return arr;
-      },
-      []
-    );
-
-    const total = result.length;
+    //     return arr;
+    //   },
+    //   []
+    // );
 
     return res.status(200).send({
       data: { result, total, limit, page },
