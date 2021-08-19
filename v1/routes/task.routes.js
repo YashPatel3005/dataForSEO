@@ -18,8 +18,8 @@ const { authenticate } = require("../../middleware/auth.middleware");
 
 router.post("/login", loginValidator, validatorFunc, login);
 
-router.post("/sendTask", authenticate, taskValidator, validatorFunc, sendTask);
+router.post("/sendTask", taskValidator, validatorFunc, sendTask);
 
-router.get("/getAllTasks", authenticate, getAllTasks);
+router.get("/getAllTasks", getAllTasks);
 
 module.exports = router;
