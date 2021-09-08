@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 
-const { createUser } = require("../controllers/taskRunner.controller");
-const { userValidator } = require("../../validators/user.validator");
+const { createAdmin } = require("../controllers/taskRunner.controller");
+const { adminValidator } = require("../../validators/admin.validator");
 const { validatorFunc } = require("../../helpers/commonFunction.helper");
 
-router.post("/createUser", userValidator, validatorFunc, createUser);
+//create super admin
+router.post("/createAdmin", adminValidator, validatorFunc, createAdmin);
 
 module.exports = router;

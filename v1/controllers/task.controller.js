@@ -4,51 +4,7 @@ const _ = require("lodash");
 const commonMessage = require("../../helpers/commonMessage.helper");
 const dateFunction = require("../../helpers/dateFunctions.helper");
 
-const User = require("../../models/user.model");
 const Task = require("../../models/task.model");
-
-exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email: email });
-
-    if (!user) {
-      return res.status(400).send({
-        data: {},
-        message: commonMessage.USER.USER_NOT_FOUND,
-        status: false,
-      });
-    }
-
-    if (password !== user.password) {
-      return res.status(400).send({
-        data: {},
-        message: commonMessage.USER.INVALID_PASSWORD,
-        status: false,
-      });
-    }
-
-    const token = await user.generateAuthToken();
-    await user.save();
-    let resData = _.pick(user, ["email"]);
-    resData.token = token;
-
-    return res.status(200).send({
-      data: resData,
-      message: commonMessage.USER.LOGIN_SUCCESS,
-      status: false,
-    });
-  } catch (error) {
-    console.log("error in login()=> ", error);
-
-    return res.status(400).send({
-      data: {},
-      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
-      status: false,
-    });
-  }
-};
 
 //send Tasks in SERP Regular API
 exports.sendTask = async (req, res) => {

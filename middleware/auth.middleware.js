@@ -1,4 +1,4 @@
-const User = require("../models/user.model");
+const Admin = require("../models/admin.model");
 const commonMessage = require("../helpers/commonMessage.helper");
 const jwt = require("jsonwebtoken");
 
@@ -21,12 +21,12 @@ let authenticate = async (req, res, next) => {
       });
     }
     const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({
+    const admin = await Admin.findOne({
       _id: decoded._id,
       "tokens.token": token,
     });
 
-    if (!user) {
+    if (!admin) {
       return res.status(401).send({
         data: {},
         message: commonMessage.ERROR_MESSAGE.UNAUTHORIZED_USER,
@@ -35,7 +35,7 @@ let authenticate = async (req, res, next) => {
     }
 
     req.token = token;
-    req.user = user;
+    req.admin = admin;
 
     next();
   } catch (error) {

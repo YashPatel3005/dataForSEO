@@ -12,11 +12,18 @@ module.exports = {
   TASK: {
     KEYWORD_ADDED: "Keyword successfully added.",
     DATA_FETCH_SUCCESS: "Data fetched successfully.",
-    VALID_DOMAIN: "Please enter valid domain.",
+    VALID_DOMAIN: "Please enter valid domain and keyword.",
   },
-  USER: {
+  ADMIN: {
     USER_NOT_FOUND: "User is not registered.",
     INVALID_PASSWORD: "Invalid password!!!",
     LOGIN_SUCCESS: "Login successfully.",
+  },
+  PROJECT: {
+    ADD_PROJECT_SUCCESS: "Project created successfully.",
+    PROJECT_ALREADY_EXITS: "Project is already exists.",
+    UPDATE_PROJECT_SUCCESS: "Project updated successfully.",
+    VIEW_PROJECT_SUCCESS: "Project viewed successfully.",
+    DELETE_PROJECT_SUCCESS: "Project deleted successfully.",
   },
 };

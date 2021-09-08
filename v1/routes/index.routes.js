@@ -6,4 +6,6 @@ router.use("/serp", require("./task.routes"));
 
 router.use("/taskRunner", require("./taskRunner.routes"));
 
+router.use("/admin", require("./admin.routes"));
+
 module.exports = router;

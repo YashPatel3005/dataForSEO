@@ -1,23 +1,34 @@
 const dateFunc = require("../../helpers/dateFunctions.helper");
-const User = require("../../models/user.model");
+const Admin = require("../../models/admin.model");
 const commonMessage = require("../../helpers/commonMessage.helper");
 
-exports.createUser = async (req, res) => {
+exports.createAdmin = async (req, res) => {
   try {
     const reqBody = req.body;
 
     reqBody.createdAt = dateFunc.currentUtcTime();
     reqBody.updatedAt = dateFunc.currentUtcTime();
 
-    const user = await User.create(reqBody);
+    const emailIdExists = await Admin.findOne({ email: req.body.email });
+
+    if (emailIdExists) {
+      return res.status(400).send({
+        message:
+          "Admin user with this email id already exists. Please enter different email id.",
+        status: false,
+        data: {},
+      });
+    }
+
+    const admin = await Admin.create(reqBody);
 
     return res.status(200).send({
-      data: user,
-      message: "user credential created.",
+      data: admin,
+      message: "Super admin credential created.",
       status: true,
     });
   } catch (error) {
-    console.log("error in createUser()=> ", error);
+    console.log("error in createAdmin()=> ", error);
 
     return res.status(400).send({
       data: {},
