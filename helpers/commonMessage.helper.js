@@ -25,5 +25,6 @@ module.exports = {
     UPDATE_PROJECT_SUCCESS: "Project updated successfully.",
     VIEW_PROJECT_SUCCESS: "Project viewed successfully.",
     DELETE_PROJECT_SUCCESS: "Project deleted successfully.",
+    PROJECT_FETCH_SUCCESS: "Project list fetched successfully.",
   },
 };

@@ -8,6 +8,8 @@ const {
   editProject,
   viewProject,
   deleteProject,
+  getProjectsList,
+  addSubProject,
 } = require("../controllers/admin.controller");
 
 const {
@@ -34,5 +36,9 @@ router.put("/editProject/:id", projectValidator, validatorFunc, editProject);
 router.delete("/deleteProject/:id", deleteProject);
 
 router.get("/viewProject/:id", viewProject);
+
+router.get("/projectList", getProjectsList);
+
+router.post("/addSubProject", addSubProject);
 
 module.exports = router;

@@ -195,3 +195,71 @@ exports.deleteProject = async (req, res) => {
     });
   }
 };
+
+exports.getProjectsList = async (req, res) => {
+  try {
+    let { limit, page } = req.query;
+
+    limit = parseInt(limit) || 10;
+    page = parseInt(page) || 1;
+
+    // SORTING STARTS
+    let field;
+    let value;
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(":");
+      field = sortBy[0];
+      if (sortBy[1] == "asc") {
+        value = 1;
+      } else {
+        value = -1;
+      }
+    } else {
+      field = "createdAt";
+      value = -1;
+    }
+    // SORTING ENDS
+
+    const result = await Project.find({})
+      .sort({ [field]: value })
+      .skip(limit * (page - 1))
+      .limit(limit)
+      .lean();
+
+    let total = await Project.countDocuments({});
+
+    return res.status(200).send({
+      data: { result, total, limit, page },
+      message: commonMessage.PROJECT.PROJECT_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in getProjectsList()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.addSubProject = async (req, res) => {
+  try {
+    const { keyword, locationCode } = req.body;
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.PROJECT.PROJECT_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in addSubProject()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
