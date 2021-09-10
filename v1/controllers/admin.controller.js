@@ -221,6 +221,7 @@ exports.getProjectsList = async (req, res) => {
     // SORTING ENDS
 
     const result = await Project.find({})
+      .collation({ locale: "en" })
       .sort({ [field]: value })
       .skip(limit * (page - 1))
       .limit(limit)
@@ -235,6 +236,28 @@ exports.getProjectsList = async (req, res) => {
     });
   } catch (error) {
     console.log("error in getProjectsList()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.getProjectsListDrpDwn = async (req, res) => {
+  try {
+    const result = await Project.find({})
+      .collation({ locale: "en" })
+      .sort({ projectName: 1 });
+
+    return res.status(200).send({
+      data: result,
+      message: commonMessage.PROJECT.PROJECT_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in getProjectsListDrpDwn()=> ", error);
 
     return res.status(400).send({
       data: {},
