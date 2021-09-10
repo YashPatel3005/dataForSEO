@@ -246,7 +246,7 @@ exports.getProjectsList = async (req, res) => {
 
 exports.addSubProject = async (req, res) => {
   try {
-    const { keyword, locationCode } = req.body;
+    const { keyword, locationCode, keywordCheckFrequency } = req.body;
 
     return res.status(200).send({
       data: {},
