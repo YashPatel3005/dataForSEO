@@ -83,7 +83,7 @@ let config = convict({
       allowedMethods: {
         doc: "Allowed HTTP Methods for CORS",
         format: String,
-        default: "GET,POST,PUT,OPTIONS",
+        default: "GET,POST,PUT,DELETE,OPTIONS",
       },
       allowedHeaders: {
         doc: "Allowed HTTP Headers for CORS",
