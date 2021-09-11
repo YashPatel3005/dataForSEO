@@ -179,8 +179,9 @@ exports.deleteProject = async (req, res) => {
       _id: id,
     });
 
-    //PENDING
-    //here we have deleted only project and if sub project exists under that project we also have to delete all sub project
+    await SubProject.deleteMany({
+      _projectId: id,
+    });
 
     return res.status(200).send({
       data: {},
