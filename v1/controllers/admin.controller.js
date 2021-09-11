@@ -1,10 +1,12 @@
 const _ = require("lodash");
+const axios = require("axios");
 
 const commonMessage = require("../../helpers/commonMessage.helper");
 const dateFunc = require("../../helpers/dateFunctions.helper");
 
 const Admin = require("../../models/admin.model");
 const Project = require("../../models/project.model");
+const SubProject = require("../../models/subProject.model");
 
 exports.login = async (req, res) => {
   try {
@@ -269,13 +271,102 @@ exports.getProjectsListDrpDwn = async (req, res) => {
 
 exports.addSubProject = async (req, res) => {
   try {
-    const { keyword, locationCode, keywordCheckFrequency } = req.body;
+    const { keyword, domain, locationCode, keywordCheckFrequency, _projectId } =
+      req.body;
 
-    return res.status(200).send({
-      data: {},
-      message: commonMessage.PROJECT.PROJECT_FETCH_SUCCESS,
-      status: true,
+    let createTask = await axios({
+      method: "post",
+      url: "https://api.dataforseo.com/v3/serp/google/organic/task_post",
+      auth: {
+        username: process.env.SERP_API_USERNAME,
+        password: process.env.SERP_API_PASSWORD,
+      },
+      data: [
+        {
+          keyword: encodeURI(keyword),
+          location_code: locationCode,
+          language_code: "en",
+          // url: domain,
+          // depth: "100",
+          // se_domain: "google.com.au",
+        },
+      ],
+      headers: {
+        "content-type": "application/json",
+      },
     });
+
+    async function getTask() {
+      let taskId = createTask.data.tasks[0].id;
+      console.log(taskId);
+
+      let getTaskData = await axios({
+        method: "get",
+        url:
+          "https://api.dataforseo.com/v3/serp/google/organic/task_get/regular/" +
+          taskId,
+        auth: {
+          username: process.env.SERP_API_USERNAME,
+          password: process.env.SERP_API_PASSWORD,
+        },
+        headers: {
+          "content-type": "application/json",
+        },
+      });
+
+      let items;
+      let result;
+      if (getTaskData.data.tasks) {
+        items = getTaskData.data.tasks[0].result[0].items;
+        for (let i of items) {
+          if (
+            getTaskData.data.tasks[0].result[0].type == "organic" &&
+            i.domain == domain
+          ) {
+            result = i;
+          }
+        }
+      }
+
+      if (result) {
+        result.keyword = getTaskData.data.tasks[0].result[0].keyword;
+        result.seDomain = getTaskData.data.tasks[0].result[0].se_domain;
+        result.locationCode = getTaskData.data.tasks[0].result[0].location_code;
+        result.languageCode = getTaskData.data.tasks[0].result[0].language_code;
+        result.date = dateFunc.getAfterMidnightTimeOfDate(
+          dateFunc.currentUtcTime()
+        );
+        result.createdAt = dateFunc.currentUtcTime();
+
+        result.rankGroup = result.rank_group;
+        result.rankAbsolute = result.rank_absolute;
+
+        result.keywordCheckFrequency = keywordCheckFrequency;
+        result._projectId = _projectId;
+
+        delete result.rank_group;
+        delete result.rank_absolute;
+        console.log(result);
+
+        await SubProject.create(result);
+      } else {
+        return res.status(400).send({
+          data: {},
+          message: commonMessage.TASK.VALID_DOMAIN,
+          status: false,
+        });
+      }
+
+      return res.status(200).send({
+        data: {},
+        message: commonMessage.SUB_PROJECT.ADD_SUB_PROJECT_SUCCESS,
+        status: true,
+      });
+    }
+
+    if (createTask.data.status_code === 20000) {
+      setTimeout(getTask, 8000);
+    }
   } catch (error) {
     console.log("error in addSubProject()=> ", error);
 

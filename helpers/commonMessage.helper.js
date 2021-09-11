@@ -27,4 +27,7 @@ module.exports = {
     DELETE_PROJECT_SUCCESS: "Project deleted successfully.",
     PROJECT_FETCH_SUCCESS: "Project list fetched successfully.",
   },
+  SUB_PROJECT:{
+    ADD_SUB_PROJECT_SUCCESS: "Sub project created successfully.",
+  }
 };
