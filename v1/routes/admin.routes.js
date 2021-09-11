@@ -11,6 +11,8 @@ const {
   getProjectsList,
   addSubProject,
   getProjectsListDrpDwn,
+  getSubProjectsList,
+  deleteSubProject,
 } = require("../controllers/admin.controller");
 
 const {
@@ -44,5 +46,9 @@ router.get("/projectList", getProjectsList);
 router.get("/getProjectsListDrpDwn", getProjectsListDrpDwn);
 
 router.post("/addSubProject", addSubProject);
+
+router.get("/getSubProjectsList/:id", getSubProjectsList);
+
+router.delete("/deleteSubProject/:id", deleteSubProject);
 
 module.exports = router;
