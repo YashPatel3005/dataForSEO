@@ -7,6 +7,7 @@ const dateFunc = require("../../helpers/dateFunctions.helper");
 const Admin = require("../../models/admin.model");
 const Project = require("../../models/project.model");
 const SubProject = require("../../models/subProject.model");
+const appConstant = require("../../app.constant");
 
 exports.login = async (req, res) => {
   try {
@@ -329,22 +330,42 @@ exports.addSubProject = async (req, res) => {
         }
       }
 
+      let currentDate = dateFunc.currentUtcTime();
+      console.log(currentDate);
+
+      let nextDate;
+      if (keywordCheckFrequency === appConstant.keywordCheckFrequency.weekly) {
+        nextDate = dateFunc.addDate(currentDate, 7, "days");
+        nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+        console.log(nextDate);
+      } else if (
+        keywordCheckFrequency === appConstant.keywordCheckFrequency.fortnightly
+      ) {
+        nextDate = dateFunc.addDate(currentDate, 15, "days");
+        nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+        console.log(nextDate);
+      } else {
+        nextDate = dateFunc.addDate(currentDate, 1, "months");
+        nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+        console.log(nextDate);
+      }
+
       if (result) {
         result.keyword = getTaskData.data.tasks[0].result[0].keyword;
         result.seDomain = getTaskData.data.tasks[0].result[0].se_domain;
         result.locationCode = getTaskData.data.tasks[0].result[0].location_code;
         result.languageCode = getTaskData.data.tasks[0].result[0].language_code;
-        result.date = dateFunc.getAfterMidnightTimeOfDate(
-          dateFunc.currentUtcTime()
-        );
-        result.createdAt = dateFunc.currentUtcTime();
-        result.updatedAt = dateFunc.currentUtcTime();
+
+        result.currDate = dateFunc.getAfterMidnightTimeOfDate(currentDate);
+        result.createdAt = currentDate;
+        result.updatedAt = currentDate;
 
         result.rankGroup = result.rank_group;
         result.rankAbsolute = result.rank_absolute;
 
         result.keywordCheckFrequency = keywordCheckFrequency;
         result._projectId = _projectId;
+        result.nextDate = nextDate;
 
         delete result.rank_group;
         delete result.rank_absolute;

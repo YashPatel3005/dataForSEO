@@ -44,7 +44,7 @@ router.get("/viewProject/:id", viewProject);
 
 router.get("/projectList", getProjectsList);
 
-router.get("/projectDashboard/:id", projectDashboard);
+router.get("/projectDashboard", projectDashboard);
 
 //get Project list for dropdown
 router.get("/getProjectsListDrpDwn", getProjectsListDrpDwn);

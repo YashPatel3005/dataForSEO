@@ -22,7 +22,7 @@ exports.getBeforeMidnightTimeOfDate = (date) => {
 
 //get date in YYYY-MM-DDT00:00:00Z format
 exports.getAfterMidnightTimeOfDate = (date) => {
-  return new Date(date).setUTCHours(0, 0, 0, 0);
+  return new Date(new Date(date).setUTCHours(0, 0, 0, 0));
 };
 
 //convert timestamp to date format

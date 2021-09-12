@@ -21,7 +21,16 @@ let subProjectSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  date: {
+  prevDate: {
+    type: Date,
+    default: null,
+  },
+  currDate: {
+    type: Date,
+    default: null,
+  },
+  //nextDate is when user select monthly in keyword frequency then we will store after month date from current date and same as fortnightly and weekly
+  nextDate: {
     type: Date,
     default: null,
   },
@@ -29,11 +38,11 @@ let subProjectSchema = new mongoose.Schema({
     type: Number,
     default: null,
   },
-  rankGroup: {
+  rankAbsolute: {
     type: Number,
     default: null,
   },
-  rankAbsolute: {
+  rankGroup: {
     type: Number,
     default: null,
   },
