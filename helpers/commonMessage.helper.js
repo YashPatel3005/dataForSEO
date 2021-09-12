@@ -26,10 +26,14 @@ module.exports = {
     VIEW_PROJECT_SUCCESS: "Project viewed successfully.",
     DELETE_PROJECT_SUCCESS: "Project deleted successfully.",
     PROJECT_FETCH_SUCCESS: "Project list fetched successfully.",
+    PROJECT_ANALYTICAL_DATA_SUCCESS:
+      "Projects analytical data fetched successfully.",
   },
   SUB_PROJECT: {
     ADD_SUB_PROJECT_SUCCESS: "Sub project created successfully.",
     SUB_PROJECT_FETCH_SUCCESS: "Sub project list fetched successfully.",
     DELETE_SUB_PROJECT_SUCCESS: "Sub project deleted successfully.",
+    SUB_PROJECT_ANALYTICAL_DATA_SUCCESS:
+      "Sub projects analytical data fetched successfully.",
   },
 };

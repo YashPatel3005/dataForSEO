@@ -13,6 +13,8 @@ const {
   getProjectsListDrpDwn,
   getSubProjectsList,
   deleteSubProject,
+  subProjectDashboard,
+  projectDashboard,
 } = require("../controllers/admin.controller");
 
 const {
@@ -42,6 +44,8 @@ router.get("/viewProject/:id", viewProject);
 
 router.get("/projectList", getProjectsList);
 
+router.get("/projectDashboard/:id", projectDashboard);
+
 //get Project list for dropdown
 router.get("/getProjectsListDrpDwn", getProjectsListDrpDwn);
 
@@ -50,5 +54,7 @@ router.post("/addSubProject", addSubProject);
 router.get("/getSubProjectsList/:id", getSubProjectsList);
 
 router.delete("/deleteSubProject/:id", deleteSubProject);
+
+router.get("/subProjectDashboard/:id", subProjectDashboard);
 
 module.exports = router;

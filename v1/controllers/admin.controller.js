@@ -338,6 +338,7 @@ exports.addSubProject = async (req, res) => {
           dateFunc.currentUtcTime()
         );
         result.createdAt = dateFunc.currentUtcTime();
+        result.updatedAt = dateFunc.currentUtcTime();
 
         result.rankGroup = result.rank_group;
         result.rankAbsolute = result.rank_absolute;
@@ -455,6 +456,156 @@ exports.deleteSubProject = async (req, res) => {
     });
   } catch (error) {
     console.log("error in deleteSubProject()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.subProjectDashboard = async (req, res) => {
+  try {
+    let id = req.params.id;
+
+    const subProjectData = await SubProject.find({ _projectId: id });
+
+    let resultObj = {};
+    let topSpot = 0;
+    let topThree = 0;
+    let fourToTen = 0;
+    let elevenToTwenty = 0;
+    let twentyOneToFifty = 0;
+    let fiftyOneToHundred = 0;
+    let outOfTopHundred = 0;
+
+    if (subProjectData && subProjectData.length > 0) {
+      for (let i = 0; i < subProjectData.length; i++) {
+        //top spot
+        if (subProjectData[i].rankAbsolute === 1) {
+          topSpot = topSpot + 1;
+        }
+
+        // top three 1-3
+        if (subProjectData[i].rankAbsolute <= 3) {
+          topThree = topThree + 1;
+        }
+
+        //4 to 10
+        if (
+          subProjectData[i].rankAbsolute > 3 &&
+          subProjectData[i].rankAbsolute <= 10
+        ) {
+          fourToTen = fourToTen + 1;
+        }
+
+        //11 to 20
+        if (
+          subProjectData[i].rankAbsolute > 10 &&
+          subProjectData[i].rankAbsolute <= 20
+        ) {
+          elevenToTwenty = elevenToTwenty + 1;
+        }
+
+        //21 to 50
+        if (
+          subProjectData[i].rankAbsolute > 20 &&
+          subProjectData[i].rankAbsolute <= 50
+        ) {
+          twentyOneToFifty = twentyOneToFifty + 1;
+        }
+
+        //51 to 100
+        if (
+          subProjectData[i].rankAbsolute > 50 &&
+          subProjectData[i].rankAbsolute <= 100
+        ) {
+          fiftyOneToHundred = fiftyOneToHundred + 1;
+        }
+
+        //100+
+        if (subProjectData[i].rankAbsolute > 100) {
+          outOfTopHundred = outOfTopHundred + 1;
+        }
+      }
+    }
+
+    resultObj.totalKeywords = subProjectData.length;
+    resultObj.topSpot = topSpot;
+    resultObj.topThree = topThree;
+    resultObj.fourToTen = fourToTen;
+    resultObj.elevenToTwenty = elevenToTwenty;
+    resultObj.twentyOneToFifty = twentyOneToFifty;
+    resultObj.fiftyOneToHundred = fiftyOneToHundred;
+    resultObj.outOfTopHundred = outOfTopHundred;
+
+    console.log(resultObj);
+
+    return res.status(200).send({
+      data: resultObj,
+      message: commonMessage.SUB_PROJECT.SUB_PROJECT_ANALYTICAL_DATA_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in subProjectDashboard()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.projectDashboard = async (req, res) => {
+  try {
+    let id = req.params.id;
+
+    const subProjectData = await SubProject.find({});
+
+    let resultObj = {};
+    let topSpot = 0;
+    let topTen = 0;
+    let topThirty = 0;
+    let topHundred = 0;
+
+    if (subProjectData && subProjectData.length > 0) {
+      for (let i = 0; i < subProjectData.length; i++) {
+        //top spot
+        if (subProjectData[i].rankAbsolute === 1) {
+          topSpot = topSpot + 1;
+        }
+        // top 10
+        if (subProjectData[i].rankAbsolute <= 10) {
+          topTen = topTen + 1;
+        }
+
+        //top 30
+        if (subProjectData[i].rankAbsolute <= 30) {
+          topThirty = topThirty + 1;
+        }
+
+        //top 100
+        if (subProjectData[i].rankAbsolute <= 100) {
+          topHundred = topHundred + 1;
+        }
+      }
+    }
+
+    resultObj.totalKeywords = subProjectData.length;
+    resultObj.topSpot = topSpot;
+    resultObj.topTen = topTen;
+    resultObj.topThirty = topThirty;
+    resultObj.topHundred = topHundred;
+
+    return res.status(200).send({
+      data: resultObj,
+      message: commonMessage.PROJECT.PROJECT_ANALYTICAL_DATA_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in projectDashboard()=> ", error);
 
     return res.status(400).send({
       data: {},
