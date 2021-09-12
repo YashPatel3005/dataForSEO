@@ -15,6 +15,7 @@ const {
   deleteSubProject,
   subProjectDashboard,
   projectDashboard,
+  exportSubProjectToCsv,
 } = require("../controllers/admin.controller");
 
 const {
@@ -56,5 +57,7 @@ router.get("/getSubProjectsList/:id", getSubProjectsList);
 router.delete("/deleteSubProject/:id", deleteSubProject);
 
 router.get("/subProjectDashboard/:id", subProjectDashboard);
+
+router.get("/exportSubProjectToCsv/:id", exportSubProjectToCsv);
 
 module.exports = router;

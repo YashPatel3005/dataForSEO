@@ -581,8 +581,6 @@ exports.subProjectDashboard = async (req, res) => {
 
 exports.projectDashboard = async (req, res) => {
   try {
-    let id = req.params.id;
-
     const subProjectData = await SubProject.find({});
 
     let resultObj = {};
@@ -619,6 +617,27 @@ exports.projectDashboard = async (req, res) => {
     resultObj.topTen = topTen;
     resultObj.topThirty = topThirty;
     resultObj.topHundred = topHundred;
+
+    return res.status(200).send({
+      data: resultObj,
+      message: commonMessage.PROJECT.PROJECT_ANALYTICAL_DATA_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in projectDashboard()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.exportSubProjectToCsv = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const subProjectData = await SubProject.find({ _id });
 
     return res.status(200).send({
       data: resultObj,
