@@ -4,6 +4,7 @@ const app = express();
 
 const https = require("https");
 const http = require("http");
+const fs = require("fs");
 
 const middleWares = require("./middleware/index.middleware");
 
@@ -70,6 +71,11 @@ if (env == "development") {
       e: err,
     });
   });
+}
+
+let reportsDirectory = "reports";
+if (fs.existsSync(reportsDirectory) == false) {
+  fs.mkdirSync(reportsDirectory);
 }
 
 module.exports = { app };

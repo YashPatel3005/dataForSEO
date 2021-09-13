@@ -648,10 +648,11 @@ exports.exportSubProjectToCsv = async (req, res) => {
       const resJson = {};
       resJson["sr"] = i + 1;
       resJson["keywords"] = subProjectData[i].keyword;
-      resJson["previousRanking"] = subProjectData[i].keyword;
-      resJson["currentRanking"] = subProjectData[i].keyword;
-      resJson["difference"] = subProjectData[i].keyword;
-      resJson["url"] = subProjectData[i].keyword;
+      resJson["previousRanking"] = subProjectData[i].prevRankAbsolute;
+      resJson["currentRanking"] = subProjectData[i].rankAbsolute;
+      resJson["difference"] =
+        subProjectData[i].rankAbsolute - subProjectData[i].prevRankAbsolute;
+      resJson["url"] = subProjectData[i].url;
 
       subProjectList.push(resJson);
     }
@@ -668,11 +669,7 @@ exports.exportSubProjectToCsv = async (req, res) => {
     const json2csvParser = new Json2csvParser({ fields });
     const csv = json2csvParser.parse(subProjectList);
 
-    const subProjectCSVFile = "reports/csvFile.csv";
-
-    // const distributorCSVFile = `${
-    //   process.env.REPORTS_PATH
-    // }/${distributorDetail.distributorName.replace(' ', '_')}.csv`;
+    const subProjectCSVFile = `${process.env.REPORTS_PATH}/csvFile.csv`;
 
     fs.writeFile(subProjectCSVFile, csv, function (err) {
       if (err) throw err;
