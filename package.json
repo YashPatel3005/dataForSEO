@@ -16,6 +16,7 @@
     "express": "~4.16.1",
     "express-validator": "^6.12.1",
     "helmet": "^4.6.0",
+    "json2csv": "^5.0.6",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",

@@ -1,6 +1,8 @@
 const _ = require("lodash");
 const axios = require("axios");
 
+const Json2csvParser = require("json2csv").Parser;
+
 const commonMessage = require("../../helpers/commonMessage.helper");
 const dateFunc = require("../../helpers/dateFunctions.helper");
 
@@ -581,7 +583,7 @@ exports.subProjectDashboard = async (req, res) => {
 
 exports.projectDashboard = async (req, res) => {
   try {
-    const subProjectData = await SubProject.find({});
+    const subProjectData = await Project.find({});
 
     let resultObj = {};
     let topSpot = 0;
@@ -637,7 +639,23 @@ exports.projectDashboard = async (req, res) => {
 exports.exportSubProjectToCsv = async (req, res) => {
   try {
     const id = req.params.id;
-    const subProjectData = await SubProject.find({ _id });
+    const subProjectData = await SubProject.find({ _id: id });
+    console.log(subProjectData);
+
+    const subProjectList = [];
+    for (let i = 0; i < subProjectData.length; i++) {
+      const resJson = {};
+      // resJson["Keywords"] = subProjectData[i].;
+
+      deliveryOrderList.push(resJson);
+    }
+    const fields = [
+      { label: "Sr", value: "sr" },
+      { label: "Keywords", value: "keywords" },
+    ];
+
+    const json2csvParser = new Json2csvParser({ fields });
+    const csv = json2csvParser.parse(subProjectList);
 
     return res.status(200).send({
       data: resultObj,
