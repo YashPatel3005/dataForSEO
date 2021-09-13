@@ -1,5 +1,6 @@
 const _ = require("lodash");
 const axios = require("axios");
+const fs = require("fs");
 
 const Json2csvParser = require("json2csv").Parser;
 
@@ -583,7 +584,7 @@ exports.subProjectDashboard = async (req, res) => {
 
 exports.projectDashboard = async (req, res) => {
   try {
-    const subProjectData = await Project.find({});
+    const subProjectData = await SubProject.find({});
 
     let resultObj = {};
     let topSpot = 0;
@@ -639,23 +640,51 @@ exports.projectDashboard = async (req, res) => {
 exports.exportSubProjectToCsv = async (req, res) => {
   try {
     const id = req.params.id;
-    const subProjectData = await SubProject.find({ _id: id });
+    const subProjectData = await SubProject.find({ _projectId: id });
     console.log(subProjectData);
 
-    const subProjectList = [];
+    let subProjectList = [];
     for (let i = 0; i < subProjectData.length; i++) {
       const resJson = {};
-      // resJson["Keywords"] = subProjectData[i].;
+      resJson["sr"] = i + 1;
+      resJson["keywords"] = subProjectData[i].keyword;
+      resJson["previousRanking"] = subProjectData[i].keyword;
+      resJson["currentRanking"] = subProjectData[i].keyword;
+      resJson["difference"] = subProjectData[i].keyword;
+      resJson["url"] = subProjectData[i].keyword;
 
-      deliveryOrderList.push(resJson);
+      subProjectList.push(resJson);
     }
+    console.log(subProjectList);
     const fields = [
       { label: "Sr", value: "sr" },
       { label: "Keywords", value: "keywords" },
+      { label: "Previous ranking", value: "previousRanking" },
+      { label: "Current ranking", value: "currentRanking" },
+      { label: "Difference", value: "difference" },
+      { label: "URL", value: "url" },
     ];
 
     const json2csvParser = new Json2csvParser({ fields });
     const csv = json2csvParser.parse(subProjectList);
+
+    const subProjectCSVFile = "reports/csvFile.csv";
+
+    // const distributorCSVFile = `${
+    //   process.env.REPORTS_PATH
+    // }/${distributorDetail.distributorName.replace(' ', '_')}.csv`;
+
+    fs.writeFile(subProjectCSVFile, csv, function (err) {
+      if (err) throw err;
+    });
+    function myFunc() {
+      res.download(subProjectCSVFile);
+    }
+
+    setTimeout(() => {
+      myFunc();
+    }, 1000);
+    return;
 
     return res.status(200).send({
       data: resultObj,
