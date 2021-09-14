@@ -641,7 +641,6 @@ exports.exportSubProjectToCsv = async (req, res) => {
   try {
     const id = req.params.id;
     const subProjectData = await SubProject.find({ _projectId: id });
-    console.log(subProjectData);
 
     let subProjectList = [];
     for (let i = 0; i < subProjectData.length; i++) {
@@ -656,7 +655,7 @@ exports.exportSubProjectToCsv = async (req, res) => {
 
       subProjectList.push(resJson);
     }
-    console.log(subProjectList);
+
     const fields = [
       { label: "Sr", value: "sr" },
       { label: "Keywords", value: "keywords" },
@@ -669,7 +668,7 @@ exports.exportSubProjectToCsv = async (req, res) => {
     const json2csvParser = new Json2csvParser({ fields });
     const csv = json2csvParser.parse(subProjectList);
 
-    const subProjectCSVFile = `${process.env.REPORTS_PATH}/csvFile.csv`;
+    const subProjectCSVFile = `${process.env.REPORTS_PATH}/subProjectCSVFile.csv`;
 
     fs.writeFile(subProjectCSVFile, csv, function (err) {
       if (err) throw err;
@@ -680,14 +679,8 @@ exports.exportSubProjectToCsv = async (req, res) => {
 
     setTimeout(() => {
       myFunc();
-    }, 1000);
+    }, 2000);
     return;
-
-    return res.status(200).send({
-      data: resultObj,
-      message: commonMessage.PROJECT.PROJECT_ANALYTICAL_DATA_SUCCESS,
-      status: true,
-    });
   } catch (error) {
     console.log("error in projectDashboard()=> ", error);
 
