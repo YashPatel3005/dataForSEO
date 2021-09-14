@@ -252,6 +252,53 @@ exports.getProjectsList = async (req, res) => {
   }
 };
 
+exports.exportProjectToCsv = async (req, res) => {
+  try {
+    const projectData = await Project.find({});
+
+    let projectList = [];
+    for (let i = 0; i < projectData.length; i++) {
+      const resJson = {};
+      resJson["sr"] = i + 1;
+      resJson["domain"] = projectData[i].domain;
+      resJson["projectName"] = projectData[i].projectName;
+
+      projectList.push(resJson);
+    }
+
+    const fields = [
+      { label: "Sr", value: "sr" },
+      { label: "Domain", value: "domain" },
+      { label: "Project Name", value: "projectName" },
+    ];
+
+    const json2csvParser = new Json2csvParser({ fields });
+    const csv = json2csvParser.parse(projectList);
+
+    const projectCSVFile = `${process.env.REPORTS_PATH}/projectCSVFile.csv`;
+
+    fs.writeFile(projectCSVFile, csv, function (err) {
+      if (err) throw err;
+    });
+    function myFunc() {
+      res.download(projectCSVFile);
+    }
+
+    setTimeout(() => {
+      myFunc();
+    }, 2000);
+    return;
+  } catch (error) {
+    console.log("error in exportProjectToCsv()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
 exports.getProjectsListDrpDwn = async (req, res) => {
   try {
     const result = await Project.find({})
@@ -682,7 +729,7 @@ exports.exportSubProjectToCsv = async (req, res) => {
     }, 2000);
     return;
   } catch (error) {
-    console.log("error in projectDashboard()=> ", error);
+    console.log("error in exportSubProjectToCsv()=> ", error);
 
     return res.status(400).send({
       data: {},
