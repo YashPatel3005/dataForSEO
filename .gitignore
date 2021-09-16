@@ -4,5 +4,6 @@
 
 # System Files
 /config/config.json
+/config/keys.json
 
 reports

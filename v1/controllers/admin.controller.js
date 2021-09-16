@@ -1,8 +1,10 @@
 const _ = require("lodash");
 const axios = require("axios");
 const fs = require("fs");
+const path = require("path");
 
 const Json2csvParser = require("json2csv").Parser;
+const { google } = require("googleapis");
 
 const commonMessage = require("../../helpers/commonMessage.helper");
 const dateFunc = require("../../helpers/dateFunctions.helper");
@@ -299,6 +301,96 @@ exports.exportProjectToCsv = async (req, res) => {
   }
 };
 
+exports.exportProjectToGoogleSheet = async (req, res) => {
+  try {
+    const projectData = await Project.find({});
+    const keyFilePath = path.resolve(__dirname, "../../config/keys.json");
+    const auth = new google.auth.GoogleAuth({
+      keyFile: keyFilePath, //the key file
+      //url to spreadsheets API
+      scopes: "https://www.googleapis.com/auth/spreadsheets",
+    });
+
+    const authClientObject = await auth.getClient();
+
+    const googleSheetsInstance = google.sheets({
+      version: "v4",
+      auth: authClientObject,
+    });
+    const spreadsheetId = "1cBMqvgTcsexM98JfroiOT3FTaGha3_ppfiurBL7WEs0";
+
+    let dataArr = [];
+    for (let i = 0; i < projectData.length; i++) {
+      dataArr.push([
+        `${i + 1}`,
+        `${projectData[i].projectName}`,
+        `${projectData[i].domain}`,
+      ]);
+    }
+    console.log(dataArr);
+
+    await googleSheetsInstance.spreadsheets.values.append({
+      auth, //auth object
+      spreadsheetId, //spreadsheet id
+      range: "Sheet1!A:C", //sheet name and range of cells
+      valueInputOption: "USER_ENTERED", // The information will be passed according to what the usere passes in as date, number or text
+      resource: {
+        values: dataArr,
+      },
+    });
+
+    const readData = await googleSheetsInstance.spreadsheets.values.get({
+      auth, //auth object
+      spreadsheetId, // spreadsheet id
+      range: "Sheet1!A:A", //range of cells to read from.
+    });
+
+    //send the data reae with the response
+    res.send(readData.data);
+
+    // let projectList = [];
+    // for (let i = 0; i < projectData.length; i++) {
+    //   const resJson = {};
+    //   resJson["sr"] = i + 1;
+    //   resJson["domain"] = projectData[i].domain;
+    //   resJson["projectName"] = projectData[i].projectName;
+
+    //   projectList.push(resJson);
+    // }
+
+    // const fields = [
+    //   { label: "Sr", value: "sr" },
+    //   { label: "Domain", value: "domain" },
+    //   { label: "Project Name", value: "projectName" },
+    // ];
+
+    // const json2csvParser = new Json2csvParser({ fields });
+    // const csv = json2csvParser.parse(projectList);
+
+    // const projectCSVFile = `${process.env.REPORTS_PATH}/projectCSVFile.csv`;
+
+    // fs.writeFile(projectCSVFile, csv, function (err) {
+    //   if (err) throw err;
+    // });
+    // function myFunc() {
+    //   res.download(projectCSVFile);
+    // }
+
+    // setTimeout(() => {
+    //   myFunc();
+    // }, 2000);
+    // return;
+  } catch (error) {
+    console.log("error in exportProjectToGoogleSheet()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
 exports.getProjectsListDrpDwn = async (req, res) => {
   try {
     const result = await Project.find({})
@@ -326,120 +418,157 @@ exports.addSubProject = async (req, res) => {
     const { keyword, domain, locationCode, keywordCheckFrequency, _projectId } =
       req.body;
 
-    let createTask = await axios({
-      method: "post",
-      url: "https://api.dataforseo.com/v3/serp/google/organic/task_post",
-      auth: {
-        username: process.env.SERP_API_USERNAME,
-        password: process.env.SERP_API_PASSWORD,
-      },
-      data: [
-        {
-          keyword: encodeURI(keyword),
-          location_code: locationCode,
-          language_code: "en",
-          // url: domain,
-          // depth: "100",
-          // se_domain: "google.com.au",
-        },
-      ],
-      headers: {
-        "content-type": "application/json",
-      },
+    let newData = {};
+
+    let currentDate = dateFunc.currentUtcTime();
+    console.log(currentDate);
+
+    let nextDate;
+    if (keywordCheckFrequency === appConstant.keywordCheckFrequency.weekly) {
+      nextDate = dateFunc.addDate(currentDate, 7, "days");
+      nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+      console.log(nextDate);
+    } else if (
+      keywordCheckFrequency === appConstant.keywordCheckFrequency.fortnightly
+    ) {
+      nextDate = dateFunc.addDate(currentDate, 15, "days");
+      nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+      console.log(nextDate);
+    } else {
+      nextDate = dateFunc.addDate(currentDate, 1, "months");
+      nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+      console.log(nextDate);
+    }
+
+    newData.keyword = keyword.join();
+    newData.domain = domain;
+    newData.locationCode = locationCode;
+    newData.keywordCheckFrequency = keywordCheckFrequency;
+    newData._projectId = _projectId;
+    newData.newInserted = true;
+
+    newData.currDate = dateFunc.getAfterMidnightTimeOfDate(currentDate);
+    newData.createdAt = currentDate;
+    newData.updatedAt = currentDate;
+
+    newData.nextDate = nextDate;
+
+    await SubProject.create(newData);
+
+    // let createTask = await axios({
+    //   method: "post",
+    //   url: "https://api.dataforseo.com/v3/serp/google/organic/task_post",
+    //   auth: {
+    //     username: process.env.SERP_API_USERNAME,
+    //     password: process.env.SERP_API_PASSWORD,
+    //   },
+    //   data: [
+    //     {
+    //       keyword: encodeURI(keyword),
+    //       location_code: locationCode,
+    //       language_code: "en",
+    //       // url: domain,
+    //       // depth: "100",
+    //       // se_domain: "google.com.au",
+    //     },
+    //   ],
+    //   headers: {
+    //     "content-type": "application/json",
+    //   },
+    // });
+
+    // async function getTask() {
+    //   let taskId = createTask.data.tasks[0].id;
+    //   console.log(taskId);
+
+    //   let getTaskData = await axios({
+    //     method: "get",
+    //     url:
+    //       "https://api.dataforseo.com/v3/serp/google/organic/task_get/regular/" +
+    //       taskId,
+    //     auth: {
+    //       username: process.env.SERP_API_USERNAME,
+    //       password: process.env.SERP_API_PASSWORD,
+    //     },
+    //     headers: {
+    //       "content-type": "application/json",
+    //     },
+    //   });
+
+    //   let items;
+    //   let result;
+    //   if (getTaskData.data.tasks) {
+    //     items = getTaskData.data.tasks[0].result[0].items;
+    //     for (let i of items) {
+    //       if (
+    //         getTaskData.data.tasks[0].result[0].type == "organic" &&
+    //         i.domain == domain
+    //       ) {
+    //         result = i;
+    //       }
+    //     }
+    //   }
+
+    //   let currentDate = dateFunc.currentUtcTime();
+    //   console.log(currentDate);
+
+    //   let nextDate;
+    //   if (keywordCheckFrequency === appConstant.keywordCheckFrequency.weekly) {
+    //     nextDate = dateFunc.addDate(currentDate, 7, "days");
+    //     nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+    //     console.log(nextDate);
+    //   } else if (
+    //     keywordCheckFrequency === appConstant.keywordCheckFrequency.fortnightly
+    //   ) {
+    //     nextDate = dateFunc.addDate(currentDate, 15, "days");
+    //     nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+    //     console.log(nextDate);
+    //   } else {
+    //     nextDate = dateFunc.addDate(currentDate, 1, "months");
+    //     nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+    //     console.log(nextDate);
+    //   }
+
+    //   if (result) {
+    //     result.keyword = getTaskData.data.tasks[0].result[0].keyword;
+    //     result.seDomain = getTaskData.data.tasks[0].result[0].se_domain;
+    //     result.locationCode = getTaskData.data.tasks[0].result[0].location_code;
+    //     result.languageCode = getTaskData.data.tasks[0].result[0].language_code;
+
+    //     result.currDate = dateFunc.getAfterMidnightTimeOfDate(currentDate);
+    //     result.createdAt = currentDate;
+    //     result.updatedAt = currentDate;
+
+    //     result.rankGroup = result.rank_group;
+    //     result.rankAbsolute = result.rank_absolute;
+
+    //     result.keywordCheckFrequency = keywordCheckFrequency;
+    //     result._projectId = _projectId;
+    //     result.nextDate = nextDate;
+
+    //     delete result.rank_group;
+    //     delete result.rank_absolute;
+    //     console.log(result);
+
+    //     await SubProject.create(result);
+    //   } else {
+    //     return res.status(400).send({
+    //       data: {},
+    //       message: commonMessage.TASK.VALID_DOMAIN,
+    //       status: false,
+    //     });
+    //   }
+
+    //}
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.SUB_PROJECT.ADD_SUB_PROJECT_SUCCESS,
+      status: true,
     });
 
-    async function getTask() {
-      let taskId = createTask.data.tasks[0].id;
-      console.log(taskId);
-
-      let getTaskData = await axios({
-        method: "get",
-        url:
-          "https://api.dataforseo.com/v3/serp/google/organic/task_get/regular/" +
-          taskId,
-        auth: {
-          username: process.env.SERP_API_USERNAME,
-          password: process.env.SERP_API_PASSWORD,
-        },
-        headers: {
-          "content-type": "application/json",
-        },
-      });
-
-      let items;
-      let result;
-      if (getTaskData.data.tasks) {
-        items = getTaskData.data.tasks[0].result[0].items;
-        for (let i of items) {
-          if (
-            getTaskData.data.tasks[0].result[0].type == "organic" &&
-            i.domain == domain
-          ) {
-            result = i;
-          }
-        }
-      }
-
-      let currentDate = dateFunc.currentUtcTime();
-      console.log(currentDate);
-
-      let nextDate;
-      if (keywordCheckFrequency === appConstant.keywordCheckFrequency.weekly) {
-        nextDate = dateFunc.addDate(currentDate, 7, "days");
-        nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
-        console.log(nextDate);
-      } else if (
-        keywordCheckFrequency === appConstant.keywordCheckFrequency.fortnightly
-      ) {
-        nextDate = dateFunc.addDate(currentDate, 15, "days");
-        nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
-        console.log(nextDate);
-      } else {
-        nextDate = dateFunc.addDate(currentDate, 1, "months");
-        nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
-        console.log(nextDate);
-      }
-
-      if (result) {
-        result.keyword = getTaskData.data.tasks[0].result[0].keyword;
-        result.seDomain = getTaskData.data.tasks[0].result[0].se_domain;
-        result.locationCode = getTaskData.data.tasks[0].result[0].location_code;
-        result.languageCode = getTaskData.data.tasks[0].result[0].language_code;
-
-        result.currDate = dateFunc.getAfterMidnightTimeOfDate(currentDate);
-        result.createdAt = currentDate;
-        result.updatedAt = currentDate;
-
-        result.rankGroup = result.rank_group;
-        result.rankAbsolute = result.rank_absolute;
-
-        result.keywordCheckFrequency = keywordCheckFrequency;
-        result._projectId = _projectId;
-        result.nextDate = nextDate;
-
-        delete result.rank_group;
-        delete result.rank_absolute;
-        console.log(result);
-
-        await SubProject.create(result);
-      } else {
-        return res.status(400).send({
-          data: {},
-          message: commonMessage.TASK.VALID_DOMAIN,
-          status: false,
-        });
-      }
-
-      return res.status(200).send({
-        data: {},
-        message: commonMessage.SUB_PROJECT.ADD_SUB_PROJECT_SUCCESS,
-        status: true,
-      });
-    }
-
-    if (createTask.data.status_code === 20000) {
-      setTimeout(getTask, 8000);
-    }
+    // if (createTask.data.status_code === 20000) {
+    //   setTimeout(getTask, 8000);
+    // }
   } catch (error) {
     console.log("error in addSubProject()=> ", error);
 

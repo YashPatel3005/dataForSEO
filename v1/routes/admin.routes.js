@@ -17,6 +17,7 @@ const {
   projectDashboard,
   exportSubProjectToCsv,
   exportProjectToCsv,
+  exportProjectToGoogleSheet,
 } = require("../controllers/admin.controller");
 
 const {
@@ -49,6 +50,8 @@ router.get("/projectList", getProjectsList);
 router.get("/projectDashboard", projectDashboard);
 
 router.get("/exportProjectToCsv", exportProjectToCsv);
+
+router.get("/exportProjectToGoogleSheet", exportProjectToGoogleSheet);
 
 //get Project list for dropdown
 router.get("/getProjectsListDrpDwn", getProjectsListDrpDwn);

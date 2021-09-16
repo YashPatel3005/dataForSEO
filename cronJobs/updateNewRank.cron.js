@@ -5,8 +5,9 @@ const SubProject = require("../models/subProject.model");
 const dateFunc = require("../helpers/dateFunctions.helper");
 const appConstant = require("../app.constant");
 
+//update new rank at 00:00 AM
 const updateNewRank = new CronJob({
-  cronTime: "* * * * *",
+  cronTime: "00 00 * * *",
   onTick: async () => {
     if (updateNewRank.taskRunning) {
       return;
@@ -21,19 +22,18 @@ const updateNewRank = new CronJob({
       console.log(currentDate);
 
       const subProjectList = await SubProject.find({ nextDate: currentDate });
+      console.log(subProjectList);
 
       if (subProjectList && subProjectList.length > 0) {
         for (let i = 0; i < subProjectList.length; i++) {
-          console.log(subProjectList[i]);
-
           const keyword = subProjectList[i].keyword;
           const locationCode = subProjectList[i].locationCode;
           const languageCode = subProjectList[i].languageCode;
           const domain = subProjectList[i].domain;
 
-          let createTask = await axios({
+          let seoData = await axios({
             method: "post",
-            url: "https://api.dataforseo.com/v3/serp/google/organic/task_post",
+            url: process.env.SERP_API,
             auth: {
               username: process.env.SERP_API_USERNAME,
               password: process.env.SERP_API_PASSWORD,
@@ -43,9 +43,6 @@ const updateNewRank = new CronJob({
                 keyword: encodeURI(keyword),
                 location_code: locationCode,
                 language_code: languageCode,
-                // url: domain,
-                // depth: "100",
-                // se_domain: "google.com.au",
               },
             ],
             headers: {
@@ -53,84 +50,61 @@ const updateNewRank = new CronJob({
             },
           });
 
-          async function getTask() {
-            let taskId = createTask.data.tasks[0].id;
-            console.log(taskId);
-
-            let getTaskData = await axios({
-              method: "get",
-              url:
-                "https://api.dataforseo.com/v3/serp/google/organic/task_get/regular/" +
-                taskId,
-              auth: {
-                username: process.env.SERP_API_USERNAME,
-                password: process.env.SERP_API_PASSWORD,
-              },
-              headers: {
-                "content-type": "application/json",
-              },
-            });
-
-            let items;
-            let result;
-            if (getTaskData.data.tasks) {
-              items = getTaskData.data.tasks[0].result[0].items;
-              for (let i of items) {
-                if (
-                  getTaskData.data.tasks[0].result[0].type == "organic" &&
-                  i.domain == domain
-                ) {
-                  result = i;
-                }
+          let items;
+          let result;
+          console.log(seoData.data.tasks);
+          if (seoData.data.tasks) {
+            items = seoData.data.tasks[0].result[0].items;
+            for (let item of items) {
+              if (
+                seoData.data.tasks[0].result[0].type == "organic" &&
+                item.domain == domain
+              ) {
+                result = item;
               }
-            }
-            console.log(result);
-
-            let nextDate;
-            if (
-              subProjectList[i].keywordCheckFrequency ===
-              appConstant.keywordCheckFrequency.weekly
-            ) {
-              nextDate = dateFunc.addDate(currentDate, 7, "days");
-              nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
-              console.log(nextDate);
-            } else if (
-              subProjectList[i].keywordCheckFrequency ===
-              appConstant.keywordCheckFrequency.fortnightly
-            ) {
-              nextDate = dateFunc.addDate(currentDate, 15, "days");
-              nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
-              console.log(nextDate);
-            } else {
-              nextDate = dateFunc.addDate(currentDate, 1, "months");
-              nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
-              console.log(nextDate);
-            }
-
-            if (result) {
-              let newObj = {};
-
-              newObj.rankGroup = result.rank_group;
-              newObj.rankAbsolute = result.rank_absolute;
-
-              newObj.prevDate = subProjectList[i].currDate;
-              newObj.prevRankAbsolute = subProjectList[i].rankAbsolute;
-
-              newObj.currDate = currentDate;
-              newObj.nextDate = nextDate;
-
-              newObj.updatedAt = dateFunc.currentUtcTime();
-              console.log(newObj);
-
-              await SubProject.updateOne(
-                { _id: subProjectList[i].id },
-                { $set: newObj }
-              );
             }
           }
 
-          if (createTask.data.status_code === 20000) {
-            setTimeout(getTask, 15000);
+          let nextDate;
+          if (
+            subProjectList[i].keywordCheckFrequency ===
+            appConstant.keywordCheckFrequency.weekly
+          ) {
+            nextDate = dateFunc.addDate(currentDate, 7, "days");
+            nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+            console.log(nextDate);
+          } else if (
+            subProjectList[i].keywordCheckFrequency ===
+            appConstant.keywordCheckFrequency.fortnightly
+          ) {
+            nextDate = dateFunc.addDate(currentDate, 15, "days");
+            nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+            console.log(nextDate);
+          } else {
+            nextDate = dateFunc.addDate(currentDate, 1, "months");
+            nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+            console.log(nextDate);
+          }
+
+          if (result) {
+            let newObj = {};
+
+            newObj.rankGroup = result.rank_group;
+            newObj.rankAbsolute = result.rank_absolute;
+
+            newObj.prevDate = subProjectList[i].currDate;
+            newObj.prevRankAbsolute = subProjectList[i].rankAbsolute;
+
+            newObj.currDate = currentDate;
+            newObj.nextDate = nextDate;
+
+            newObj.updatedAt = dateFunc.currentUtcTime();
+            console.log(newObj);
+
+            await SubProject.updateOne(
+              { _id: subProjectList[i].id },
+              { $set: newObj }
+            );
           }
         }
       }
@@ -140,5 +114,4 @@ const updateNewRank = new CronJob({
     updateNewRank.taskRunning = false;
   },
   start: true,
-  timeZone: "UTC",
 });

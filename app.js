@@ -21,7 +21,9 @@ middleWares(app);
 app.use("/api/v1", require("./v1/routes/index.routes"));
 
 // require("./cronJobs/removeLastWeekData.cron");
-// require("./cronJobs/updateNewRank.cron");
+require("./cronJobs/updateNewRank.cron");
+require("./cronJobs/removeOldData.cron");
+require("./cronJobs/updateNewAddedSerpData.cron");
 
 if (process.env.STAGE == "LIVE") {
   // let options = {

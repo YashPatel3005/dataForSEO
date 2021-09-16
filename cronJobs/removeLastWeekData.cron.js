@@ -83,5 +83,5 @@ const removeLastWeekData = new CronJob({
     removeLastWeekData.taskRunning = false;
   },
   start: true,
-  timeZone: "UTC",
+  // timeZone: "UTC",
 });

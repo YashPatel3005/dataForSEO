@@ -75,6 +75,18 @@ let subProjectSchema = new mongoose.Schema({
     ref: "Project",
     default: null,
   },
+  newInserted: {
+    type: Boolean,
+    default: null,
+  },
+  error: {
+    type: Boolean,
+    default: null,
+  },
+  errorMessage: {
+    type: String,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: null,
