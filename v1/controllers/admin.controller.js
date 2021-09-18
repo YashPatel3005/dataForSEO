@@ -4,7 +4,6 @@ const fs = require("fs");
 const path = require("path");
 
 const Json2csvParser = require("json2csv").Parser;
-const { google } = require("googleapis");
 
 const commonMessage = require("../../helpers/commonMessage.helper");
 const commonFunction = require("../../helpers/commonFunction.helper");
