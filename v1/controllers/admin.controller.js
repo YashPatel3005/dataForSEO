@@ -311,10 +311,11 @@ exports.exportProjectToGoogleSheet = async (req, res) => {
     if (projectData && projectData.length > 0) {
       const sheetHeading = [["Sr No", "Project Name", "Domain"]];
       const sheetTitle = "Project List";
-
+      const defineSheet = "Sheet1!A1:D1";
       const data = await commonFunction.generateGoogleSheet(
         sheetTitle,
-        sheetHeading
+        sheetHeading,
+        defineSheet
       );
 
       let sheetId = data.sheetId;
@@ -824,6 +825,73 @@ exports.exportSubProjectToCsv = async (req, res) => {
     return;
   } catch (error) {
     console.log("error in exportSubProjectToCsv()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.exportSubProjectToGoogleSheet = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const subProjectData = await SubProject.find({ _projectId: id });
+
+    if (subProjectData && subProjectData.length > 0) {
+      const sheetHeading = [
+        [
+          "Sr No",
+          "Keywords",
+          "Previous ranking",
+          "Current ranking",
+          "Difference",
+          "URL",
+        ],
+      ];
+      const sheetTitle = "Sub Project List";
+      const defineSheet = "Sheet1!A1:F1";
+      const data = await commonFunction.generateGoogleSheet(
+        sheetTitle,
+        sheetHeading,
+        defineSheet
+      );
+
+      let sheetId = data.sheetId;
+
+      const accessToken = await commonFunction.refreshToken();
+
+      let sheetBody = [];
+
+      for (let i = 0; i < subProjectData.length; i++) {
+        sheetBody.push([
+          `${i + 1}`,
+          subProjectData[i].keyword,
+          subProjectData[i].prevRankAbsolute,
+          subProjectData[i].rankAbsolute,
+          subProjectData[i].rankAbsolute - subProjectData[i].prevRankAbsolute,
+          subProjectData[i].url,
+        ]);
+      }
+
+      await commonFunction.appendDataInSheet(accessToken, sheetId, sheetBody);
+
+      return res.status(200).send({
+        data: data,
+        message:
+          commonMessage.SUB_PROJECT.SUB_PROJECT_EXPORT_TO_GOOGLE_SHEET_SUCCESS,
+        status: true,
+      });
+    } else {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.ERROR_MESSAGE.NO_DATA_FOUND,
+        status: false,
+      });
+    }
+  } catch (error) {
+    console.log("error in exportSubProjectToGoogleSheet()=> ", error);
 
     return res.status(400).send({
       data: {},

@@ -18,6 +18,7 @@ const {
   exportSubProjectToCsv,
   exportProjectToCsv,
   exportProjectToGoogleSheet,
+  exportSubProjectToGoogleSheet,
 } = require("../controllers/admin.controller");
 
 const {
@@ -66,4 +67,5 @@ router.get("/subProjectDashboard/:id", subProjectDashboard);
 
 router.get("/exportSubProjectToCsv/:id", exportSubProjectToCsv);
 
+router.get("/exportSubProjectToGoogleSheet/:id", exportSubProjectToGoogleSheet);
 module.exports = router;

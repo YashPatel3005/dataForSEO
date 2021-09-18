@@ -44,7 +44,7 @@ exports.refreshToken = async (req, res) => {
   }
 };
 
-exports.generateGoogleSheet = async (sheetTitle, sheetHeading) => {
+exports.generateGoogleSheet = async (sheetTitle, sheetHeading, defineSheet) => {
   try {
     let sheetURL;
 
@@ -103,9 +103,8 @@ exports.generateGoogleSheet = async (sheetTitle, sheetHeading) => {
       body3
     );
 
-    // console.log(response3);
-
-    let url4 = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/Sheet1!A1:D1?valueInputOption=USER_ENTERED`;
+    let defineSheet = "Sheet1!A1:F1";
+    let url4 = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${defineSheet}?valueInputOption=USER_ENTERED`;
     body4 = {
       values: sheetHeading,
     };
