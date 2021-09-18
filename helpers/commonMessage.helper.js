@@ -7,7 +7,7 @@ module.exports = {
     // FETCH_ERROR: "Something went wrong while fetching data.",
     // ID_NOT_FOUND: "Id not found",
     // NO_RECORDS_FOUND: "No records found.",
-    // NO_DATA_FOUND: "No data found.",
+    NO_DATA_FOUND: "No data found.",
   },
   TASK: {
     KEYWORD_ADDED: "Keyword successfully added.",
@@ -28,6 +28,8 @@ module.exports = {
     PROJECT_FETCH_SUCCESS: "Project list fetched successfully.",
     PROJECT_ANALYTICAL_DATA_SUCCESS:
       "Projects analytical data fetched successfully.",
+    PROJECT_EXPORT_TO_GOOGLE_SHEET_SUCCESS:
+      "Project list has been successfully exported to google sheet.",
   },
   SUB_PROJECT: {
     ADD_SUB_PROJECT_SUCCESS: "Sub project created successfully.",
@@ -35,5 +37,7 @@ module.exports = {
     DELETE_SUB_PROJECT_SUCCESS: "Sub project deleted successfully.",
     SUB_PROJECT_ANALYTICAL_DATA_SUCCESS:
       "Sub projects analytical data fetched successfully.",
+    SUB_PROJECT_EXPORT_TO_GOOGLE_SHEET_SUCCESS:
+      "Sub project list has been successfully exported to google sheet.",
   },
 };

@@ -7,7 +7,10 @@ const Json2csvParser = require("json2csv").Parser;
 const { google } = require("googleapis");
 
 const commonMessage = require("../../helpers/commonMessage.helper");
+const commonFunction = require("../../helpers/commonFunction.helper");
+
 const dateFunc = require("../../helpers/dateFunctions.helper");
+const requestHelper = require("../../helpers/requestHelper.helper");
 
 const Admin = require("../../models/admin.model");
 const Project = require("../../models/project.model");
@@ -304,82 +307,44 @@ exports.exportProjectToCsv = async (req, res) => {
 exports.exportProjectToGoogleSheet = async (req, res) => {
   try {
     const projectData = await Project.find({});
-    const keyFilePath = path.resolve(__dirname, "../../config/keys.json");
-    const auth = new google.auth.GoogleAuth({
-      keyFile: keyFilePath, //the key file
-      //url to spreadsheets API
-      scopes: "https://www.googleapis.com/auth/spreadsheets",
-    });
 
-    const authClientObject = await auth.getClient();
+    if (projectData && projectData.length > 0) {
+      const sheetHeading = [["Sr No", "Project Name", "Domain"]];
+      const sheetTitle = "Project List";
 
-    const googleSheetsInstance = google.sheets({
-      version: "v4",
-      auth: authClientObject,
-    });
-    const spreadsheetId = "1cBMqvgTcsexM98JfroiOT3FTaGha3_ppfiurBL7WEs0";
+      const data = await commonFunction.generateGoogleSheet(
+        sheetTitle,
+        sheetHeading
+      );
 
-    let dataArr = [];
-    for (let i = 0; i < projectData.length; i++) {
-      dataArr.push([
-        `${i + 1}`,
-        `${projectData[i].projectName}`,
-        `${projectData[i].domain}`,
-      ]);
+      let sheetId = data.sheetId;
+
+      const accessToken = await commonFunction.refreshToken();
+
+      let sheetBody = [];
+
+      for (let i = 0; i < projectData.length; i++) {
+        sheetBody.push([
+          `${i + 1}`,
+          projectData[i].projectName,
+          projectData[i].domain,
+        ]);
+      }
+
+      await commonFunction.appendDataInSheet(accessToken, sheetId, sheetBody);
+
+      return res.status(200).send({
+        data: data,
+        message: commonMessage.PROJECT.PROJECT_EXPORT_TO_GOOGLE_SHEET_SUCCESS,
+        status: true,
+      });
+    } else {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.ERROR_MESSAGE.NO_DATA_FOUND,
+        status: false,
+      });
     }
-    console.log(dataArr);
-
-    await googleSheetsInstance.spreadsheets.values.append({
-      auth, //auth object
-      spreadsheetId, //spreadsheet id
-      range: "Sheet1!A:C", //sheet name and range of cells
-      valueInputOption: "USER_ENTERED", // The information will be passed according to what the usere passes in as date, number or text
-      resource: {
-        values: dataArr,
-      },
-    });
-
-    const readData = await googleSheetsInstance.spreadsheets.values.get({
-      auth, //auth object
-      spreadsheetId, // spreadsheet id
-      range: "Sheet1!A:A", //range of cells to read from.
-    });
-
-    //send the data reae with the response
-    res.send(readData.data);
-
-    // let projectList = [];
-    // for (let i = 0; i < projectData.length; i++) {
-    //   const resJson = {};
-    //   resJson["sr"] = i + 1;
-    //   resJson["domain"] = projectData[i].domain;
-    //   resJson["projectName"] = projectData[i].projectName;
-
-    //   projectList.push(resJson);
-    // }
-
-    // const fields = [
-    //   { label: "Sr", value: "sr" },
-    //   { label: "Domain", value: "domain" },
-    //   { label: "Project Name", value: "projectName" },
-    // ];
-
-    // const json2csvParser = new Json2csvParser({ fields });
-    // const csv = json2csvParser.parse(projectList);
-
-    // const projectCSVFile = `${process.env.REPORTS_PATH}/projectCSVFile.csv`;
-
-    // fs.writeFile(projectCSVFile, csv, function (err) {
-    //   if (err) throw err;
-    // });
-    // function myFunc() {
-    //   res.download(projectCSVFile);
-    // }
-
-    // setTimeout(() => {
-    //   myFunc();
-    // }, 2000);
-    // return;
   } catch (error) {
     console.log("error in exportProjectToGoogleSheet()=> ", error);
 
