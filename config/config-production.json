@@ -1,28 +1,26 @@
 {
-    "server":{
-        "bodyParser":{
-            "limit":"500kb"
-        },
-        "security": {
-			"enableCSP": true,
-			"enableDPC": true,
-			"enableExpectCt": true,
-			"enableXframe": true,
-			"enableHidePoweredBy": true,
-			"enableHSTS": true,
-			"enableIENoOpen": true,
-			"enableNoSniff": true,
-			"enablePermittedCrossDomainPolicies": true,
-			"enableReferrerPolicy": true,
-			"enableXssFilter": true
-		},
-        "CORS": {
-			"allowedHosts": [
-				"http://localhost:3000"
-			],
-			"allowedMethods": "GET,POST,PUT,OPTIONS",
-			"allowedHeaders": "accept, x-xsrf-token,content-type, x-location, certificate",
-			"exposedHeaders": "XSRF-TOKEN"
-		}
+  "server": {
+    "bodyParser": {
+      "limit": "500kb"
+    },
+    "security": {
+      "enableCSP": true,
+      "enableDPC": true,
+      "enableExpectCt": true,
+      "enableXframe": true,
+      "enableHidePoweredBy": true,
+      "enableHSTS": true,
+      "enableIENoOpen": true,
+      "enableNoSniff": true,
+      "enablePermittedCrossDomainPolicies": true,
+      "enableReferrerPolicy": true,
+      "enableXssFilter": true
+    },
+    "CORS": {
+      "allowedHosts": ["http://3.26.55.39:3001", "http://localhost:3001"],
+      "allowedMethods": "GET,POST,PUT,DELETE,OPTIONS",
+      "allowedHeaders": "accept, x-xsrf-token,content-type, x-location, certificate",
+      "exposedHeaders": "XSRF-TOKEN"
     }
+  }
 }

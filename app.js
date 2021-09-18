@@ -4,6 +4,7 @@ const app = express();
 
 const https = require("https");
 const http = require("http");
+const fs = require("fs");
 
 const middleWares = require("./middleware/index.middleware");
 
@@ -19,7 +20,10 @@ middleWares(app);
 // VERSION 1:
 app.use("/api/v1", require("./v1/routes/index.routes"));
 
-require("./cronJobs/removeLastWeekData.cron");
+// require("./cronJobs/removeLastWeekData.cron");
+require("./cronJobs/updateNewRank.cron");
+require("./cronJobs/removeOldData.cron");
+require("./cronJobs/updateNewAddedSerpData.cron");
 
 if (process.env.STAGE == "LIVE") {
   // let options = {
@@ -69,6 +73,11 @@ if (env == "development") {
       e: err,
     });
   });
+}
+
+let reportsDirectory = "reports";
+if (fs.existsSync(reportsDirectory) == false) {
+  fs.mkdirSync(reportsDirectory);
 }
 
 module.exports = { app };

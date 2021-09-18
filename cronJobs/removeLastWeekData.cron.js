@@ -1,6 +1,6 @@
 const CronJob = require("cron").CronJob;
 const Task = require("../models/task.model");
-const dateFunction = require("../helpers/dateFunctions.helper.");
+const dateFunction = require("../helpers/dateFunctions.helper");
 
 //Run cron on every monday
 //0 0 * * MON
@@ -83,5 +83,5 @@ const removeLastWeekData = new CronJob({
     removeLastWeekData.taskRunning = false;
   },
   start: true,
-  timeZone: "UTC",
+  // timeZone: "UTC",
 });

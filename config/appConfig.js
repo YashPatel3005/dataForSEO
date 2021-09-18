@@ -78,12 +78,12 @@ let config = convict({
       allowedHosts: {
         doc: "Allowed Host for CORS",
         format: Array,
-        default: ["http://localhost:3000"],
+        default: ["http://localhost:3001", "http://3.26.55.39:3001"],
       },
       allowedMethods: {
         doc: "Allowed HTTP Methods for CORS",
         format: String,
-        default: "GET,POST,PUT,OPTIONS",
+        default: "GET,POST,PUT,DELETE,OPTIONS",
       },
       allowedHeaders: {
         doc: "Allowed HTTP Headers for CORS",
