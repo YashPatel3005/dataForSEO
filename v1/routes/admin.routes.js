@@ -19,6 +19,7 @@ const {
   exportProjectToCsv,
   exportProjectToGoogleSheet,
   exportSubProjectToGoogleSheet,
+  getKeywords,
 } = require("../controllers/admin.controller");
 
 const {
@@ -38,6 +39,7 @@ router.post("/login", loginValidator, validatorFunc, login);
 //   createUser
 // );
 
+//Project
 router.post("/addProject", projectValidator, validatorFunc, addProject);
 
 router.put("/editProject/:id", projectValidator, validatorFunc, editProject);
@@ -57,6 +59,7 @@ router.get("/exportProjectToGoogleSheet", exportProjectToGoogleSheet);
 //get Project list for dropdown
 router.get("/getProjectsListDrpDwn", getProjectsListDrpDwn);
 
+//Sub Project
 router.post("/addSubProject", addSubProject);
 
 router.get("/getSubProjectsList/:id", getSubProjectsList);
@@ -68,4 +71,8 @@ router.get("/subProjectDashboard/:id", subProjectDashboard);
 router.get("/exportSubProjectToCsv/:id", exportSubProjectToCsv);
 
 router.get("/exportSubProjectToGoogleSheet/:id", exportSubProjectToGoogleSheet);
+
+//Keyword
+router.get("/getKeywords/:id", getKeywords);
+
 module.exports = router;

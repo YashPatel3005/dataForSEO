@@ -5,22 +5,22 @@ let subProjectSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  type: {
-    type: String,
-    default: null,
-  },
-  seDomain: {
-    type: String,
-    default: null,
-  },
+  // type: {
+  //   type: String,
+  //   default: null,
+  // },
+  // seDomain: {
+  //   type: String,
+  //   default: null,
+  // },
   locationCode: {
     type: Number,
     default: null,
   },
-  languageCode: {
-    type: String,
-    default: null,
-  },
+  // languageCode: {
+  //   type: String,
+  //   default: null,
+  // },
   prevDate: {
     type: Date,
     default: null,
@@ -34,18 +34,18 @@ let subProjectSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
-  prevRankAbsolute: {
-    type: Number,
-    default: null,
-  },
-  rankAbsolute: {
-    type: Number,
-    default: null,
-  },
-  rankGroup: {
-    type: Number,
-    default: null,
-  },
+  // prevRankAbsolute: {
+  //   type: Number,
+  //   default: null,
+  // },
+  // rankAbsolute: {
+  //   type: Number,
+  //   default: null,
+  // },
+  // rankGroup: {
+  //   type: Number,
+  //   default: null,
+  // },
   domain: {
     type: String,
     default: null,
@@ -54,22 +54,22 @@ let subProjectSchema = new mongoose.Schema({
     type: Number,
     default: 0, // 0 - weekly 1 - Fortnightly 2 - monthly
   },
-  title: {
-    type: String,
-    default: null,
-  },
-  description: {
-    type: String,
-    default: null,
-  },
-  url: {
-    type: String,
-    default: null,
-  },
-  breadcrumb: {
-    type: String,
-    default: null,
-  },
+  // title: {
+  //   type: String,
+  //   default: null,
+  // },
+  // description: {
+  //   type: String,
+  //   default: null,
+  // },
+  // url: {
+  //   type: String,
+  //   default: null,
+  // },
+  // breadcrumb: {
+  //   type: String,
+  //   default: null,
+  // },
   _projectId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Project",
@@ -79,14 +79,14 @@ let subProjectSchema = new mongoose.Schema({
     type: Boolean,
     default: null,
   },
-  error: {
-    type: Boolean,
-    default: null,
-  },
-  errorMessage: {
-    type: String,
-    default: null,
-  },
+  // error: {
+  //   type: Boolean,
+  //   default: null,
+  // },
+  // errorMessage: {
+  //   type: String,
+  //   default: null,
+  // },
   createdAt: {
     type: Date,
     default: null,

@@ -40,4 +40,7 @@ module.exports = {
     SUB_PROJECT_EXPORT_TO_GOOGLE_SHEET_SUCCESS:
       "Sub project list has been successfully exported to google sheet.",
   },
+  KEYWORD: {
+    KEYWORD_FETCH_SUCCESS: "Keywords list fetched successfully.",
+  },
 };

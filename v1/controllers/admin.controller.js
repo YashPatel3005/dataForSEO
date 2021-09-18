@@ -14,6 +14,8 @@ const requestHelper = require("../../helpers/requestHelper.helper");
 const Admin = require("../../models/admin.model");
 const Project = require("../../models/project.model");
 const SubProject = require("../../models/subProject.model");
+const Keyword = require("../../models/keywords.model");
+
 const appConstant = require("../../app.constant");
 
 exports.login = async (req, res) => {
@@ -188,6 +190,10 @@ exports.deleteProject = async (req, res) => {
     });
 
     await SubProject.deleteMany({
+      _projectId: id,
+    });
+
+    await Keyword.deleteMany({
       _projectId: id,
     });
 
@@ -418,8 +424,13 @@ exports.addSubProject = async (req, res) => {
 
     newData.nextDate = nextDate;
 
-    await SubProject.create(newData);
+    const subProjectData = await SubProject.create(newData);
 
+    return res.status(200).send({
+      data: subProjectData,
+      message: commonMessage.SUB_PROJECT.ADD_SUB_PROJECT_SUCCESS,
+      status: true,
+    });
     // let createTask = await axios({
     //   method: "post",
     //   url: "https://api.dataforseo.com/v3/serp/google/organic/task_post",
@@ -525,11 +536,6 @@ exports.addSubProject = async (req, res) => {
     //   }
 
     //}
-    return res.status(200).send({
-      data: {},
-      message: commonMessage.SUB_PROJECT.ADD_SUB_PROJECT_SUCCESS,
-      status: true,
-    });
 
     // if (createTask.data.status_code === 20000) {
     //   setTimeout(getTask, 8000);
@@ -612,6 +618,10 @@ exports.deleteSubProject = async (req, res) => {
 
     await SubProject.deleteOne({
       _id: id,
+    });
+
+    await Keyword.deleteOne({
+      _subProjectId: id,
     });
 
     return res.status(200).send({
@@ -891,6 +901,67 @@ exports.exportSubProjectToGoogleSheet = async (req, res) => {
     // }
   } catch (error) {
     console.log("error in exportSubProjectToGoogleSheet()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.getKeywords = async (req, res) => {
+  try {
+    let id = req.params.id;
+    let { limit, page } = req.query;
+
+    limit = parseInt(limit) || 10;
+    page = parseInt(page) || 1;
+
+    // SORTING STARTS
+    let field;
+    let value;
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(":");
+      field = sortBy[0];
+      if (sortBy[1] == "asc") {
+        value = 1;
+      } else {
+        value = -1;
+      }
+    } else {
+      field = "createdAt";
+      value = -1;
+    }
+    // SORTING ENDS
+
+    let projection = {
+      breadcrumb: 0,
+      languageCode: 0,
+      seDomain: 0,
+      type: 0,
+      description: 0,
+      title: 0,
+    };
+
+    let query = { _subProjectId: id };
+
+    const result = await Keyword.find(query, projection)
+      .collation({ locale: "en" })
+      .sort({ [field]: value })
+      .skip(limit * (page - 1))
+      .limit(limit)
+      .lean();
+
+    let total = await Keyword.countDocuments(query);
+
+    return res.status(200).send({
+      data: { result, total, limit, page },
+      message: commonMessage.KEYWORD.KEYWORD_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in getKeywords()=> ", error);
 
     return res.status(400).send({
       data: {},

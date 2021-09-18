@@ -2,6 +2,7 @@ const CronJob = require("cron").CronJob;
 const axios = require("axios");
 
 const SubProject = require("../models/subProject.model");
+const Keyword = require("../models/keywords.model");
 const dateFunc = require("../helpers/dateFunctions.helper");
 const appConstant = require("../app.constant");
 
@@ -26,44 +27,9 @@ const updateNewRank = new CronJob({
 
       if (subProjectList && subProjectList.length > 0) {
         for (let i = 0; i < subProjectList.length; i++) {
-          const keyword = subProjectList[i].keyword;
-          const locationCode = subProjectList[i].locationCode;
-          const languageCode = subProjectList[i].languageCode;
-          const domain = subProjectList[i].domain;
-
-          let seoData = await axios({
-            method: "post",
-            url: process.env.SERP_API,
-            auth: {
-              username: process.env.SERP_API_USERNAME,
-              password: process.env.SERP_API_PASSWORD,
-            },
-            data: [
-              {
-                keyword: encodeURI(keyword),
-                location_code: locationCode,
-                language_code: languageCode,
-              },
-            ],
-            headers: {
-              "content-type": "application/json",
-            },
+          const keywords = await Keyword.find({
+            _subProjectId: subProjectList[i]._id,
           });
-
-          let items;
-          let result;
-          console.log(seoData.data.tasks);
-          if (seoData.data.tasks) {
-            items = seoData.data.tasks[0].result[0].items;
-            for (let item of items) {
-              if (
-                seoData.data.tasks[0].result[0].type == "organic" &&
-                item.domain == domain
-              ) {
-                result = item;
-              }
-            }
-          }
 
           let nextDate;
           if (
@@ -86,26 +52,78 @@ const updateNewRank = new CronJob({
             console.log(nextDate);
           }
 
-          if (result) {
-            let newObj = {};
+          for (let k = 0; k < keywords.length; k++) {
+            const keyword = keywords[k].keyword;
+            const locationCode = keywords[k].locationCode;
+            const languageCode = keywords[k].languageCode;
+            const domain = keywords[k].domain;
 
-            newObj.rankGroup = result.rank_group;
-            newObj.rankAbsolute = result.rank_absolute;
+            let seoData = await axios({
+              method: "post",
+              url: process.env.SERP_API,
+              auth: {
+                username: process.env.SERP_API_USERNAME,
+                password: process.env.SERP_API_PASSWORD,
+              },
+              data: [
+                {
+                  keyword: encodeURI(keyword),
+                  location_code: locationCode,
+                  language_code: languageCode,
+                },
+              ],
+              headers: {
+                "content-type": "application/json",
+              },
+            });
 
-            newObj.prevDate = subProjectList[i].currDate;
-            newObj.prevRankAbsolute = subProjectList[i].rankAbsolute;
+            let items;
+            let result;
+            console.log(seoData.data.tasks);
+            if (seoData.data.tasks) {
+              items = seoData.data.tasks[0].result[0].items;
+              for (let item of items) {
+                if (
+                  seoData.data.tasks[0].result[0].type == "organic" &&
+                  item.domain == domain
+                ) {
+                  result = item;
+                }
+              }
+            }
 
-            newObj.currDate = currentDate;
-            newObj.nextDate = nextDate;
+            if (result) {
+              let newObj = {};
 
-            newObj.updatedAt = dateFunc.currentUtcTime();
-            console.log(newObj);
+              newObj.rankGroup = result.rank_group;
+              newObj.rankAbsolute = result.rank_absolute;
 
-            await SubProject.updateOne(
-              { _id: subProjectList[i].id },
-              { $set: newObj }
-            );
+              newObj.prevDate = keywords[k].currDate;
+              newObj.prevRankAbsolute = keywords[k].rankAbsolute;
+
+              newObj.currDate = currentDate;
+              newObj.nextDate = nextDate;
+
+              newObj.updatedAt = dateFunc.currentUtcTime();
+              console.log(newObj);
+
+              await Keyword.updateOne(
+                { _id: keywords[k]._id },
+                { $set: newObj }
+              );
+            }
           }
+
+          let subProjectObj = {};
+          subProjectObj.prevDate = subProjectList[i].currDate;
+          subProjectObj.currDate = currentDate;
+          subProjectObj.nextDate = nextDate;
+          subProjectObj.updatedAt = dateFunc.currentUtcTime();
+
+          await SubProject.updateOne(
+            { _id: subProjectList[i].id },
+            { $set: subProjectObj }
+          );
         }
       }
     } catch (error) {
