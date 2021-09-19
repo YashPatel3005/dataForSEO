@@ -22,6 +22,7 @@ const {
   getKeywords,
   exportKeywordsToCsv,
   exportKeywordsToGoogleSheet,
+  keywordDashboard,
 } = require("../controllers/admin.controller");
 
 const {
@@ -76,6 +77,8 @@ router.get("/exportSubProjectToGoogleSheet/:id", exportSubProjectToGoogleSheet);
 
 //Keyword
 router.get("/getKeywords/:id", getKeywords);
+
+router.get("/keywordDashboard/:id", keywordDashboard);
 
 router.get("/exportKeywordsToCsv/:id", exportKeywordsToCsv);
 

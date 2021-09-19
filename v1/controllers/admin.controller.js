@@ -644,7 +644,7 @@ exports.subProjectDashboard = async (req, res) => {
   try {
     let id = req.params.id;
 
-    const subProjectData = await SubProject.find({ _projectId: id });
+    const keywordData = await Keyword.find({ _projectId: id });
 
     let resultObj = {};
     let topSpot = 0;
@@ -655,58 +655,58 @@ exports.subProjectDashboard = async (req, res) => {
     let fiftyOneToHundred = 0;
     let outOfTopHundred = 0;
 
-    if (subProjectData && subProjectData.length > 0) {
-      for (let i = 0; i < subProjectData.length; i++) {
+    if (keywordData && keywordData.length > 0) {
+      for (let i = 0; i < keywordData.length; i++) {
         //top spot
-        if (subProjectData[i].rankAbsolute === 1) {
+        if (keywordData[i].rankAbsolute === 1) {
           topSpot = topSpot + 1;
         }
 
         // top three 1-3
-        if (subProjectData[i].rankAbsolute <= 3) {
+        if (keywordData[i].rankAbsolute <= 3) {
           topThree = topThree + 1;
         }
 
         //4 to 10
         if (
-          subProjectData[i].rankAbsolute > 3 &&
-          subProjectData[i].rankAbsolute <= 10
+          keywordData[i].rankAbsolute > 3 &&
+          keywordData[i].rankAbsolute <= 10
         ) {
           fourToTen = fourToTen + 1;
         }
 
         //11 to 20
         if (
-          subProjectData[i].rankAbsolute > 10 &&
-          subProjectData[i].rankAbsolute <= 20
+          keywordData[i].rankAbsolute > 10 &&
+          keywordData[i].rankAbsolute <= 20
         ) {
           elevenToTwenty = elevenToTwenty + 1;
         }
 
         //21 to 50
         if (
-          subProjectData[i].rankAbsolute > 20 &&
-          subProjectData[i].rankAbsolute <= 50
+          keywordData[i].rankAbsolute > 20 &&
+          keywordData[i].rankAbsolute <= 50
         ) {
           twentyOneToFifty = twentyOneToFifty + 1;
         }
 
         //51 to 100
         if (
-          subProjectData[i].rankAbsolute > 50 &&
-          subProjectData[i].rankAbsolute <= 100
+          keywordData[i].rankAbsolute > 50 &&
+          keywordData[i].rankAbsolute <= 100
         ) {
           fiftyOneToHundred = fiftyOneToHundred + 1;
         }
 
         //100+
-        if (subProjectData[i].rankAbsolute > 100) {
+        if (keywordData[i].rankAbsolute > 100) {
           outOfTopHundred = outOfTopHundred + 1;
         }
       }
     }
 
-    resultObj.totalKeywords = subProjectData.length;
+    resultObj.totalKeywords = keywordData.length;
     resultObj.topSpot = topSpot;
     resultObj.topThree = topThree;
     resultObj.fourToTen = fourToTen;
@@ -735,7 +735,7 @@ exports.subProjectDashboard = async (req, res) => {
 
 exports.projectDashboard = async (req, res) => {
   try {
-    const subProjectData = await SubProject.find({});
+    const keywordData = await Keyword.find({});
 
     let resultObj = {};
     let topSpot = 0;
@@ -743,30 +743,30 @@ exports.projectDashboard = async (req, res) => {
     let topThirty = 0;
     let topHundred = 0;
 
-    if (subProjectData && subProjectData.length > 0) {
-      for (let i = 0; i < subProjectData.length; i++) {
+    if (keywordData && keywordData.length > 0) {
+      for (let i = 0; i < keywordData.length; i++) {
         //top spot
-        if (subProjectData[i].rankAbsolute === 1) {
+        if (keywordData[i].rankAbsolute === 1) {
           topSpot = topSpot + 1;
         }
         // top 10
-        if (subProjectData[i].rankAbsolute <= 10) {
+        if (keywordData[i].rankAbsolute <= 10) {
           topTen = topTen + 1;
         }
 
         //top 30
-        if (subProjectData[i].rankAbsolute <= 30) {
+        if (keywordData[i].rankAbsolute <= 30) {
           topThirty = topThirty + 1;
         }
 
         //top 100
-        if (subProjectData[i].rankAbsolute <= 100) {
+        if (keywordData[i].rankAbsolute <= 100) {
           topHundred = topHundred + 1;
         }
       }
     }
 
-    resultObj.totalKeywords = subProjectData.length;
+    resultObj.totalKeywords = keywordData.length;
     resultObj.topSpot = topSpot;
     resultObj.topTen = topTen;
     resultObj.topThirty = topThirty;
@@ -1172,6 +1172,98 @@ exports.exportKeywordsToGoogleSheet = async (req, res) => {
     // }
   } catch (error) {
     console.log("error in exportKeywordsToGoogleSheet()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.keywordDashboard = async (req, res) => {
+  try {
+    let id = req.params.id;
+    const keywordsData = await Keyword.find({ _subProjectId: id });
+
+    let resultObj = {};
+    let topSpot = 0;
+    let topThree = 0;
+    let fourToTen = 0;
+    let elevenToTwenty = 0;
+    let twentyOneToFifty = 0;
+    let fiftyOneToHundred = 0;
+    let outOfTopHundred = 0;
+
+    if (keywordsData && keywordsData.length > 0) {
+      for (let i = 0; i < keywordsData.length; i++) {
+        //top spot
+        if (keywordsData[i].rankAbsolute === 1) {
+          topSpot = topSpot + 1;
+        }
+
+        // top three 1-3
+        if (keywordsData[i].rankAbsolute <= 3) {
+          topThree = topThree + 1;
+        }
+
+        //4 to 10
+        if (
+          keywordsData[i].rankAbsolute > 3 &&
+          keywordsData[i].rankAbsolute <= 10
+        ) {
+          fourToTen = fourToTen + 1;
+        }
+
+        //11 to 20
+        if (
+          keywordsData[i].rankAbsolute > 10 &&
+          keywordsData[i].rankAbsolute <= 20
+        ) {
+          elevenToTwenty = elevenToTwenty + 1;
+        }
+
+        //21 to 50
+        if (
+          keywordsData[i].rankAbsolute > 20 &&
+          keywordsData[i].rankAbsolute <= 50
+        ) {
+          twentyOneToFifty = twentyOneToFifty + 1;
+        }
+
+        //51 to 100
+        if (
+          keywordsData[i].rankAbsolute > 50 &&
+          keywordsData[i].rankAbsolute <= 100
+        ) {
+          fiftyOneToHundred = fiftyOneToHundred + 1;
+        }
+
+        //100+
+        if (keywordsData[i].rankAbsolute > 100) {
+          outOfTopHundred = outOfTopHundred + 1;
+        }
+      }
+    }
+
+    resultObj.totalKeywords = keywordsData.length;
+    resultObj.topSpot = topSpot;
+    resultObj.topThree = topThree;
+    resultObj.fourToTen = fourToTen;
+    resultObj.elevenToTwenty = elevenToTwenty;
+    resultObj.twentyOneToFifty = twentyOneToFifty;
+    resultObj.fiftyOneToHundred = fiftyOneToHundred;
+    resultObj.outOfTopHundred = outOfTopHundred;
+
+    console.log(resultObj);
+
+    return res.status(200).send({
+      data: resultObj,
+      message: commonMessage.KEYWORD.KEYWORD_ANALYTICAL_DATA_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in subProjectDashboard()=> ", error);
 
     return res.status(400).send({
       data: {},

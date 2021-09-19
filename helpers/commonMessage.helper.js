@@ -44,5 +44,7 @@ module.exports = {
     KEYWORD_FETCH_SUCCESS: "Keywords list fetched successfully.",
     KEYWORD_EXPORT_TO_GOOGLE_SHEET_SUCCESS:
       "Keywords list has been successfully exported to google sheet.",
+    KEYWORD_ANALYTICAL_DATA_SUCCESS:
+      "Keywords analytical data fetched successfully.",
   },
 };
