@@ -970,3 +970,124 @@ exports.getKeywords = async (req, res) => {
     });
   }
 };
+
+exports.exportKeywordsToCsv = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const keywordsData = await Keyword.find({ _subProjectId: id });
+
+    let keywordList = [];
+    for (let i = 0; i < keywordsData.length; i++) {
+      const resJson = {};
+      resJson["sr"] = i + 1;
+      resJson["keywords"] = keywordsData[i].keyword;
+      resJson["previousRanking"] = keywordsData[i].prevRankAbsolute;
+      resJson["currentRanking"] = keywordsData[i].rankAbsolute;
+      resJson["difference"] =
+        keywordsData[i].rankAbsolute - keywordsData[i].prevRankAbsolute;
+      resJson["url"] = keywordsData[i].url;
+
+      keywordList.push(resJson);
+    }
+
+    const fields = [
+      { label: "Sr", value: "sr" },
+      { label: "Keywords", value: "keywords" },
+      { label: "Previous ranking", value: "previousRanking" },
+      { label: "Current ranking", value: "currentRanking" },
+      { label: "Difference", value: "difference" },
+      { label: "URL", value: "url" },
+    ];
+
+    const json2csvParser = new Json2csvParser({ fields });
+    const csv = json2csvParser.parse(keywordList);
+
+    const keywordsCSVFile = `${process.env.REPORTS_PATH}/keywordsCSVFile.csv`;
+
+    fs.writeFile(keywordsCSVFile, csv, function (err) {
+      if (err) throw err;
+    });
+    function myFunc() {
+      res.download(keywordsCSVFile);
+    }
+
+    setTimeout(() => {
+      myFunc();
+    }, 2000);
+    return;
+  } catch (error) {
+    console.log("error in exportKeywordsToCsv()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.exportKeywordsToGoogleSheet = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const keywordsData = await Keyword.find({ _subProjectId: id });
+
+    // if (subProjectData && subProjectData.length > 0) {
+    const sheetHeading = [
+      [
+        "Sr No",
+        "Keywords",
+        "Previous ranking",
+        "Current ranking",
+        "Difference",
+        "URL",
+      ],
+    ];
+    const sheetTitle = "Keyword List";
+    const defineSheet = "Sheet1!A1:F1";
+    const data = await commonFunction.generateGoogleSheet(
+      sheetTitle,
+      sheetHeading,
+      defineSheet
+    );
+
+    let sheetId = data.sheetId;
+
+    const accessToken = await commonFunction.refreshToken();
+
+    let sheetBody = [];
+
+    for (let i = 0; i < keywordsData.length; i++) {
+      sheetBody.push([
+        `${i + 1}`,
+        keywordsData[i].keyword,
+        keywordsData[i].prevRankAbsolute,
+        keywordsData[i].rankAbsolute,
+        keywordsData[i].rankAbsolute - keywordsData[i].prevRankAbsolute,
+        keywordsData[i].url,
+      ]);
+    }
+
+    await commonFunction.appendDataInSheet(accessToken, sheetId, sheetBody);
+
+    return res.status(200).send({
+      data: data,
+      message: commonMessage.KEYWORD.KEYWORD_EXPORT_TO_GOOGLE_SHEET_SUCCESS,
+      status: true,
+    });
+    // } else {
+    //   return res.status(400).send({
+    //     data: {},
+    //     message: commonMessage.ERROR_MESSAGE.NO_DATA_FOUND,
+    //     status: false,
+    //   });
+    // }
+  } catch (error) {
+    console.log("error in exportKeywordsToGoogleSheet()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
