@@ -792,17 +792,66 @@ exports.exportSubProjectToCsv = async (req, res) => {
   try {
     const id = req.params.id;
     const subProjectData = await SubProject.find({ _projectId: id });
+    console.log(subProjectData);
 
     let subProjectList = [];
     for (let i = 0; i < subProjectData.length; i++) {
+      let frequencyType;
+      if (
+        subProjectData[i].keywordCheckFrequency ===
+        appConstant.keywordCheckFrequency.weekly
+      ) {
+        frequencyType = "Weekly";
+      } else if (
+        subProjectData[i].keywordCheckFrequency ===
+        appConstant.keywordCheckFrequency.fortnightly
+      ) {
+        frequencyType = "Fortnightly";
+      } else {
+        frequencyType = "Monthly";
+      }
+
+      let location;
+      if (
+        subProjectData[i].locationCode === appConstant.locationCode.melbourne
+      ) {
+        location = "Melbourne";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.adelaide
+      ) {
+        location = "Adelaide";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.sydney
+      ) {
+        location = "Sydney";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.brisbane
+      ) {
+        location = "Brisbane";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.perth
+      ) {
+        location = "Perth";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.canberra
+      ) {
+        location = "Canberra";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.hobart
+      ) {
+        location = "Hobart";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.philippines
+      ) {
+        location = "Philippines";
+      }
+
       const resJson = {};
       resJson["sr"] = i + 1;
       resJson["keywords"] = subProjectData[i].keyword;
-      resJson["previousRanking"] = subProjectData[i].prevRankAbsolute;
-      resJson["currentRanking"] = subProjectData[i].rankAbsolute;
-      resJson["difference"] =
-        subProjectData[i].rankAbsolute - subProjectData[i].prevRankAbsolute;
-      resJson["url"] = subProjectData[i].url;
+      resJson["location"] = location;
+      resJson["keywordCheckFrequency"] = frequencyType;
+      resJson["domain"] = subProjectData[i].domain;
 
       subProjectList.push(resJson);
     }
@@ -810,10 +859,9 @@ exports.exportSubProjectToCsv = async (req, res) => {
     const fields = [
       { label: "Sr", value: "sr" },
       { label: "Keywords", value: "keywords" },
-      { label: "Previous ranking", value: "previousRanking" },
-      { label: "Current ranking", value: "currentRanking" },
-      { label: "Difference", value: "difference" },
-      { label: "URL", value: "url" },
+      { label: "Location", value: "location" },
+      { label: "Keyword Check Frequency", value: "keywordCheckFrequency" },
+      { label: "Domain", value: "domain" },
     ];
 
     const json2csvParser = new Json2csvParser({ fields });
@@ -850,17 +898,10 @@ exports.exportSubProjectToGoogleSheet = async (req, res) => {
 
     // if (subProjectData && subProjectData.length > 0) {
     const sheetHeading = [
-      [
-        "Sr No",
-        "Keywords",
-        "Previous ranking",
-        "Current ranking",
-        "Difference",
-        "URL",
-      ],
+      ["Sr No", "Keywords", "Location", "Keyword Check Frequency", "Domain"],
     ];
     const sheetTitle = "Sub Project List";
-    const defineSheet = "Sheet1!A1:F1";
+    const defineSheet = "Sheet1!A1:E1";
     const data = await commonFunction.generateGoogleSheet(
       sheetTitle,
       sheetHeading,
@@ -874,13 +915,61 @@ exports.exportSubProjectToGoogleSheet = async (req, res) => {
     let sheetBody = [];
 
     for (let i = 0; i < subProjectData.length; i++) {
+      let frequencyType;
+      if (
+        subProjectData[i].keywordCheckFrequency ===
+        appConstant.keywordCheckFrequency.weekly
+      ) {
+        frequencyType = "Weekly";
+      } else if (
+        subProjectData[i].keywordCheckFrequency ===
+        appConstant.keywordCheckFrequency.fortnightly
+      ) {
+        frequencyType = "Fortnightly";
+      } else {
+        frequencyType = "Monthly";
+      }
+
+      let location;
+      if (
+        subProjectData[i].locationCode === appConstant.locationCode.melbourne
+      ) {
+        location = "Melbourne";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.adelaide
+      ) {
+        location = "Adelaide";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.sydney
+      ) {
+        location = "Sydney";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.brisbane
+      ) {
+        location = "Brisbane";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.perth
+      ) {
+        location = "Perth";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.canberra
+      ) {
+        location = "Canberra";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.hobart
+      ) {
+        location = "Hobart";
+      } else if (
+        subProjectData[i].locationCode === appConstant.locationCode.philippines
+      ) {
+        location = "Philippines";
+      }
       sheetBody.push([
         `${i + 1}`,
         subProjectData[i].keyword,
-        subProjectData[i].prevRankAbsolute,
-        subProjectData[i].rankAbsolute,
-        subProjectData[i].rankAbsolute - subProjectData[i].prevRankAbsolute,
-        subProjectData[i].url,
+        location,
+        frequencyType,
+        subProjectData[i].domain,
       ]);
     }
 
