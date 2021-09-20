@@ -620,7 +620,7 @@ exports.deleteSubProject = async (req, res) => {
       _id: id,
     });
 
-    await Keyword.deleteOne({
+    await Keyword.deleteMany({
       _subProjectId: id,
     });
 
