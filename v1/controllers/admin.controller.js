@@ -1347,24 +1347,24 @@ const updateNewInsertedData = async () => {
           } else {
             console.log("Domain and keyword is not match >>>");
 
-            let data = {
+            let dataObj = {
               error: true,
               errorMessage: "Domain and keyword is not valid!!!",
             };
 
-            data.locationCode = data.locationCode;
-            data.prevDate = data.prevDate;
-            data.currDate = data.currDate;
-            data.nextDate = data.nextDate;
-            data.keywordCheckFrequency = data.keywordCheckFrequency;
-            data._projectId = data._projectId;
-            data._subProjectId = data._id;
-            data.keyword = keyword;
+            dataObj.locationCode = data.locationCode;
+            dataObj.prevDate = data.prevDate;
+            dataObj.currDate = data.currDate;
+            dataObj.nextDate = data.nextDate;
+            dataObj.keywordCheckFrequency = data.keywordCheckFrequency;
+            dataObj._projectId = data._projectId;
+            dataObj._subProjectId = data._id;
+            dataObj.keyword = keyword;
 
-            data.updatedAt = dateFunc.currentUtcTime();
-            data.createdAt = dateFunc.currentUtcTime();
+            dataObj.updatedAt = dateFunc.currentUtcTime();
+            dataObj.createdAt = dateFunc.currentUtcTime();
 
-            await Keyword.create(data);
+            await Keyword.create(dataObj);
           }
         })
       );
