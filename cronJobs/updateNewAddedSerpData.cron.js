@@ -117,11 +117,11 @@ const updateNewAddedSerpData = new CronJob(
               //   }
               // );
             }
+            await SubProject.updateOne(
+              { _id: newData[i]._id },
+              { $set: { newInserted: false } }
+            );
           }
-          await SubProject.updateOne(
-            { _id: newData[i]._id },
-            { $set: { newInserted: false } }
-          );
         }
       } else {
         console.log("New data not found!!!");
