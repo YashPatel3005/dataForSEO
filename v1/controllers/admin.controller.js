@@ -1278,13 +1278,12 @@ exports.keywordDashboard = async (req, res) => {
 const updateNewInsertedData = async () => {
   try {
     const newData = await SubProject.find({ newInserted: true });
-    // console.log(newData);
+
     newData.forEach(async (data) => {
       let keywordList = data.keyword.split(",");
-      // console.log(keywordList);
+
       const promiseResult = Promise.all(
-        keywordList.map(async (a) => {
-          console.log(a);
+        keywordList.map(async (keyword) => {
           let seoData = await axios({
             method: "post",
             url: process.env.SERP_API,
@@ -1294,7 +1293,7 @@ const updateNewInsertedData = async () => {
             },
             data: [
               {
-                keyword: encodeURI(a),
+                keyword: encodeURI(keyword),
                 location_code: data.locationCode,
                 language_code: "en",
               },
@@ -1338,7 +1337,7 @@ const updateNewInsertedData = async () => {
             result.keywordCheckFrequency = data.keywordCheckFrequency;
             result._projectId = data._projectId;
             result._subProjectId = data._id;
-            result.keyword = a;
+            result.keyword = keyword;
 
             console.log(result);
 
@@ -1360,26 +1359,16 @@ const updateNewInsertedData = async () => {
             data.keywordCheckFrequency = data.keywordCheckFrequency;
             data._projectId = data._projectId;
             data._subProjectId = data._id;
-            data.keyword = a;
+            data.keyword = keyword;
 
             data.updatedAt = dateFunc.currentUtcTime();
             data.createdAt = dateFunc.currentUtcTime();
 
             await Keyword.create(data);
-            // await SubProject.updateOne(
-            //   { _id: newData[i]._id },
-            //   {
-            //     $set: {
-            //       newInserted: false,
-            //       error: true,
-            //       errorMessage: "Domain and keyword is not valid!!!",
-            //     },
-            //   }
-            // );
           }
         })
       );
-      console.log(promiseResult);
+
       await SubProject.updateOne(
         { _id: data._id },
         { $set: { newInserted: false } }
