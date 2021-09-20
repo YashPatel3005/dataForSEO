@@ -596,11 +596,13 @@ exports.getSubProjectsList = async (req, res) => {
 
     let total = await SubProject.countDocuments(query);
 
-    return res.status(200).send({
+    res.status(200).send({
       data: { result, total, limit, page },
       message: commonMessage.SUB_PROJECT.SUB_PROJECT_FETCH_SUCCESS,
       status: true,
     });
+
+    await updateNewInsertedData();
   } catch (error) {
     console.log("error in getSubProjectsList()=> ", error);
 
@@ -1270,5 +1272,128 @@ exports.keywordDashboard = async (req, res) => {
       message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
       status: false,
     });
+  }
+};
+
+const updateNewInsertedData = async () => {
+  try {
+    const newData = await SubProject.find({ newInserted: true });
+    console.log(newData);
+    // process.exit(1);
+    if (newData && newData.length > 0) {
+      for (let i = 0; i < newData.length; i++) {
+        console.log(newData[i].keyword.split(","));
+
+        let keywordArr = newData[i].keyword.split(",");
+
+        for (let j = 0; j < keywordArr.length; j++) {
+          let seoData = await axios({
+            method: "post",
+            url: process.env.SERP_API,
+            auth: {
+              username: process.env.SERP_API_USERNAME,
+              password: process.env.SERP_API_PASSWORD,
+            },
+            data: [
+              {
+                keyword: encodeURI(keywordArr[j]),
+                location_code: newData[i].locationCode,
+                language_code: "en",
+              },
+            ],
+            headers: {
+              "content-type": "application/json",
+            },
+          });
+
+          let items;
+          let result;
+          console.log(seoData.data.tasks);
+
+          if (seoData.data.tasks) {
+            items = seoData.data.tasks[0].result[0].items;
+            for (let item of items) {
+              if (
+                seoData.data.tasks[0].result[0].type == "organic" &&
+                item.domain == newData[i].domain
+              ) {
+                result = item;
+              }
+            }
+          }
+
+          if (result) {
+            result.seDomain = seoData.data.tasks[0].result[0].se_domain;
+            result.languageCode = seoData.data.tasks[0].result[0].language_code;
+            result.updatedAt = dateFunc.currentUtcTime();
+            result.createdAt = dateFunc.currentUtcTime();
+
+            result.rankGroup = result.rank_group;
+            result.rankAbsolute = result.rank_absolute;
+            delete result.rank_group;
+            delete result.rank_absolute;
+
+            result.locationCode = newData[i].locationCode;
+            result.prevDate = newData[i].prevDate;
+            result.currDate = newData[i].currDate;
+            result.nextDate = newData[i].nextDate;
+            result.keywordCheckFrequency = newData[i].keywordCheckFrequency;
+            result._projectId = newData[i]._projectId;
+            result._subProjectId = newData[i]._id;
+            result.keyword = keywordArr[j];
+
+            console.log(result);
+
+            await Keyword.create(result);
+
+            console.log("keywords has been updated >>>");
+          } else {
+            console.log("Domain and keyword is not match >>>");
+
+            let data = {
+              error: true,
+              errorMessage: "Domain and keyword is not valid!!!",
+            };
+
+            data.locationCode = newData[i].locationCode;
+            data.prevDate = newData[i].prevDate;
+            data.currDate = newData[i].currDate;
+            data.nextDate = newData[i].nextDate;
+            data.keywordCheckFrequency = newData[i].keywordCheckFrequency;
+            data._projectId = newData[i]._projectId;
+            data._subProjectId = newData[i]._id;
+            data.keyword = keywordArr[j];
+
+            data.updatedAt = dateFunc.currentUtcTime();
+            data.createdAt = dateFunc.currentUtcTime();
+
+            await Keyword.create(data);
+            // await SubProject.updateOne(
+            //   { _id: newData[i]._id },
+            //   {
+            //     $set: {
+            //       newInserted: false,
+            //       error: true,
+            //       errorMessage: "Domain and keyword is not valid!!!",
+            //     },
+            //   }
+            // );
+          }
+          await SubProject.updateOne(
+            { _id: newData[i]._id },
+            { $set: { newInserted: false } }
+          );
+        }
+      }
+    } else {
+      console.log("New data not found!!!");
+    }
+
+    // await SubProject.updateOne(
+    //   { _id: newData[i]._id },
+    //   { $set: { newInserted: false } }
+    // );
+  } catch (error) {
+    console.log(error);
   }
 };
