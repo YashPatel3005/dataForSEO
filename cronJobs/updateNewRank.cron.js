@@ -79,7 +79,7 @@ const updateNewRank = new CronJob({
 
             let items;
             let result;
-            console.log(seoData.data.tasks);
+            // console.log(seoData.data.tasks);
             if (seoData.data.tasks) {
               items = seoData.data.tasks[0].result[0].items;
               for (let item of items) {
@@ -105,7 +105,7 @@ const updateNewRank = new CronJob({
               newObj.nextDate = nextDate;
 
               newObj.updatedAt = dateFunc.currentUtcTime();
-              console.log(newObj);
+              // console.log(newObj);
 
               await Keyword.updateOne(
                 { _id: keywords[k]._id },

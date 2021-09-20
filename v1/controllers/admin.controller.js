@@ -717,7 +717,7 @@ exports.subProjectDashboard = async (req, res) => {
     resultObj.fiftyOneToHundred = fiftyOneToHundred;
     resultObj.outOfTopHundred = outOfTopHundred;
 
-    console.log(resultObj);
+    // console.log(resultObj);
 
     return res.status(200).send({
       data: resultObj,
@@ -794,7 +794,7 @@ exports.exportSubProjectToCsv = async (req, res) => {
   try {
     const id = req.params.id;
     const subProjectData = await SubProject.find({ _projectId: id });
-    console.log(subProjectData);
+    // console.log(subProjectData);
 
     let subProjectList = [];
     for (let i = 0; i < subProjectData.length; i++) {
@@ -1257,7 +1257,7 @@ exports.keywordDashboard = async (req, res) => {
     resultObj.fiftyOneToHundred = fiftyOneToHundred;
     resultObj.outOfTopHundred = outOfTopHundred;
 
-    console.log(resultObj);
+    // console.log(resultObj);
 
     return res.status(200).send({
       data: resultObj,
@@ -1305,7 +1305,7 @@ const updateNewInsertedData = async () => {
 
           let items;
           let result;
-          console.log(seoData.data.tasks);
+          // console.log(seoData.data.tasks);
 
           if (seoData.data.tasks) {
             items = seoData.data.tasks[0].result[0].items;
@@ -1339,7 +1339,7 @@ const updateNewInsertedData = async () => {
             result._subProjectId = data._id;
             result.keyword = keyword;
 
-            console.log(result);
+            // console.log(result);
 
             await Keyword.create(result);
 
@@ -1493,6 +1493,6 @@ const updateNewInsertedData = async () => {
     //   { $set: { newInserted: false } }
     // );
   } catch (error) {
-    console.log(error);
+    console.log("Error in update new inserted data function" + error);
   }
 };
