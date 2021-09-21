@@ -614,6 +614,30 @@ exports.getSubProjectsList = async (req, res) => {
   }
 };
 
+exports.getSubProjectsDetails = async (req, res) => {
+  try {
+    let id = req.params.id;
+
+    const subProjectData = await SubProject.findOne({
+      _id: id,
+    });
+
+    return res.status(200).send({
+      data: subProjectData,
+      message: commonMessage.SUB_PROJECT.SUB_PROJECT_DETAILS_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in getSubProjectsDetails()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
 exports.deleteSubProject = async (req, res) => {
   try {
     let id = req.params.id;

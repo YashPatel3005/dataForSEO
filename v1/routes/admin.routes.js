@@ -23,6 +23,7 @@ const {
   exportKeywordsToCsv,
   exportKeywordsToGoogleSheet,
   keywordDashboard,
+  getSubProjectsDetails,
 } = require("../controllers/admin.controller");
 
 const {
@@ -66,6 +67,8 @@ router.get("/getProjectsListDrpDwn", getProjectsListDrpDwn);
 router.post("/addSubProject", addSubProject);
 
 router.get("/getSubProjectsList/:id", getSubProjectsList);
+
+router.get("/getSubProjectsDetails/:id", getSubProjectsDetails);
 
 router.delete("/deleteSubProject/:id", deleteSubProject);
 
