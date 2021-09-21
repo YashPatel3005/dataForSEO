@@ -24,6 +24,7 @@ const {
   exportKeywordsToGoogleSheet,
   keywordDashboard,
   getSubProjectsDetails,
+  editSubProject,
 } = require("../controllers/admin.controller");
 
 const {
@@ -65,6 +66,8 @@ router.get("/getProjectsListDrpDwn", getProjectsListDrpDwn);
 
 //Sub Project
 router.post("/addSubProject", addSubProject);
+
+router.post("/editSubProject/:id", editSubProject);
 
 router.get("/getSubProjectsList/:id", getSubProjectsList);
 

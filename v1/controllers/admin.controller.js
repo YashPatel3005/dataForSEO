@@ -426,11 +426,13 @@ exports.addSubProject = async (req, res) => {
 
     const subProjectData = await SubProject.create(newData);
 
-    return res.status(200).send({
+    res.status(200).send({
       data: subProjectData,
       message: commonMessage.SUB_PROJECT.ADD_SUB_PROJECT_SUCCESS,
       status: true,
     });
+
+    await updateNewInsertedData();
     // let createTask = await axios({
     //   method: "post",
     //   url: "https://api.dataforseo.com/v3/serp/google/organic/task_post",
@@ -551,6 +553,134 @@ exports.addSubProject = async (req, res) => {
   }
 };
 
+exports.editSubProject = async (req, res) => {
+  try {
+    const { keyword } = req.body;
+    let _subProjectId = req.params.id;
+
+    let subProjectData = await SubProject.findOne({ _id: _subProjectId });
+
+    subProjectData.newAddedKeyword = keyword.join();
+    subProjectData.newInserted = true;
+    await subProjectData.save();
+
+    res.status(200).send({
+      data: {},
+      message: commonMessage.SUB_PROJECT.EDIT_SUB_PROJECT_SUCCESS,
+      status: true,
+    });
+
+    let keywordList = subProjectData.newAddedKeyword.split(",");
+
+    const promiseResult = Promise.all(
+      keywordList.map(async (keyword) => {
+        let seoData = await axios({
+          method: "post",
+          url: process.env.SERP_API,
+          auth: {
+            username: process.env.SERP_API_USERNAME,
+            password: process.env.SERP_API_PASSWORD,
+          },
+          data: [
+            {
+              keyword: encodeURI(keyword),
+              location_code: subProjectData.locationCode,
+              language_code: "en",
+              depth: 100,
+              se_domain: "google.com.au",
+            },
+          ],
+          headers: {
+            "content-type": "application/json",
+          },
+        });
+
+        let items;
+        let result;
+
+        if (seoData.data.tasks) {
+          items = seoData.data.tasks[0].result[0].items;
+          for (let item of items) {
+            if (
+              seoData.data.tasks[0].result[0].type == "organic" &&
+              item.domain == subProjectData.domain
+            ) {
+              result = item;
+            }
+          }
+        }
+
+        if (result) {
+          result.seDomain = seoData.data.tasks[0].result[0].se_domain;
+          result.languageCode = seoData.data.tasks[0].result[0].language_code;
+          result.updatedAt = dateFunc.currentUtcTime();
+          result.createdAt = dateFunc.currentUtcTime();
+
+          result.rankGroup = result.rank_group;
+          result.rankAbsolute = result.rank_absolute;
+          delete result.rank_group;
+          delete result.rank_absolute;
+
+          result.locationCode = subProjectData.locationCode;
+          result.prevDate = subProjectData.prevDate;
+          result.currDate = subProjectData.currDate;
+          result.nextDate = subProjectData.nextDate;
+          result.keywordCheckFrequency = subProjectData.keywordCheckFrequency;
+          result._projectId = subProjectData._projectId;
+          result._subProjectId = subProjectData._id;
+          result.keyword = keyword;
+
+          // console.log(result);
+
+          await Keyword.create(result);
+
+          console.log("keywords has been updated >>>");
+        } else {
+          console.log("Domain and keyword is not match >>>");
+
+          let dataObj = {
+            error: true,
+            errorMessage: "Domain and keyword is not valid!!!",
+          };
+
+          dataObj.locationCode = subProjectData.locationCode;
+          dataObj.prevDate = subProjectData.prevDate;
+          dataObj.currDate = subProjectData.currDate;
+          dataObj.nextDate = subProjectData.nextDate;
+          dataObj.keywordCheckFrequency = subProjectData.keywordCheckFrequency;
+          dataObj._projectId = subProjectData._projectId;
+          dataObj._subProjectId = subProjectData._id;
+          dataObj.keyword = keyword;
+
+          dataObj.updatedAt = dateFunc.currentUtcTime();
+          dataObj.createdAt = dateFunc.currentUtcTime();
+
+          await Keyword.create(dataObj);
+        }
+      })
+    );
+
+    await SubProject.updateOne(
+      { _id: subProjectData._id },
+      {
+        $set: {
+          newInserted: false,
+          newAddedKeyword: null,
+          keyword: keyword.join().concat(",", subProjectData.keyword),
+        },
+      }
+    );
+  } catch (error) {
+    console.log("error in editSubProject()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
 exports.getSubProjectsList = async (req, res) => {
   try {
     let id = req.params.id;
@@ -602,7 +732,7 @@ exports.getSubProjectsList = async (req, res) => {
       status: true,
     });
 
-    await updateNewInsertedData();
+    // await updateNewInsertedData();
   } catch (error) {
     console.log("error in getSubProjectsList()=> ", error);
 
@@ -1320,6 +1450,8 @@ const updateNewInsertedData = async () => {
                 keyword: encodeURI(keyword),
                 location_code: data.locationCode,
                 language_code: "en",
+                depth: 100,
+                se_domain: "google.com.au",
               },
             ],
             headers: {

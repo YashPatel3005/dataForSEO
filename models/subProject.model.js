@@ -79,6 +79,10 @@ let subProjectSchema = new mongoose.Schema({
     type: Boolean,
     default: null,
   },
+  newAddedKeyword: {
+    type: String,
+    default: null,
+  },
   // error: {
   //   type: Boolean,
   //   default: null,

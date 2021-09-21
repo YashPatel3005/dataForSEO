@@ -33,6 +33,7 @@ module.exports = {
   },
   SUB_PROJECT: {
     ADD_SUB_PROJECT_SUCCESS: "Sub project created successfully.",
+    EDIT_SUB_PROJECT_SUCCESS: "Sub project edited successfully.",
     SUB_PROJECT_FETCH_SUCCESS: "Sub project list fetched successfully.",
     SUB_PROJECT_DETAILS_FETCH_SUCCESS:
       "Sub project details fetched successfully.",
