@@ -100,6 +100,7 @@ const updateNewRank = new CronJob({
 
               newObj.prevDate = keywords[k].currDate;
               newObj.prevRankAbsolute = keywords[k].rankAbsolute;
+              newObj.prevRankGroup = keywords[k].rankGroup;
 
               newObj.currDate = currentDate;
               newObj.nextDate = nextDate;

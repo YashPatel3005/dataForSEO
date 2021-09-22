@@ -42,6 +42,10 @@ let keywordsSchema = new mongoose.Schema({
     type: Number,
     default: null,
   },
+  prevRankGroup: {
+    type: Number,
+    default: null,
+  },
   rankGroup: {
     type: Number,
     default: null,

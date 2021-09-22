@@ -814,49 +814,37 @@ exports.subProjectDashboard = async (req, res) => {
     if (keywordData && keywordData.length > 0) {
       for (let i = 0; i < keywordData.length; i++) {
         //top spot
-        if (keywordData[i].rankAbsolute === 1) {
+        if (keywordData[i].rankGroup === 1) {
           topSpot = topSpot + 1;
         }
 
         // top three 1-3
-        if (keywordData[i].rankAbsolute <= 3) {
+        if (keywordData[i].rankGroup <= 3) {
           topThree = topThree + 1;
         }
 
         //4 to 10
-        if (
-          keywordData[i].rankAbsolute > 3 &&
-          keywordData[i].rankAbsolute <= 10
-        ) {
+        if (keywordData[i].rankGroup > 3 && keywordData[i].rankGroup <= 10) {
           fourToTen = fourToTen + 1;
         }
 
         //11 to 20
-        if (
-          keywordData[i].rankAbsolute > 10 &&
-          keywordData[i].rankAbsolute <= 20
-        ) {
+        if (keywordData[i].rankGroup > 10 && keywordData[i].rankGroup <= 20) {
           elevenToTwenty = elevenToTwenty + 1;
         }
 
         //21 to 50
-        if (
-          keywordData[i].rankAbsolute > 20 &&
-          keywordData[i].rankAbsolute <= 50
-        ) {
+        if (keywordData[i].rankGroup > 20 && keywordData[i].rankGroup <= 50) {
           twentyOneToFifty = twentyOneToFifty + 1;
         }
 
         //51 to 100
-        if (
-          keywordData[i].rankAbsolute > 50 &&
-          keywordData[i].rankAbsolute <= 100
-        ) {
+        if (keywordData[i].rankGroup > 50 && keywordData[i].rankGroup <= 100) {
           fiftyOneToHundred = fiftyOneToHundred + 1;
         }
 
         //100+
-        if (keywordData[i].rankAbsolute > 100) {
+        if (keywordData[i].rankGroup > 100) {
           outOfTopHundred = outOfTopHundred + 1;
         }
       }
@@ -902,21 +890,21 @@ exports.projectDashboard = async (req, res) => {
     if (keywordData && keywordData.length > 0) {
       for (let i = 0; i < keywordData.length; i++) {
         //top spot
-        if (keywordData[i].rankAbsolute === 1) {
+        if (keywordData[i].rankGroup === 1) {
           topSpot = topSpot + 1;
         }
         // top 10
-        if (keywordData[i].rankAbsolute <= 10) {
+        if (keywordData[i].rankGroup <= 10) {
           topTen = topTen + 1;
         }
 
         //top 30
-        if (keywordData[i].rankAbsolute <= 30) {
+        if (keywordData[i].rankGroup <= 30) {
           topThirty = topThirty + 1;
         }
 
         //top 100
-        if (keywordData[i].rankAbsolute <= 100) {
+        if (keywordData[i].rankGroup <= 100) {
           topHundred = topHundred + 1;
         }
       }
@@ -1226,10 +1214,10 @@ exports.exportKeywordsToCsv = async (req, res) => {
       const resJson = {};
       resJson["sr"] = i + 1;
       resJson["keywords"] = keywordsData[i].keyword;
-      resJson["previousRanking"] = keywordsData[i].prevRankAbsolute;
-      resJson["currentRanking"] = keywordsData[i].rankAbsolute;
+      resJson["previousRanking"] = keywordsData[i].prevRankGroup;
+      resJson["currentRanking"] = keywordsData[i].rankGroup;
       resJson["difference"] =
-        keywordsData[i].rankAbsolute - keywordsData[i].prevRankAbsolute;
+        keywordsData[i].rankGroup - keywordsData[i].prevRankGroup;
       resJson["url"] = keywordsData[i].url;
 
       keywordList.push(resJson);
@@ -1305,9 +1293,9 @@ exports.exportKeywordsToGoogleSheet = async (req, res) => {
       sheetBody.push([
         `${i + 1}`,
         keywordsData[i].keyword,
-        keywordsData[i].prevRankAbsolute,
-        keywordsData[i].rankAbsolute,
-        keywordsData[i].rankAbsolute - keywordsData[i].prevRankAbsolute,
+        keywordsData[i].prevRankGroup,
+        keywordsData[i].rankGroup,
+        keywordsData[i].rankGroup - keywordsData[i].prevRankGroup,
         keywordsData[i].url,
       ]);
     }
@@ -1354,49 +1342,40 @@ exports.keywordDashboard = async (req, res) => {
     if (keywordsData && keywordsData.length > 0) {
       for (let i = 0; i < keywordsData.length; i++) {
         //top spot
-        if (keywordsData[i].rankAbsolute === 1) {
+        if (keywordsData[i].rankGroup === 1) {
           topSpot = topSpot + 1;
         }
 
         // top three 1-3
-        if (keywordsData[i].rankAbsolute <= 3) {
+        if (keywordsData[i].rankGroup <= 3) {
           topThree = topThree + 1;
         }
 
         //4 to 10
-        if (
-          keywordsData[i].rankAbsolute > 3 &&
-          keywordsData[i].rankAbsolute <= 10
-        ) {
+        if (keywordsData[i].rankGroup > 3 && keywordsData[i].rankGroup <= 10) {
           fourToTen = fourToTen + 1;
         }
 
         //11 to 20
-        if (
-          keywordsData[i].rankAbsolute > 10 &&
-          keywordsData[i].rankAbsolute <= 20
-        ) {
+        if (keywordsData[i].rankGroup > 10 && keywordsData[i].rankGroup <= 20) {
           elevenToTwenty = elevenToTwenty + 1;
         }
 
         //21 to 50
-        if (
-          keywordsData[i].rankAbsolute > 20 &&
-          keywordsData[i].rankAbsolute <= 50
-        ) {
+        if (keywordsData[i].rankGroup > 20 && keywordsData[i].rankGroup <= 50) {
           twentyOneToFifty = twentyOneToFifty + 1;
         }
 
         //51 to 100
         if (
-          keywordsData[i].rankAbsolute > 50 &&
-          keywordsData[i].rankAbsolute <= 100
+          keywordsData[i].rankGroup > 50 &&
+          keywordsData[i].rankGroup <= 100
         ) {
           fiftyOneToHundred = fiftyOneToHundred + 1;
         }
 
         //100+
-        if (keywordsData[i].rankAbsolute > 100) {
+        if (keywordsData[i].rankGroup > 100) {
           outOfTopHundred = outOfTopHundred + 1;
         }
       }
