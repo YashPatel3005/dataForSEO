@@ -800,7 +800,7 @@ exports.subProjectDashboard = async (req, res) => {
   try {
     let id = req.params.id;
 
-    const keywordData = await Keyword.find({ _projectId: id });
+    const keywordData = await Keyword.find({ _projectId: id, error: null });
 
     let resultObj = {};
     let topSpot = 0;
@@ -850,7 +850,9 @@ exports.subProjectDashboard = async (req, res) => {
       }
     }
 
-    resultObj.totalKeywords = keywordData.length;
+    resultObj.totalKeywords = await Keyword.countDocuments({
+      _projectId: id,
+    });
     resultObj.topSpot = topSpot;
     resultObj.topThree = topThree;
     resultObj.fourToTen = fourToTen;
@@ -879,7 +881,7 @@ exports.subProjectDashboard = async (req, res) => {
 
 exports.projectDashboard = async (req, res) => {
   try {
-    const keywordData = await Keyword.find({});
+    const keywordData = await Keyword.find({ error: null });
 
     let resultObj = {};
     let topSpot = 0;
@@ -910,7 +912,7 @@ exports.projectDashboard = async (req, res) => {
       }
     }
 
-    resultObj.totalKeywords = keywordData.length;
+    resultObj.totalKeywords = await Keyword.countDocuments({});
     resultObj.topSpot = topSpot;
     resultObj.topTen = topTen;
     resultObj.topThirty = topThirty;
@@ -1328,7 +1330,7 @@ exports.exportKeywordsToGoogleSheet = async (req, res) => {
 exports.keywordDashboard = async (req, res) => {
   try {
     let id = req.params.id;
-    const keywordsData = await Keyword.find({ _subProjectId: id });
+    const keywordsData = await Keyword.find({ _subProjectId: id, error: null });
 
     let resultObj = {};
     let topSpot = 0;
@@ -1381,7 +1383,9 @@ exports.keywordDashboard = async (req, res) => {
       }
     }
 
-    resultObj.totalKeywords = keywordsData.length;
+    resultObj.totalKeywords = await Keyword.countDocuments({
+      _subProjectId: id,
+    });
     resultObj.topSpot = topSpot;
     resultObj.topThree = topThree;
     resultObj.fourToTen = fourToTen;
