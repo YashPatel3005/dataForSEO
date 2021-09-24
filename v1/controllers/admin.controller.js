@@ -386,13 +386,8 @@ exports.getProjectsListDrpDwn = async (req, res) => {
 
 exports.addSubProject = async (req, res) => {
   try {
-    const {
-      keyword,
-      domain,
-      locationCode,
-      keywordCheckFrequency,
-      _projectId,
-    } = req.body;
+    const { keyword, domain, locationCode, keywordCheckFrequency, _projectId } =
+      req.body;
 
     let newData = {};
 
@@ -861,6 +856,11 @@ exports.subProjectDashboard = async (req, res) => {
       }
     }
 
+    const errorKeywordsCount = await Keyword.countDocuments({
+      _projectId: id,
+      error: true,
+    });
+
     resultObj.totalKeywords = await Keyword.countDocuments({
       _projectId: id,
     });
@@ -870,7 +870,7 @@ exports.subProjectDashboard = async (req, res) => {
     resultObj.elevenToTwenty = elevenToTwenty;
     resultObj.twentyOneToFifty = twentyOneToFifty;
     resultObj.fiftyOneToHundred = fiftyOneToHundred;
-    resultObj.outOfTopHundred = outOfTopHundred;
+    resultObj.outOfTopHundred = outOfTopHundred + errorKeywordsCount;
 
     // console.log(resultObj);
 
@@ -1394,6 +1394,11 @@ exports.keywordDashboard = async (req, res) => {
       }
     }
 
+    const errorKeywordsCount = await Keyword.countDocuments({
+      _subProjectId: id,
+      error: true,
+    });
+
     resultObj.totalKeywords = await Keyword.countDocuments({
       _subProjectId: id,
     });
@@ -1403,7 +1408,7 @@ exports.keywordDashboard = async (req, res) => {
     resultObj.elevenToTwenty = elevenToTwenty;
     resultObj.twentyOneToFifty = twentyOneToFifty;
     resultObj.fiftyOneToHundred = fiftyOneToHundred;
-    resultObj.outOfTopHundred = outOfTopHundred;
+    resultObj.outOfTopHundred = outOfTopHundred + errorKeywordsCount;
 
     // console.log(resultObj);
 
