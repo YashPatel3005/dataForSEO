@@ -808,6 +808,13 @@ exports.subProjectDashboard = async (req, res) => {
 
     const keywordData = await Keyword.find({ _projectId: id, error: null });
 
+    let improvedCount = keywordData.filter(
+      (keywords) => keywords.rankGroup > keywords.prevRankGroup
+    ).length;
+    let declinedCount = keywordData.filter(
+      (keywords) => keywords.rankGroup < keywords.prevRankGroup
+    ).length;
+
     let resultObj = {};
     let topSpot = 0;
     let topThree = 0;
@@ -871,7 +878,8 @@ exports.subProjectDashboard = async (req, res) => {
     resultObj.twentyOneToFifty = twentyOneToFifty;
     resultObj.fiftyOneToHundred = fiftyOneToHundred;
     resultObj.outOfTopHundred = outOfTopHundred + errorKeywordsCount;
-
+    resultObj.improvedCount = improvedCount;
+    resultObj.declinedCount = declinedCount;
     // console.log(resultObj);
 
     return res.status(200).send({
@@ -893,6 +901,13 @@ exports.subProjectDashboard = async (req, res) => {
 exports.projectDashboard = async (req, res) => {
   try {
     const keywordData = await Keyword.find({ error: null });
+
+    let improvedCount = keywordData.filter(
+      (keywords) => keywords.rankGroup > keywords.prevRankGroup
+    ).length;
+    let declinedCount = keywordData.filter(
+      (keywords) => keywords.rankGroup < keywords.prevRankGroup
+    ).length;
 
     let resultObj = {};
     let topSpot = 0;
@@ -928,6 +943,8 @@ exports.projectDashboard = async (req, res) => {
     resultObj.topTen = topTen;
     resultObj.topThirty = topThirty;
     resultObj.topHundred = topHundred;
+    resultObj.improvedCount = improvedCount;
+    resultObj.declinedCount = declinedCount;
 
     return res.status(200).send({
       data: resultObj,
@@ -1343,6 +1360,13 @@ exports.keywordDashboard = async (req, res) => {
     let id = req.params.id;
     const keywordsData = await Keyword.find({ _subProjectId: id, error: null });
 
+    let improvedCount = keywordsData.filter(
+      (keywords) => keywords.rankGroup > keywords.prevRankGroup
+    ).length;
+    let declinedCount = keywordsData.filter(
+      (keywords) => keywords.rankGroup < keywords.prevRankGroup
+    ).length;
+
     let resultObj = {};
     let topSpot = 0;
     let topThree = 0;
@@ -1409,6 +1433,8 @@ exports.keywordDashboard = async (req, res) => {
     resultObj.twentyOneToFifty = twentyOneToFifty;
     resultObj.fiftyOneToHundred = fiftyOneToHundred;
     resultObj.outOfTopHundred = outOfTopHundred + errorKeywordsCount;
+    resultObj.improvedCount = improvedCount;
+    resultObj.declinedCount = declinedCount;
 
     // console.log(resultObj);
 
