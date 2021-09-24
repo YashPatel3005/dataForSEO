@@ -33,11 +33,21 @@ module.exports = {
   },
   SUB_PROJECT: {
     ADD_SUB_PROJECT_SUCCESS: "Sub project created successfully.",
+    EDIT_SUB_PROJECT_SUCCESS: "Sub project edited successfully.",
     SUB_PROJECT_FETCH_SUCCESS: "Sub project list fetched successfully.",
+    SUB_PROJECT_DETAILS_FETCH_SUCCESS:
+      "Sub project details fetched successfully.",
     DELETE_SUB_PROJECT_SUCCESS: "Sub project deleted successfully.",
     SUB_PROJECT_ANALYTICAL_DATA_SUCCESS:
       "Sub projects analytical data fetched successfully.",
     SUB_PROJECT_EXPORT_TO_GOOGLE_SHEET_SUCCESS:
       "Sub project list has been successfully exported to google sheet.",
+  },
+  KEYWORD: {
+    KEYWORD_FETCH_SUCCESS: "Keywords list fetched successfully.",
+    KEYWORD_EXPORT_TO_GOOGLE_SHEET_SUCCESS:
+      "Keywords list has been successfully exported to google sheet.",
+    KEYWORD_ANALYTICAL_DATA_SUCCESS:
+      "Keywords analytical data fetched successfully.",
   },
 };
