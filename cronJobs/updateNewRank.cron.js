@@ -68,6 +68,13 @@ const updateNewRank = new CronJob({
           let nextDate;
           if (
             subProjectList[i].keywordCheckFrequency ===
+            appConstant.keywordCheckFrequency.daily
+          ) {
+            nextDate = dateFunc.addDate(currentDate, 1, "days");
+            nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+            console.log(nextDate);
+          } else if (
+            subProjectList[i].keywordCheckFrequency ===
             appConstant.keywordCheckFrequency.weekly
           ) {
             nextDate = dateFunc.addDate(currentDate, 7, "days");

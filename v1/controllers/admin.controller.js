@@ -380,8 +380,13 @@ exports.getProjectsListDrpDwn = async (req, res) => {
 
 exports.addSubProject = async (req, res) => {
   try {
-    const { keyword, domain, locationCode, keywordCheckFrequency, _projectId } =
-      req.body;
+    const {
+      keyword,
+      domain,
+      locationCode,
+      keywordCheckFrequency,
+      _projectId,
+    } = req.body;
 
     let newData = {};
 
@@ -389,7 +394,13 @@ exports.addSubProject = async (req, res) => {
     console.log(currentDate);
 
     let nextDate;
-    if (keywordCheckFrequency === appConstant.keywordCheckFrequency.weekly) {
+    if (keywordCheckFrequency === appConstant.keywordCheckFrequency.daily) {
+      nextDate = dateFunc.addDate(currentDate, 1, "days");
+      nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+      console.log(nextDate);
+    } else if (
+      keywordCheckFrequency === appConstant.keywordCheckFrequency.weekly
+    ) {
       nextDate = dateFunc.addDate(currentDate, 7, "days");
       nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
       console.log(nextDate);
