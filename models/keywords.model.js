@@ -50,6 +50,10 @@ let keywordsSchema = new mongoose.Schema({
     type: Number,
     default: null,
   },
+  difference: {
+    type: Number,
+    default: null,
+  },
   domain: {
     type: String,
     default: null,

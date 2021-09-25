@@ -624,6 +624,7 @@ exports.editSubProject = async (req, res) => {
 
           result.rankGroup = result.rank_group;
           result.rankAbsolute = result.rank_absolute;
+          result.difference = result.rank_group;
           delete result.rank_group;
           delete result.rank_absolute;
 
@@ -1246,8 +1247,7 @@ exports.exportKeywordsToCsv = async (req, res) => {
       resJson["keywords"] = keywordsData[i].keyword;
       resJson["previousRanking"] = keywordsData[i].prevRankGroup;
       resJson["currentRanking"] = keywordsData[i].rankGroup;
-      resJson["difference"] =
-        keywordsData[i].rankGroup - keywordsData[i].prevRankGroup;
+      resJson["difference"] = keywordsData[i].difference;
       resJson["url"] = keywordsData[i].url;
 
       keywordList.push(resJson);
@@ -1325,7 +1325,7 @@ exports.exportKeywordsToGoogleSheet = async (req, res) => {
         keywordsData[i].keyword,
         keywordsData[i].prevRankGroup,
         keywordsData[i].rankGroup,
-        keywordsData[i].rankGroup - keywordsData[i].prevRankGroup,
+        keywordsData[i].difference,
         keywordsData[i].url,
       ]);
     }
@@ -1508,6 +1508,8 @@ const updateNewInsertedData = async () => {
 
             result.rankGroup = result.rank_group;
             result.rankAbsolute = result.rank_absolute;
+            result.difference = result.rank_group;
+
             delete result.rank_group;
             delete result.rank_absolute;
 
@@ -1548,7 +1550,7 @@ const updateNewInsertedData = async () => {
             await Keyword.create(dataObj);
           }
         })
-      );
+      ).catch((error) => console.log(error));
 
       await SubProject.updateOne(
         { _id: data._id },

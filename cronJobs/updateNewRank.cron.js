@@ -33,21 +33,20 @@ const updateNewRank = new CronJob({
 
         let nextDate;
         if (
-          subProjectList[i].keywordCheckFrequency ===
-          appConstant.keywordCheckFrequency.daily
+          data.keywordCheckFrequency === appConstant.keywordCheckFrequency.daily
         ) {
           nextDate = dateFunc.addDate(currentDate, 1, "days");
           nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
           console.log(nextDate);
         } else if (
-          subProjectList[i].keywordCheckFrequency ===
+          data.keywordCheckFrequency ===
           appConstant.keywordCheckFrequency.weekly
         ) {
           nextDate = dateFunc.addDate(currentDate, 7, "days");
           nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
           console.log(nextDate);
         } else if (
-          subProjectList[i].keywordCheckFrequency ===
+          data.keywordCheckFrequency ===
           appConstant.keywordCheckFrequency.fortnightly
         ) {
           nextDate = dateFunc.addDate(currentDate, 15, "days");
@@ -112,6 +111,7 @@ const updateNewRank = new CronJob({
               newObj.prevDate = keyword.currDate;
               newObj.prevRankAbsolute = keyword.rankAbsolute;
               newObj.prevRankGroup = keyword.rankGroup;
+              newObj.difference = newObj.rankGroup - newObj.prevRankGroup;
 
               newObj.currDate = currentDate;
               newObj.nextDate = nextDate;
