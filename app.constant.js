@@ -4,9 +4,10 @@ module.exports = {
     // appTeam: 2,
   },
   keywordCheckFrequency: {
-    weekly: 0,
-    fortnightly: 1,
-    monthly: 2,
+    daily: 0,
+    weekly: 1,
+    fortnightly: 2,
+    monthly: 3,
   },
   locationCode: {
     melbourne: 1000567,

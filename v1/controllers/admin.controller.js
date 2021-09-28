@@ -395,7 +395,13 @@ exports.addSubProject = async (req, res) => {
     console.log(currentDate);
 
     let nextDate;
-    if (keywordCheckFrequency === appConstant.keywordCheckFrequency.weekly) {
+    if (keywordCheckFrequency === appConstant.keywordCheckFrequency.daily) {
+      nextDate = dateFunc.addDate(currentDate, 1, "days");
+      nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
+      console.log(nextDate);
+    } else if (
+      keywordCheckFrequency === appConstant.keywordCheckFrequency.weekly
+    ) {
       nextDate = dateFunc.addDate(currentDate, 7, "days");
       nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
       console.log(nextDate);
@@ -618,6 +624,7 @@ exports.editSubProject = async (req, res) => {
 
           result.rankGroup = result.rank_group;
           result.rankAbsolute = result.rank_absolute;
+          result.difference = result.rank_group;
           delete result.rank_group;
           delete result.rank_absolute;
 
@@ -802,6 +809,13 @@ exports.subProjectDashboard = async (req, res) => {
 
     const keywordData = await Keyword.find({ _projectId: id, error: null });
 
+    let improvedCount = keywordData.filter(
+      (keywords) => keywords.rankGroup > keywords.prevRankGroup
+    ).length;
+    let declinedCount = keywordData.filter(
+      (keywords) => keywords.rankGroup < keywords.prevRankGroup
+    ).length;
+
     let resultObj = {};
     let topSpot = 0;
     let topThree = 0;
@@ -850,6 +864,11 @@ exports.subProjectDashboard = async (req, res) => {
       }
     }
 
+    const errorKeywordsCount = await Keyword.countDocuments({
+      _projectId: id,
+      error: true,
+    });
+
     resultObj.totalKeywords = await Keyword.countDocuments({
       _projectId: id,
     });
@@ -859,8 +878,9 @@ exports.subProjectDashboard = async (req, res) => {
     resultObj.elevenToTwenty = elevenToTwenty;
     resultObj.twentyOneToFifty = twentyOneToFifty;
     resultObj.fiftyOneToHundred = fiftyOneToHundred;
-    resultObj.outOfTopHundred = outOfTopHundred;
-
+    resultObj.outOfTopHundred = outOfTopHundred + errorKeywordsCount;
+    resultObj.improvedCount = improvedCount;
+    resultObj.declinedCount = declinedCount;
     // console.log(resultObj);
 
     return res.status(200).send({
@@ -882,6 +902,13 @@ exports.subProjectDashboard = async (req, res) => {
 exports.projectDashboard = async (req, res) => {
   try {
     const keywordData = await Keyword.find({ error: null });
+
+    let improvedCount = keywordData.filter(
+      (keywords) => keywords.rankGroup > keywords.prevRankGroup
+    ).length;
+    let declinedCount = keywordData.filter(
+      (keywords) => keywords.rankGroup < keywords.prevRankGroup
+    ).length;
 
     let resultObj = {};
     let topSpot = 0;
@@ -917,6 +944,8 @@ exports.projectDashboard = async (req, res) => {
     resultObj.topTen = topTen;
     resultObj.topThirty = topThirty;
     resultObj.topHundred = topHundred;
+    resultObj.improvedCount = improvedCount;
+    resultObj.declinedCount = declinedCount;
 
     return res.status(200).send({
       data: resultObj,
@@ -1218,8 +1247,7 @@ exports.exportKeywordsToCsv = async (req, res) => {
       resJson["keywords"] = keywordsData[i].keyword;
       resJson["previousRanking"] = keywordsData[i].prevRankGroup;
       resJson["currentRanking"] = keywordsData[i].rankGroup;
-      resJson["difference"] =
-        keywordsData[i].rankGroup - keywordsData[i].prevRankGroup;
+      resJson["difference"] = keywordsData[i].difference;
       resJson["url"] = keywordsData[i].url;
 
       keywordList.push(resJson);
@@ -1297,7 +1325,7 @@ exports.exportKeywordsToGoogleSheet = async (req, res) => {
         keywordsData[i].keyword,
         keywordsData[i].prevRankGroup,
         keywordsData[i].rankGroup,
-        keywordsData[i].rankGroup - keywordsData[i].prevRankGroup,
+        keywordsData[i].difference,
         keywordsData[i].url,
       ]);
     }
@@ -1331,6 +1359,13 @@ exports.keywordDashboard = async (req, res) => {
   try {
     let id = req.params.id;
     const keywordsData = await Keyword.find({ _subProjectId: id, error: null });
+
+    let improvedCount = keywordsData.filter(
+      (keywords) => keywords.rankGroup > keywords.prevRankGroup
+    ).length;
+    let declinedCount = keywordsData.filter(
+      (keywords) => keywords.rankGroup < keywords.prevRankGroup
+    ).length;
 
     let resultObj = {};
     let topSpot = 0;
@@ -1383,6 +1418,11 @@ exports.keywordDashboard = async (req, res) => {
       }
     }
 
+    const errorKeywordsCount = await Keyword.countDocuments({
+      _subProjectId: id,
+      error: true,
+    });
+
     resultObj.totalKeywords = await Keyword.countDocuments({
       _subProjectId: id,
     });
@@ -1392,7 +1432,9 @@ exports.keywordDashboard = async (req, res) => {
     resultObj.elevenToTwenty = elevenToTwenty;
     resultObj.twentyOneToFifty = twentyOneToFifty;
     resultObj.fiftyOneToHundred = fiftyOneToHundred;
-    resultObj.outOfTopHundred = outOfTopHundred;
+    resultObj.outOfTopHundred = outOfTopHundred + errorKeywordsCount;
+    resultObj.improvedCount = improvedCount;
+    resultObj.declinedCount = declinedCount;
 
     // console.log(resultObj);
 
@@ -1466,6 +1508,8 @@ const updateNewInsertedData = async () => {
 
             result.rankGroup = result.rank_group;
             result.rankAbsolute = result.rank_absolute;
+            result.difference = result.rank_group;
+
             delete result.rank_group;
             delete result.rank_absolute;
 
@@ -1506,7 +1550,7 @@ const updateNewInsertedData = async () => {
             await Keyword.create(dataObj);
           }
         })
-      );
+      ).catch((error) => console.log(error));
 
       await SubProject.updateOne(
         { _id: data._id },

@@ -52,7 +52,7 @@ let subProjectSchema = new mongoose.Schema({
   },
   keywordCheckFrequency: {
     type: Number,
-    default: 0, // 0 - weekly 1 - Fortnightly 2 - monthly
+    default: 0, // 0 - daily 1 - weekly 2 - Fortnightly 3 - monthly
   },
   // title: {
   //   type: String,
