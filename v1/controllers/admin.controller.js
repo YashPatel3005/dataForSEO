@@ -2,6 +2,7 @@ const _ = require("lodash");
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const bcrypt = require("bcrypt");
 
 const Json2csvParser = require("json2csv").Parser;
 
@@ -16,15 +17,19 @@ const Project = require("../../models/project.model");
 const SubProject = require("../../models/subProject.model");
 const Keyword = require("../../models/keywords.model");
 
+const sendEmail = require("../../services/email.service");
+
+const userPasswordTemplate = require("../../services/emailTemplates/sendUserPasswordTemplate");
+
 const appConstant = require("../../app.constant");
 
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const admin = await Admin.findOne({ email: email });
+    const admin = await Admin.findByCredentials(email, password);
 
-    if (!admin) {
+    if (admin === 1) {
       return res.status(400).send({
         data: {},
         message: commonMessage.ADMIN.USER_NOT_FOUND,
@@ -32,7 +37,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    if (admin.password !== password) {
+    if (admin === 2) {
       return res.status(400).send({
         data: {},
         message: commonMessage.ADMIN.INVALID_PASSWORD,
@@ -62,20 +67,159 @@ exports.login = async (req, res) => {
 };
 
 //create user
-// exports.createUser = async (req, res) => {
-//   try {
-//     let reqBody = req.body;
-//     console.log(reqBody);
-//   } catch (error) {
-//     console.log("error in createUser()=> ", error);
+exports.createUser = async (req, res) => {
+  try {
+    let reqBody = req.body;
 
-//     return res.status(400).send({
-//       data: {},
-//       message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
-//       status: false,
-//     });
-//   }
-// };
+    reqBody.createdAt = dateFunc.currentUtcTime();
+    reqBody.updatedAt = dateFunc.currentUtcTime();
+
+    const emailIdExists = await Admin.findOne({ email: req.body.email });
+
+    if (emailIdExists) {
+      return res.status(400).send({
+        message: commonMessage.USER.USER_ALREADY_EXISTS,
+        status: false,
+        data: {},
+      });
+    }
+
+    let randomPassword = commonFunction.generateRandomPassword();
+
+    reqBody.password = randomPassword;
+    console.log(reqBody);
+
+    const user = await Admin.create(reqBody);
+
+    await sendEmail(
+      reqBody.email,
+      appConstant.email_template.account_created_mail,
+      userPasswordTemplate({
+        email: reqBody.email,
+        password: randomPassword,
+      })
+    );
+
+    return res.status(200).send({
+      data: user,
+      message: commonMessage.USER.CREATED_USER_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in createUser()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    let id = req.params.id;
+
+    await Admin.deleteOne({ _id: id });
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.USER.DELETE_USER_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in deleteUser()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.getViewUserProfile = async (req, res) => {
+  try {
+    let id = req.params.id;
+
+    const userData = await Admin.findOne({ _id: id });
+
+    return res.status(200).send({
+      data: userData,
+      message: commonMessage.USER.VIEW_USER_PROFILE_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in getViewUserProfile()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    const admin = await Admin.findById(req.admin._id);
+
+    if (!admin) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.ERROR_MESSAGE.UNAUTHORIZED_USER,
+        status: false,
+      });
+    }
+
+    let passwordCheck = await bcrypt.compare(currentPassword, admin.password);
+
+    if (!passwordCheck) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.USER.INVALID_CURRENT_PASSWORD,
+        status: false,
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.USER.PASSWORD_MISMATCH,
+        status: false,
+      });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.USER.PASSWORD_MATCH_ERROR,
+        status: false,
+      });
+    }
+
+    admin.password = newPassword;
+    admin.updatedAt = await dateFunc.currentUtcTime();
+
+    await admin.save();
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.USER.PASSWORD_UPDATE_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in resetPassword()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
 
 exports.addProject = async (req, res) => {
   try {

@@ -19,6 +19,17 @@ module.exports = {
     INVALID_PASSWORD: "Invalid password!!!",
     LOGIN_SUCCESS: "Login successfully.",
   },
+  USER: {
+    USER_ALREADY_EXISTS:
+      "User is already exists. Please enter different email id.",
+    CREATED_USER_SUCCESS: "User created successfully.",
+    DELETE_USER_SUCCESS: "User deleted successfully.",
+    VIEW_USER_PROFILE_SUCCESS: "User profile fetched successfully.",
+    INVALID_CURRENT_PASSWORD: "Please enter a valid current password.",
+    PASSWORD_MISMATCH: "New password and confirm password not matched.",
+    PASSWORD_MATCH_ERROR: "New password should not be same as old password.",
+    PASSWORD_UPDATE_SUCCESS: "Your password successfully changed.",
+  },
   PROJECT: {
     ADD_PROJECT_SUCCESS: "Project created successfully.",
     PROJECT_ALREADY_EXITS: "Project is already exists.",

@@ -39,13 +39,9 @@ exports.loginValidator = [
     .isEmail()
     .withMessage("Please enter valid email.")
     .trim(),
-  body("password")
-    .not()
-    .isEmpty()
-    .withMessage("Password is required.")
-    .trim()
-    .isLength({ min: 6, max: 16 })
-    .withMessage("Please enter valid password"),
+  body("password").not().isEmpty().withMessage("Password is required.").trim(),
+  // .isLength({ min: 6, max: 16 })
+  // .withMessage("Please enter valid password"),
 ];
 
 exports.userValidator = [
@@ -56,13 +52,13 @@ exports.userValidator = [
     .isEmail()
     .withMessage("Please enter valid email.")
     .trim(),
-  body("password")
-    .not()
-    .isEmpty()
-    .withMessage("Password is required.")
-    .trim()
-    .isLength({ min: 6, max: 16 })
-    .withMessage("Please enter valid password"),
+  // body("password")
+  //   .not()
+  //   .isEmpty()
+  //   .withMessage("Password is required.")
+  //   .trim()
+  //   .isLength({ min: 6, max: 16 })
+  //   .withMessage("Please enter valid password"),
   body("firstName")
     .not()
     .isEmpty()
