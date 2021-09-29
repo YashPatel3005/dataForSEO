@@ -443,7 +443,15 @@ exports.getProjectsList = async (req, res) => {
     }
     // SORTING ENDS
 
-    const result = await Project.find({ assignedUsers: { $in: req.admin._id } })
+    let query = {};
+
+    if (req.admin.permissionLevel === appConstant.adminPermissionLevel.admin) {
+      query = {};
+    } else {
+      query = { assignedUsers: { $in: req.admin._id } };
+    }
+
+    const result = await Project.find()
       .collation({ locale: "en" })
       .sort({ [field]: value })
       .skip(limit * (page - 1))
