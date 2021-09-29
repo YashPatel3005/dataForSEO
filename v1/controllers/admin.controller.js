@@ -87,13 +87,11 @@ exports.createUser = async (req, res) => {
     let randomPassword = commonFunction.generateRandomPassword();
 
     reqBody.password = randomPassword;
-    const projects = reqBody.assignProject;
-    delete reqBody.assignProject;
 
     const user = await Admin.create(reqBody);
 
     await Project.updateMany(
-      { _id: { $in: projects } },
+      { _id: { $in: user.projectAccess } },
       { $push: { assignedUsers: user._id } }
     );
 
@@ -180,6 +178,11 @@ exports.deleteUser = async (req, res) => {
     let id = req.params.id;
 
     await Admin.deleteOne({ _id: id });
+
+    await Project.updateMany(
+      { assignedUsers: { $in: id } },
+      { $pull: { assignedUsers: id } }
+    );
 
     return res.status(200).send({
       data: {},

@@ -69,7 +69,7 @@ exports.userValidator = [
     .not()
     .isEmpty()
     .withMessage("Please select permission level.")
-    .matches(/^[1-2]$/)
+    .matches(/^[1-3]$/)
     .withMessage("Please select valid permission level.")
     .toInt()
     .trim(),

@@ -45,6 +45,12 @@ let adminSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  projectAccess: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+    },
+  ],
 });
 
 adminSchema.pre("save", function (next) {
