@@ -28,6 +28,7 @@ const {
   editSubProject,
   getViewUserProfile,
   resetPassword,
+  getUserList,
 } = require("../controllers/admin.controller");
 
 const {
@@ -56,6 +57,8 @@ router.delete("/deleteUser/:id", authenticate, deleteUser);
 router.get("/viewUserProfile/:id", authenticate, getViewUserProfile);
 
 router.post("/resetPassword", authenticate, resetPassword);
+
+router.get("/getUserList", authenticate, getUserList);
 
 //Project
 router.post(

@@ -17,10 +17,10 @@ exports = module.exports = (app) => {
           config.get("server.CORS.allowedHeaders")
         );
         res.header("Access-Control-Allow-Credentials", true);
-        res.header(
-          "Access-Control-Expose-Headers",
-          config.get("server.CORS.exposedHeaders")
-        );
+        // res.header(
+        //   "Access-Control-Expose-Headers",
+        //   config.get("server.CORS.exposedHeaders")
+        // );
         next();
       } else {
         next();

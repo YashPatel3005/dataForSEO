@@ -9,6 +9,12 @@ let projectSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  assignedUsers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+    },
+  ],
   createdAt: {
     type: Date,
     default: null,

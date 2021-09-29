@@ -29,6 +29,7 @@ module.exports = {
     PASSWORD_MISMATCH: "New password and confirm password not matched.",
     PASSWORD_MATCH_ERROR: "New password should not be same as old password.",
     PASSWORD_UPDATE_SUCCESS: "Your password successfully changed.",
+    USERS_FETCH_SUCCESS: "User list fetched successfully.",
   },
   PROJECT: {
     ADD_PROJECT_SUCCESS: "Project created successfully.",

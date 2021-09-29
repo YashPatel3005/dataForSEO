@@ -87,9 +87,15 @@ exports.createUser = async (req, res) => {
     let randomPassword = commonFunction.generateRandomPassword();
 
     reqBody.password = randomPassword;
-    console.log(reqBody);
+    const projects = reqBody.assignProject;
+    delete reqBody.assignProject;
 
     const user = await Admin.create(reqBody);
+
+    await Project.updateMany(
+      { _id: { $in: projects } },
+      { $push: { assignedUsers: user._id } }
+    );
 
     await sendEmail(
       reqBody.email,
@@ -107,6 +113,59 @@ exports.createUser = async (req, res) => {
     });
   } catch (error) {
     console.log("error in createUser()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.getUserList = async (req, res) => {
+  try {
+    let { limit, page } = req.query;
+
+    limit = parseInt(limit) || 10;
+    page = parseInt(page) || 1;
+
+    // SORTING STARTS
+    let field;
+    let value;
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(":");
+      field = sortBy[0];
+      if (sortBy[1] == "asc") {
+        value = 1;
+      } else {
+        value = -1;
+      }
+    } else {
+      field = "createdAt";
+      value = -1;
+    }
+    // SORTING ENDS
+
+    const result = await Admin.find({
+      permissionLevel: { $ne: appConstant.adminPermissionLevel.admin },
+    })
+      .collation({ locale: "en" })
+      .sort({ [field]: value })
+      .skip(limit * (page - 1))
+      .limit(limit)
+      .lean();
+
+    let total = await Admin.countDocuments({
+      permissionLevel: { $ne: appConstant.adminPermissionLevel.admin },
+    });
+
+    return res.status(200).send({
+      data: { result, total, limit, page },
+      message: commonMessage.USER.USERS_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in getUserList()=> ", error);
 
     return res.status(400).send({
       data: {},
@@ -381,7 +440,7 @@ exports.getProjectsList = async (req, res) => {
     }
     // SORTING ENDS
 
-    const result = await Project.find({})
+    const result = await Project.find({ assignedUsers: { $in: req.admin._id } })
       .collation({ locale: "en" })
       .sort({ [field]: value })
       .skip(limit * (page - 1))
