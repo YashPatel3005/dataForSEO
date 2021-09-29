@@ -85,16 +85,16 @@ let config = convict({
         format: String,
         default: "GET,POST,PUT,DELETE,OPTIONS",
       },
-      allowedHeaders: {
-        doc: "Allowed HTTP Headers for CORS",
-        format: String,
-        default: "accept, x-xsrf-token,content-type, x-location, certificate",
-      },
-      exposedHeaders: {
-        doc: "Exposed HTTP Headers for CORS",
-        format: String,
-        default: "XSRF-TOKEN",
-      },
+      // allowedHeaders: {
+      //   doc: "Allowed HTTP Headers for CORS",
+      //   format: String,
+      //   default: "accept, x-xsrf-token,content-type, x-location, certificate",
+      // },
+      // exposedHeaders: {
+      //   doc: "Exposed HTTP Headers for CORS",
+      //   format: String,
+      //   default: "XSRF-TOKEN",
+      // },
     },
     bodyParser: {
       limit: {

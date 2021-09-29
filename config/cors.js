@@ -12,10 +12,10 @@ exports = module.exports = (app) => {
           "Access-Control-Allow-Methods",
           config.get("server.CORS.allowedMethods")
         );
-        res.header(
-          "Access-Control-Allow-Headers",
-          config.get("server.CORS.allowedHeaders")
-        );
+        // res.header(
+        //   "Access-Control-Allow-Headers",
+        //   config.get("server.CORS.allowedHeaders")
+        // );
         res.header("Access-Control-Allow-Credentials", true);
         // res.header(
         //   "Access-Control-Expose-Headers",
