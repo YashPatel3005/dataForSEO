@@ -33,6 +33,8 @@ module.exports = {
     USER_UPDATE_SUCCESS: "User updated successfully.",
     EMAIL_NOT_REGISTERED: "You are not registered with this email.",
     FORGOT_PASSWORD_EMAIL_SUCCESS: "Please check your email to reset password.",
+    RESET_LINK_EXPIRED: "Your reset password link has been expired.",
+    RESET_PASSWORD_SUCCESS: "Your password successfully changed.",
   },
   PROJECT: {
     ADD_PROJECT_SUCCESS: "Project created successfully.",

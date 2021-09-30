@@ -31,6 +31,8 @@ const {
   getUserList,
   editUser,
   forgotPassword,
+  resetPassword,
+  // resetPasswordLink,
 } = require("../controllers/admin.controller");
 
 const {
@@ -67,6 +69,10 @@ router.post(
   validatorFunc,
   forgotPassword
 );
+
+// router.get("/resetPassword", resetPasswordLink);
+
+router.post("/resetPassword", resetPassword);
 
 router.get("/getUserList", authenticate, getUserList);
 

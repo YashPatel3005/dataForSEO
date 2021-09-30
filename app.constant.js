@@ -22,6 +22,7 @@ module.exports = {
   },
   email_template: {
     account_created_mail: "Your account is created successfully !!",
+    password_reset: "Your password reset request",
   },
   team_name: "SERP Team",
 };

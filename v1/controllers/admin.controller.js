@@ -21,6 +21,7 @@ const Keyword = require("../../models/keywords.model");
 const sendEmail = require("../../services/email.service");
 
 const userPasswordTemplate = require("../../services/emailTemplates/sendUserPasswordTemplate");
+const forgotPasswordTemplate = require("../../services/emailTemplates/forgotPasswordTemplate");
 
 const appConstant = require("../../app.constant");
 
@@ -299,7 +300,7 @@ exports.changePassword = async (req, res) => {
       status: true,
     });
   } catch (error) {
-    console.log("error in resetPassword()=> ", error);
+    console.log("error in changePassword()=> ", error);
 
     return res.status(400).send({
       data: {},
@@ -330,10 +331,14 @@ exports.forgotPassword = async (req, res) => {
     user.updatedAt = dateFunc.currentUtcTime();
     await user.save();
 
-    let resetPasswordUrl =
-      process.env.BASE_URL + "/resetPassword?token=" + token;
+    let resetPasswordUrl = process.env.FORGOT_PASS_URL + "?token=" + token;
 
-    console.log(resetPasswordUrl);
+    await sendEmail(
+      email,
+      appConstant.email_template.password_reset,
+      forgotPasswordTemplate({ url: resetPasswordUrl })
+    );
+
     return res.status(200).send({
       data: {},
       message: commonMessage.USER.FORGOT_PASSWORD_EMAIL_SUCCESS,
@@ -341,6 +346,92 @@ exports.forgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.log("error in forgotPassword()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+// exports.resetPasswordLink = async (req, res) => {
+//   try {
+//     if (req.query.token == undefined) {
+//       return res.render("notFound");
+//     }
+//     let token = req.query.token;
+
+//     let currentDate = await dateFunc.currentUtcTime();
+
+//     const user = await Admin.findOne({
+//       resetPasswordToken: token,
+//       resetPasswordExpires: { $gte: currentDate },
+//     });
+
+//     if (!user) {
+//       return res.status(400).send({
+//         data: {},
+//         message: commonMessage.USER.RESET_LINK_EXPIRED,
+//         status: false,
+//       });
+//     }
+
+//     return res.status(200).send({
+//       data: {},
+//       message: commonMessage.USER.RESET_PASSWORD_SUCCESS,
+//       status: true,
+//     });
+//   } catch (error) {
+//     console.log("error in resetPasswordLink()=> ", error);
+
+//     return res.status(400).send({
+//       data: {},
+//       message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+//       status: false,
+//     });
+//   }
+// };
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const reqBody = req.body;
+    let currentDate = dateFunc.currentUtcTime();
+
+    const user = await Admin.findOne({
+      resetPasswordToken: reqBody.resetPasswordToken,
+      resetPasswordExpires: { $gte: currentDate },
+    });
+
+    if (!user) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.USER.RESET_LINK_EXPIRED,
+        status: false,
+      });
+    }
+
+    if (reqBody.newPassword !== reqBody.confirmPassword) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.USER.PASSWORD_MISMATCH,
+        status: false,
+      });
+    }
+
+    user.password = reqBody.newPassword;
+    user.updatedAt = await dateFunc.currentUtcTime();
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.USER.RESET_PASSWORD_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in resetPassword()=> ", error);
 
     return res.status(400).send({
       data: {},
