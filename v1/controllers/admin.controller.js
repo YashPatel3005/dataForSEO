@@ -47,7 +47,7 @@ exports.login = async (req, res) => {
 
     const token = await admin.generateAuthToken();
     await admin.save();
-    let resData = _.pick(admin, ["email", "permissionLevel"]);
+    let resData = _.pick(admin, ["email", "permissionLevel", "_id"]);
     resData.token = token;
 
     return res.status(200).send({
