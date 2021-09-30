@@ -204,7 +204,9 @@ exports.getViewUserProfile = async (req, res) => {
   try {
     let id = req.params.id;
 
-    const userData = await Admin.findOne({ _id: id });
+    const userData = await Admin.findOne({ _id: id })
+      .populate("projectAccess", "domain projectName _id")
+      .exec();
 
     return res.status(200).send({
       data: userData,
