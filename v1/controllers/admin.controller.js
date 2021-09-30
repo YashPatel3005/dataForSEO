@@ -3,6 +3,7 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const Json2csvParser = require("json2csv").Parser;
 
@@ -224,7 +225,30 @@ exports.getViewUserProfile = async (req, res) => {
   }
 };
 
-exports.resetPassword = async (req, res) => {
+exports.editUser = async (req, res) => {
+  try {
+    let id = req.params.id;
+    let reqBody = req.body;
+
+    await Admin.updateOne({ _id: id }, { $set: reqBody });
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.USER.USER_UPDATE_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in editUser()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
@@ -276,6 +300,47 @@ exports.resetPassword = async (req, res) => {
     });
   } catch (error) {
     console.log("error in resetPassword()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    let { email } = req.body;
+    let user = await Admin.findOne({ email });
+    console.log(user);
+
+    if (!user) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.USER.EMAIL_NOT_REGISTERED,
+        status: false,
+      });
+    }
+
+    let token = jwt.sign({ email }, process.env.JWT_SECRET).toString();
+    user.resetPasswordToken = token;
+
+    user.resetPasswordExpires = dateFunc.addTimeToCurrentTimestamp(1, "hours");
+    user.updatedAt = dateFunc.currentUtcTime();
+    await user.save();
+
+    let resetPasswordUrl =
+      process.env.BASE_URL + "/resetPassword?token=" + token;
+
+    console.log(resetPasswordUrl);
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.USER.FORGOT_PASSWORD_EMAIL_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in forgotPassword()=> ", error);
 
     return res.status(400).send({
       data: {},

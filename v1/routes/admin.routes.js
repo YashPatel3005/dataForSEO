@@ -27,14 +27,17 @@ const {
   getSubProjectsDetails,
   editSubProject,
   getViewUserProfile,
-  resetPassword,
+  changePassword,
   getUserList,
+  editUser,
+  forgotPassword,
 } = require("../controllers/admin.controller");
 
 const {
   loginValidator,
   projectValidator,
   userValidator,
+  forgotPasswordValidator,
 } = require("../../validators/admin.validator");
 
 const { validatorFunc } = require("../../helpers/commonFunction.helper");
@@ -56,9 +59,18 @@ router.delete("/deleteUser/:id", authenticate, deleteUser);
 
 router.get("/viewUserProfile/:id", authenticate, getViewUserProfile);
 
-router.post("/resetPassword", authenticate, resetPassword);
+router.post("/changePassword", authenticate, changePassword);
+
+router.post(
+  "/forgotPassword",
+  forgotPasswordValidator,
+  validatorFunc,
+  forgotPassword
+);
 
 router.get("/getUserList", authenticate, getUserList);
+
+router.put("/editUser/:id", authenticate, editUser);
 
 //Project
 router.post(

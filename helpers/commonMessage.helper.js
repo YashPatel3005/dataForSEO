@@ -30,6 +30,9 @@ module.exports = {
     PASSWORD_MATCH_ERROR: "New password should not be same as old password.",
     PASSWORD_UPDATE_SUCCESS: "Your password successfully changed.",
     USERS_FETCH_SUCCESS: "User list fetched successfully.",
+    USER_UPDATE_SUCCESS: "User updated successfully.",
+    EMAIL_NOT_REGISTERED: "You are not registered with this email.",
+    FORGOT_PASSWORD_EMAIL_SUCCESS: "Please check your email to reset password.",
   },
   PROJECT: {
     ADD_PROJECT_SUCCESS: "Project created successfully.",

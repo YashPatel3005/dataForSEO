@@ -83,3 +83,13 @@ exports.projectValidator = [
     .withMessage("Project name is required.")
     .trim(),
 ];
+
+exports.forgotPasswordValidator = [
+  body("email")
+    .not()
+    .isEmpty()
+    .withMessage("Email is required.")
+    .isEmail()
+    .withMessage("Please enter valid email.")
+    .trim(),
+];
