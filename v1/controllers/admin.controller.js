@@ -355,43 +355,40 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// exports.resetPasswordLink = async (req, res) => {
-//   try {
-//     if (req.query.token == undefined) {
-//       return res.render("notFound");
-//     }
-//     let token = req.query.token;
+exports.resetPasswordLink = async (req, res) => {
+  try {
+    let token = req.query.token;
 
-//     let currentDate = await dateFunc.currentUtcTime();
+    let currentDate = await dateFunc.currentUtcTime();
 
-//     const user = await Admin.findOne({
-//       resetPasswordToken: token,
-//       resetPasswordExpires: { $gte: currentDate },
-//     });
+    const user = await Admin.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gte: currentDate },
+    });
 
-//     if (!user) {
-//       return res.status(400).send({
-//         data: {},
-//         message: commonMessage.USER.RESET_LINK_EXPIRED,
-//         status: false,
-//       });
-//     }
+    if (!user) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.USER.RESET_LINK_EXPIRED,
+        status: false,
+      });
+    }
 
-//     return res.status(200).send({
-//       data: {},
-//       message: commonMessage.USER.RESET_PASSWORD_SUCCESS,
-//       status: true,
-//     });
-//   } catch (error) {
-//     console.log("error in resetPasswordLink()=> ", error);
+    return res.status(200).send({
+      data: {},
+      message: "You can reset password.",
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in resetPasswordLink()=> ", error);
 
-//     return res.status(400).send({
-//       data: {},
-//       message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
-//       status: false,
-//     });
-//   }
-// };
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
 
 exports.resetPassword = async (req, res) => {
   try {

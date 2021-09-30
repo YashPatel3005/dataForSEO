@@ -32,7 +32,7 @@ const {
   editUser,
   forgotPassword,
   resetPassword,
-  // resetPasswordLink,
+  resetPasswordLink,
 } = require("../controllers/admin.controller");
 
 const {
@@ -70,9 +70,9 @@ router.post(
   forgotPassword
 );
 
-// router.get("/resetPassword", resetPasswordLink);
+router.get("/resetPassword", resetPasswordLink);
 
-router.post("/resetPassword", resetPassword);
+router.post("/setPassword", resetPassword);
 
 router.get("/getUserList", authenticate, getUserList);
 
