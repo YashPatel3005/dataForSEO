@@ -376,7 +376,7 @@ exports.resetPasswordLink = async (req, res) => {
 
     return res.status(200).send({
       data: {},
-      message: "You can reset password.",
+      message: "You can reset a password.",
       status: true,
     });
   } catch (error) {
