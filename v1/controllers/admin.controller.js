@@ -253,9 +253,9 @@ exports.changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
-    const admin = await Admin.findById(req.admin._id);
+    const user = await Admin.findById(req.admin._id);
 
-    if (!admin) {
+    if (!user) {
       return res.status(400).send({
         data: {},
         message: commonMessage.ERROR_MESSAGE.UNAUTHORIZED_USER,
@@ -263,7 +263,7 @@ exports.changePassword = async (req, res) => {
       });
     }
 
-    let passwordCheck = await bcrypt.compare(currentPassword, admin.password);
+    let passwordCheck = await bcrypt.compare(currentPassword, user.password);
 
     if (!passwordCheck) {
       return res.status(400).send({
@@ -289,10 +289,10 @@ exports.changePassword = async (req, res) => {
       });
     }
 
-    admin.password = newPassword;
-    admin.updatedAt = await dateFunc.currentUtcTime();
+    user.password = newPassword;
+    user.updatedAt = await dateFunc.currentUtcTime();
 
-    await admin.save();
+    await user.save();
 
     return res.status(200).send({
       data: {},
@@ -314,7 +314,6 @@ exports.forgotPassword = async (req, res) => {
   try {
     let { email } = req.body;
     let user = await Admin.findOne({ email });
-    console.log(user);
 
     if (!user) {
       return res.status(400).send({
