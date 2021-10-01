@@ -40,7 +40,7 @@ let authenticate = async (req, res, next) => {
     next();
   } catch (error) {
     console.log("error in authenticate middleware=> ", error);
-    if (err.name === "TokenExpiredError") {
+    if (error.name === "TokenExpiredError") {
       return res.status(400).send({
         data: {},
         message: commonMessage.ERROR_MESSAGE.UNAUTHORIZED_USER,
