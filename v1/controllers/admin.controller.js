@@ -330,7 +330,8 @@ exports.forgotPassword = async (req, res) => {
     user.updatedAt = dateFunc.currentUtcTime();
     await user.save();
 
-    let resetPasswordUrl = process.env.FORGOT_PASS_URL + "?token=" + token;
+    // let resetPasswordUrl = process.env.FORGOT_PASS_URL + "?token=" + token;
+    let resetPasswordUrl = appBaseUrl + "/web/resetPassword?token=" + token;
 
     await sendEmail(
       email,
@@ -345,89 +346,6 @@ exports.forgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.log("error in forgotPassword()=> ", error);
-
-    return res.status(400).send({
-      data: {},
-      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
-      status: false,
-    });
-  }
-};
-
-exports.resetPasswordLink = async (req, res) => {
-  try {
-    let token = req.query.token;
-
-    let currentDate = await dateFunc.currentUtcTime();
-
-    const user = await Admin.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gte: currentDate },
-    });
-
-    if (!user) {
-      return res.status(400).send({
-        data: {},
-        message: commonMessage.USER.RESET_LINK_EXPIRED,
-        status: false,
-      });
-    }
-
-    return res.status(200).send({
-      data: {},
-      message: "You can reset a password.",
-      status: true,
-    });
-  } catch (error) {
-    console.log("error in resetPasswordLink()=> ", error);
-
-    return res.status(400).send({
-      data: {},
-      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
-      status: false,
-    });
-  }
-};
-
-exports.resetPassword = async (req, res) => {
-  try {
-    const reqBody = req.body;
-    let currentDate = dateFunc.currentUtcTime();
-
-    const user = await Admin.findOne({
-      resetPasswordToken: reqBody.resetPasswordToken,
-      resetPasswordExpires: { $gte: currentDate },
-    });
-
-    if (!user) {
-      return res.status(400).send({
-        data: {},
-        message: commonMessage.USER.RESET_LINK_EXPIRED,
-        status: false,
-      });
-    }
-
-    if (reqBody.newPassword !== reqBody.confirmPassword) {
-      return res.status(400).send({
-        data: {},
-        message: commonMessage.USER.PASSWORD_MISMATCH,
-        status: false,
-      });
-    }
-
-    user.password = reqBody.newPassword;
-    user.updatedAt = await dateFunc.currentUtcTime();
-    user.resetPasswordToken = null;
-    user.resetPasswordExpires = null;
-    await user.save();
-
-    return res.status(200).send({
-      data: {},
-      message: commonMessage.USER.RESET_PASSWORD_SUCCESS,
-      status: true,
-    });
-  } catch (error) {
-    console.log("error in resetPassword()=> ", error);
 
     return res.status(400).send({
       data: {},

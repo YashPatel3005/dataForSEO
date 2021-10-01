@@ -93,3 +93,20 @@ exports.forgotPasswordValidator = [
     .withMessage("Please enter valid email.")
     .trim(),
 ];
+
+exports.resetPasswordValidator = [
+  body("newPassword")
+    .not()
+    .isEmpty()
+    .withMessage("New password is required.")
+    .trim()
+    .isLength({ min: 6, max: 16 })
+    .withMessage("Password should be atleast 6 and maximum 16 letters."),
+  body("confirmPassword")
+    .not()
+    .isEmpty()
+    .withMessage("Confirm password is required.")
+    .trim()
+    .isLength({ min: 6, max: 16 })
+    .withMessage("Password should be atleast 6 and maximum 16 letters."),
+];
