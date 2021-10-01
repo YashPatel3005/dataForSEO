@@ -4,6 +4,7 @@ const convict = require("convict");
 let env = process.env.NODE_ENV;
 
 defaultDirectives = helmet.contentSecurityPolicy.getDefaultDirectives();
+delete defaultDirectives["upgrade-insecure-requests"];
 
 let config = convict({
   env: {
