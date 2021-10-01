@@ -3,6 +3,8 @@ const convict = require("convict");
 
 let env = process.env.NODE_ENV;
 
+defaultDirectives = helmet.contentSecurityPolicy.getDefaultDirectives();
+
 let config = convict({
   env: {
     doc: "The applicaton environment.",
@@ -102,6 +104,11 @@ let config = convict({
         format: String,
         default: "100kb",
       },
+    },
+  },
+  csp: {
+    directives: {
+      ...defaultDirectives,
     },
   },
 });

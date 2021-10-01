@@ -22,5 +22,11 @@
       "allowedHeaders": "*",
       "exposedHeaders": "XSRF-TOKEN"
     }
+  },
+  "csp": {
+    "directives": {
+      "img-src": ["'self'"],
+      "script-src": ["'self'", "code.jquery.com", "maxcdn.bootstrapcdn.com"]
+    }
   }
 }
