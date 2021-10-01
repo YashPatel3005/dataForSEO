@@ -1740,6 +1740,36 @@ exports.keywordDashboard = async (req, res) => {
   }
 };
 
+exports.deleteKeywords = async (req, res) => {
+  try {
+    const { _id } = req.body;
+
+    if (!_id || _id.length === 0) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.KEYWORD.KEYWORD_ID_REQUIRED,
+        status: false,
+      });
+    }
+
+    await Keyword.deleteMany({ _id: { $in: _id } });
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.KEYWORD.DELETE_KEYWORD_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in deleteKeywords()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
 const updateNewInsertedData = async () => {
   try {
     const newData = await SubProject.find({ newInserted: true });

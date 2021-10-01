@@ -66,5 +66,7 @@ module.exports = {
       "Keywords list has been successfully exported to google sheet.",
     KEYWORD_ANALYTICAL_DATA_SUCCESS:
       "Keywords analytical data fetched successfully.",
+    DELETE_KEYWORD_SUCCESS: "Keywords deleted successfully.",
+    KEYWORD_ID_REQUIRED: "Keywords id is required.",
   },
 };

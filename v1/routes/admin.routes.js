@@ -31,6 +31,7 @@ const {
   getUserList,
   editUser,
   forgotPassword,
+  deleteKeywords,
 } = require("../controllers/admin.controller");
 
 const {
@@ -141,5 +142,7 @@ router.get(
   authenticate,
   exportKeywordsToGoogleSheet
 );
+
+router.delete("/deleteKeywords", authenticate, deleteKeywords);
 
 module.exports = router;
