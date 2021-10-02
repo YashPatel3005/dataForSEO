@@ -1810,44 +1810,44 @@ exports.deleteKeywords = async (req, res) => {
   }
 };
 
-exports.addTag = async (req, res) => {
-  try {
-    const { tagName, keywords } = req.body;
+// exports.addTag = async (req, res) => {
+//   try {
+//     const { tagName, keywords } = req.body;
 
-    if (!keywords || keywords.length === 0) {
-      return res.status(400).send({
-        data: {},
-        message: commonMessage.KEYWORD.KEYWORD_ID_REQUIRED,
-        status: false,
-      });
-    }
+//     if (!keywords || keywords.length === 0) {
+//       return res.status(400).send({
+//         data: {},
+//         message: commonMessage.KEYWORD.KEYWORD_ID_REQUIRED,
+//         status: false,
+//       });
+//     }
 
-    // const tags = await Tag.create({
-    //   tagName: tagName,
-    //   createdAt: dateFunc.currentUtcTime(),
-    //   updatedAt: dateFunc.currentUtcTime(),
-    // });
+//     // const tags = await Tag.create({
+//     //   tagName: tagName,
+//     //   createdAt: dateFunc.currentUtcTime(),
+//     //   updatedAt: dateFunc.currentUtcTime(),
+//     // });
 
-    // await Keyword.updateMany(
-    //   { _id: { $in: keywords } },
-    //   { $push: { tags: tags._id } }
-    // );
+//     // await Keyword.updateMany(
+//     //   { _id: { $in: keywords } },
+//     //   { $push: { tags: tags._id } }
+//     // );
 
-    return res.status(200).send({
-      data: {},
-      message: commonMessage.TAG.ADD_TAG_SUCCESS,
-      status: true,
-    });
-  } catch (error) {
-    console.log("error in addTag()=> ", error);
+//     return res.status(200).send({
+//       data: {},
+//       message: commonMessage.TAG.ADD_TAG_SUCCESS,
+//       status: true,
+//     });
+//   } catch (error) {
+//     console.log("error in addTag()=> ", error);
 
-    return res.status(400).send({
-      data: {},
-      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
-      status: false,
-    });
-  }
-};
+//     return res.status(400).send({
+//       data: {},
+//       message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+//       status: false,
+//     });
+//   }
+// };
 
 exports.tagList = async (req, res) => {
   try {
@@ -1928,6 +1928,30 @@ exports.tagListDropDown = async (req, res) => {
     });
   } catch (error) {
     console.log("error in tagListDropDown()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.deleteTag = async (req, res) => {
+  try {
+    let id = req.params.id;
+
+    await Tag.deleteOne({ _id: id });
+
+    await Keyword.updateMany({ tags: { $eq: id } }, { $pull: { tags: id } });
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.TAG.DELETE_TAG_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in deleteTag()=> ", error);
 
     return res.status(400).send({
       data: {},

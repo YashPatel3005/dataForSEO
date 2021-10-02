@@ -35,6 +35,8 @@ module.exports = (permissionLevel, route) => {
       "/exportKeywordsToGoogleSheet/:id",
       "/deleteKeywords",
       "/enableDisableEmailNotification",
+      "/addTag",
+      "/deleteTag/:id",
     ],
   };
 

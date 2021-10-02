@@ -73,5 +73,6 @@ module.exports = {
   TAG: {
     ADD_TAG_SUCCESS: "Tag added successfully.",
     TAGS_FETCH_SUCCESS: "Tag list fetched successfully.",
+    DELETE_TAG_SUCCESS: "Tag deleted successfully.",
   },
 };

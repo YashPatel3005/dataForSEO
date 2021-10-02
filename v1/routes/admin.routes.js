@@ -36,6 +36,7 @@ const {
   enableDisableEmailNotification,
   tagList,
   tagListDropDown,
+  deleteTag,
 } = require("../controllers/admin.controller");
 
 const {
@@ -156,10 +157,14 @@ router.get(
 router.delete("/deleteKeywords", authenticate, deleteKeywords);
 
 //Tags
-router.post("/addTag", authenticate, addTag);
+// router.post("/addTag", authenticate, addTag);
 
 router.get("/tagList/:id", authenticate, tagList);
 
 router.get("/tagListDropDown/:id", authenticate, tagListDropDown);
+
+router.delete("/deleteTag/:id", authenticate, deleteTag);
+
+// router.get("/keywordsUnderTags",authenticate,)
 
 module.exports = router;
