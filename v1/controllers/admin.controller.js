@@ -1995,11 +1995,11 @@ exports.keywordsForTags = async (req, res) => {
       title: 0,
     };
 
-    const { _projectId } = await Tag.findOne({ _id: id });
+    const tagData = await Tag.findOne({ _id: id });
 
     let query = { $and: [] };
 
-    query.$and.push({ tags: { $eq: id } }, { _projectId: _projectId });
+    query.$and.push({ tags: { $eq: id } }, { _projectId: tagData._projectId });
 
     const result = await Keyword.find(query, projection)
       .populate("tags", "tagName")
