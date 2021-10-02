@@ -33,6 +33,7 @@ const {
   forgotPassword,
   deleteKeywords,
   addTag,
+  enableDisableEmailNotification,
 } = require("../controllers/admin.controller");
 
 const {
@@ -129,6 +130,12 @@ router.get(
   "/exportSubProjectToGoogleSheet/:id",
   authenticate,
   exportSubProjectToGoogleSheet
+);
+
+router.put(
+  "/enableDisableEmailNotification",
+  authenticate,
+  enableDisableEmailNotification
 );
 
 //Keyword

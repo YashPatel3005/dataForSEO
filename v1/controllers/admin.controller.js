@@ -757,6 +757,7 @@ exports.addSubProject = async (req, res) => {
     newData.updatedAt = currentDate;
 
     newData.nextDate = nextDate;
+
     newData.enableEmail = enableEmail;
 
     const subProjectData = await SubProject.create(newData);
@@ -1501,6 +1502,39 @@ exports.exportSubProjectToGoogleSheet = async (req, res) => {
     // }
   } catch (error) {
     console.log("error in exportSubProjectToGoogleSheet()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.enableDisableEmailNotification = async (req, res) => {
+  try {
+    const { _id, enableEmail } = req.body;
+
+    if (!_id || _id === "") {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.SUB_PROJECT.SUB_PROJECT_ID_REQUIRED,
+        status: false,
+      });
+    }
+
+    await SubProject.updateOne(
+      { _id: _id },
+      { $set: { enableEmail: enableEmail } }
+    );
+
+    return res.status(200).send({
+      data: {},
+      message: "Email notification status has been changed.",
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in enableDisableEmailNotification()=> ", error);
 
     return res.status(400).send({
       data: {},

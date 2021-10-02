@@ -59,6 +59,7 @@ module.exports = {
       "Sub projects analytical data fetched successfully.",
     SUB_PROJECT_EXPORT_TO_GOOGLE_SHEET_SUCCESS:
       "Sub project list has been successfully exported to google sheet.",
+    SUB_PROJECT_ID_REQUIRED: "Sub project id is required.",
   },
   KEYWORD: {
     KEYWORD_FETCH_SUCCESS: "Keywords list fetched successfully.",
