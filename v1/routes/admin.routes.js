@@ -34,6 +34,8 @@ const {
   deleteKeywords,
   addTag,
   enableDisableEmailNotification,
+  tagList,
+  tagListDropDown,
 } = require("../controllers/admin.controller");
 
 const {
@@ -155,5 +157,9 @@ router.delete("/deleteKeywords", authenticate, deleteKeywords);
 
 //Tags
 router.post("/addTag", authenticate, addTag);
+
+router.get("/tagList/:id", authenticate, tagList);
+
+router.get("/tagListDropDown/:id", authenticate, tagListDropDown);
 
 module.exports = router;

@@ -708,14 +708,40 @@ exports.getProjectsListDrpDwn = async (req, res) => {
 
 exports.addSubProject = async (req, res) => {
   try {
-    const {
+    let {
       keyword,
       domain,
       locationCode,
       keywordCheckFrequency,
       _projectId,
       enableEmail,
+      tags,
     } = req.body;
+
+    tags = [...new Set(tags)];
+
+    console.log(tags);
+
+    let tagIDs = [];
+    for (let i = 0; i < tags.length; i++) {
+      const tagData = await Tag.findOne({ tagName: tags[i].trim() });
+      console.log(tagData);
+
+      if (tagData) {
+        tagIDs.push(tagData._id);
+      }
+
+      if (!tagData) {
+        const newTag = await Tag.create({
+          tagName: tags[i].trim(),
+          createdAt: dateFunc.currentUtcTime(),
+          updatedAt: dateFunc.currentUtcTime(),
+          _projectId: _projectId,
+        });
+        tagIDs.push(newTag._id);
+      }
+    }
+    console.log(tagIDs);
 
     let newData = {};
 
@@ -768,7 +794,7 @@ exports.addSubProject = async (req, res) => {
       status: true,
     });
 
-    await updateNewInsertedData();
+    await updateNewInsertedData(tagIDs);
     // let createTask = await axios({
     //   method: "post",
     //   url: "https://api.dataforseo.com/v3/serp/google/organic/task_post",
@@ -1900,7 +1926,95 @@ exports.addTag = async (req, res) => {
   }
 };
 
-const updateNewInsertedData = async () => {
+exports.tagList = async (req, res) => {
+  try {
+    let id = req.params.id;
+    let { limit, page } = req.query;
+
+    limit = parseInt(limit) || 10;
+    page = parseInt(page) || 1;
+
+    // SORTING STARTS
+    let field;
+    let value;
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(":");
+      field = sortBy[0];
+      if (sortBy[1] == "asc") {
+        value = 1;
+      } else {
+        value = -1;
+      }
+    } else {
+      field = "createdAt";
+      value = -1;
+    }
+    // SORTING ENDS
+
+    // let projection = {
+    //   breadcrumb: 0,
+    //   languageCode: 0,
+    //   seDomain: 0,
+    //   type: 0,
+    //   description: 0,
+    //   title: 0,
+    // };
+
+    let query = { _projectId: id };
+
+    const result = await Tag.find(query)
+      .collation({ locale: "en" })
+      .sort({ [field]: value })
+      .skip(limit * (page - 1))
+      .limit(limit)
+      .lean();
+
+    let total = await Tag.countDocuments(query);
+
+    return res.status(200).send({
+      data: { result, total, limit, page },
+      message: commonMessage.TAG.TAGS_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in tagList()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.tagListDropDown = async (req, res) => {
+  try {
+    let id = req.params.id;
+
+    let query = { _projectId: id };
+
+    const result = await Tag.find(query)
+      .collation({ locale: "en" })
+      .sort({ tagName: 1 })
+      .lean();
+
+    return res.status(200).send({
+      data: result,
+      message: commonMessage.TAG.TAGS_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in tagListDropDown()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+const updateNewInsertedData = async (tagIDs) => {
   try {
     const newData = await SubProject.find({ newInserted: true });
 
@@ -1968,6 +2082,7 @@ const updateNewInsertedData = async () => {
             result._subProjectId = data._id;
             result.keyword = keyword;
 
+            result.tags = tagIDs;
             // console.log(result);
 
             await Keyword.create(result);
@@ -1989,6 +2104,8 @@ const updateNewInsertedData = async () => {
             dataObj._projectId = data._projectId;
             dataObj._subProjectId = data._id;
             dataObj.keyword = keyword;
+
+            dataObj.tags = tagIDs;
 
             dataObj.updatedAt = dateFunc.currentUtcTime();
             dataObj.createdAt = dateFunc.currentUtcTime();

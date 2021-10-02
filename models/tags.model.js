@@ -5,6 +5,11 @@ let tagSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  _projectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "SubProject",
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: null,
