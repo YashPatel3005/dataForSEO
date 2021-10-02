@@ -523,14 +523,14 @@ exports.getProjectsList = async (req, res) => {
       query = { assignedUsers: { $in: req.admin._id } };
     }
 
-    const result = await Project.find()
+    const result = await Project.find(query)
       .collation({ locale: "en" })
       .sort({ [field]: value })
       .skip(limit * (page - 1))
       .limit(limit)
       .lean();
 
-    let total = await Project.countDocuments({});
+    let total = await Project.countDocuments(query);
 
     return res.status(200).send({
       data: { result, total, limit, page },
