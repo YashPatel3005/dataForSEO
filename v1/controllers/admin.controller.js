@@ -17,6 +17,7 @@ const Admin = require("../../models/admin.model");
 const Project = require("../../models/project.model");
 const SubProject = require("../../models/subProject.model");
 const Keyword = require("../../models/keywords.model");
+const Tag = require("../../models/tags.model");
 
 const sendEmail = require("../../services/email.service");
 
@@ -146,9 +147,19 @@ exports.getUserList = async (req, res) => {
     }
     // SORTING ENDS
 
-    const result = await Admin.find({
-      permissionLevel: { $ne: appConstant.adminPermissionLevel.admin },
-    })
+    let projectionObj = {
+      resetPasswordToken: 0,
+      resetPasswordExpires: 0,
+      password: 0,
+      tokens: 0,
+    };
+
+    const result = await Admin.find(
+      {
+        permissionLevel: { $ne: appConstant.adminPermissionLevel.admin },
+      },
+      projectionObj
+    )
       .collation({ locale: "en" })
       .sort({ [field]: value })
       .skip(limit * (page - 1))
@@ -206,7 +217,14 @@ exports.getViewUserProfile = async (req, res) => {
   try {
     let id = req.params.id;
 
-    const userData = await Admin.findOne({ _id: id })
+    let projectionObj = {
+      resetPasswordToken: 0,
+      resetPasswordExpires: 0,
+      password: 0,
+      tokens: 0,
+    };
+
+    const userData = await Admin.findOne({ _id: id }, projectionObj)
       .populate("projectAccess", "domain projectName _id")
       .exec();
 
@@ -690,8 +708,14 @@ exports.getProjectsListDrpDwn = async (req, res) => {
 
 exports.addSubProject = async (req, res) => {
   try {
-    const { keyword, domain, locationCode, keywordCheckFrequency, _projectId } =
-      req.body;
+    const {
+      keyword,
+      domain,
+      locationCode,
+      keywordCheckFrequency,
+      _projectId,
+      enableEmail,
+    } = req.body;
 
     let newData = {};
 
@@ -733,6 +757,7 @@ exports.addSubProject = async (req, res) => {
     newData.updatedAt = currentDate;
 
     newData.nextDate = nextDate;
+    newData.enableEmail = enableEmail;
 
     const subProjectData = await SubProject.create(newData);
 
@@ -1793,6 +1818,45 @@ exports.deleteKeywords = async (req, res) => {
     });
   } catch (error) {
     console.log("error in deleteKeywords()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.addTag = async (req, res) => {
+  try {
+    const { tagName, keywords } = req.body;
+
+    if (!keywords || keywords.length === 0) {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.KEYWORD.KEYWORD_ID_REQUIRED,
+        status: false,
+      });
+    }
+
+    // const tags = await Tag.create({
+    //   tagName: tagName,
+    //   createdAt: dateFunc.currentUtcTime(),
+    //   updatedAt: dateFunc.currentUtcTime(),
+    // });
+
+    // await Keyword.updateMany(
+    //   { _id: { $in: keywords } },
+    //   { $push: { tags: tags._id } }
+    // );
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.TAG.ADD_TAG_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in addTag()=> ", error);
 
     return res.status(400).send({
       data: {},

@@ -32,6 +32,7 @@ const {
   editUser,
   forgotPassword,
   deleteKeywords,
+  addTag,
 } = require("../controllers/admin.controller");
 
 const {
@@ -144,5 +145,8 @@ router.get(
 );
 
 router.delete("/deleteKeywords", authenticate, deleteKeywords);
+
+//Tags
+router.post("/addTag", authenticate, addTag);
 
 module.exports = router;

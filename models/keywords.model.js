@@ -108,6 +108,13 @@ let keywordsSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  tags: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tag",
+      default: null,
+    },
+  ],
 });
 
 const Keyword = mongoose.model("Keyword", keywordsSchema);

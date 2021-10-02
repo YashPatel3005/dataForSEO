@@ -69,4 +69,7 @@ module.exports = {
     DELETE_KEYWORD_SUCCESS: "Keywords deleted successfully.",
     KEYWORD_ID_REQUIRED: "Keywords id is required.",
   },
+  TAG: {
+    ADD_TAG_SUCCESS: "Tag added successfully.",
+  },
 };
