@@ -650,7 +650,15 @@ exports.exportProjectToGoogleSheet = async (req, res) => {
 
 exports.getProjectsListDrpDwn = async (req, res) => {
   try {
-    const result = await Project.find({})
+    let query = {};
+
+    if (req.admin.permissionLevel === appConstant.adminPermissionLevel.admin) {
+      query = {};
+    } else {
+      query = { assignedUsers: { $in: req.admin._id } };
+    }
+
+    const result = await Project.find(query)
       .collation({ locale: "en" })
       .sort({ projectName: 1 });
 
