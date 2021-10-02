@@ -37,6 +37,7 @@ const {
   tagList,
   tagListDropDown,
   deleteTag,
+  keywordsForTags,
 } = require("../controllers/admin.controller");
 
 const {
@@ -165,6 +166,6 @@ router.get("/tagListDropDown/:id", authenticate, tagListDropDown);
 
 router.delete("/deleteTag/:id", authenticate, deleteTag);
 
-// router.get("/keywordsUnderTags",authenticate,)
+router.get("/keywordsForTags/:id", authenticate, keywordsForTags);
 
 module.exports = router;

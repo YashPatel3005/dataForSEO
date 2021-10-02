@@ -1961,6 +1961,72 @@ exports.deleteTag = async (req, res) => {
   }
 };
 
+exports.keywordsForTags = async (req, res) => {
+  try {
+    let id = req.params.id;
+    let { limit, page } = req.query;
+
+    limit = parseInt(limit) || 10;
+    page = parseInt(page) || 1;
+
+    // SORTING STARTS
+    let field;
+    let value;
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(":");
+      field = sortBy[0];
+      if (sortBy[1] == "asc") {
+        value = 1;
+      } else {
+        value = -1;
+      }
+    } else {
+      field = "createdAt";
+      value = -1;
+    }
+    // SORTING ENDS
+
+    let projection = {
+      breadcrumb: 0,
+      languageCode: 0,
+      seDomain: 0,
+      type: 0,
+      description: 0,
+      title: 0,
+    };
+
+    const { _projectId } = await Tag.findOne({ _id: id });
+
+    let query = { $and: [] };
+
+    query.$and.push({ tags: { $eq: id } }, { _projectId: _projectId });
+
+    const result = await Keyword.find(query, projection)
+      .populate("tags", "tagName")
+      .collation({ locale: "en" })
+      .sort({ [field]: value })
+      .skip(limit * (page - 1))
+      .limit(limit)
+      .lean();
+
+    let total = await Keyword.countDocuments(query);
+
+    return res.status(200).send({
+      data: { result, total, limit, page },
+      message: commonMessage.KEYWORD.KEYWORD_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in keywordsForTags()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
 const updateNewInsertedData = async (tagIDs) => {
   try {
     const newData = await SubProject.find({ newInserted: true });
