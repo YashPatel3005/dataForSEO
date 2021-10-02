@@ -1,5 +1,6 @@
 const Admin = require("../models/admin.model");
 const commonMessage = require("../helpers/commonMessage.helper");
+const checkPermission = require("../helpers/permissionLevels.helper");
 const jwt = require("jsonwebtoken");
 
 let authenticate = async (req, res, next) => {
@@ -30,6 +31,19 @@ let authenticate = async (req, res, next) => {
       return res.status(401).send({
         data: {},
         message: commonMessage.ERROR_MESSAGE.UNAUTHORIZED_USER,
+        status: false,
+      });
+    }
+
+    const isPermitted = await checkPermission(
+      Number(admin.permissionLevel),
+      req.route["path"]
+    );
+
+    if (isPermitted == false) {
+      return res.status(403).send({
+        data: {},
+        message: "Sorry, you don't have access to this page or resource.",
         status: false,
       });
     }

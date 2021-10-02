@@ -1105,6 +1105,7 @@ exports.subProjectDashboard = async (req, res) => {
     let resultObj = {};
     let topSpot = 0;
     let topThree = 0;
+    let topTen = 0;
     let fourToTen = 0;
     let elevenToTwenty = 0;
     let twentyOneToFifty = 0;
@@ -1121,6 +1122,11 @@ exports.subProjectDashboard = async (req, res) => {
         // top three 1-3
         if (keywordData[i].rankGroup <= 3) {
           topThree = topThree + 1;
+        }
+
+        // top ten 1-10
+        if (keywordData[i].rankGroup <= 10) {
+          topTen = topTen + 1;
         }
 
         //4 to 10
@@ -1160,6 +1166,7 @@ exports.subProjectDashboard = async (req, res) => {
     });
     resultObj.topSpot = topSpot;
     resultObj.topThree = topThree;
+    resultObj.topTen = topTen;
     resultObj.fourToTen = fourToTen;
     resultObj.elevenToTwenty = elevenToTwenty;
     resultObj.twentyOneToFifty = twentyOneToFifty;
@@ -1578,6 +1585,7 @@ exports.exportKeywordsToCsv = async (req, res) => {
 exports.exportKeywordsToGoogleSheet = async (req, res) => {
   try {
     const id = req.params.id;
+
     const keywordsData = await Keyword.find({ _subProjectId: id });
 
     // if (subProjectData && subProjectData.length > 0) {
@@ -1656,6 +1664,7 @@ exports.keywordDashboard = async (req, res) => {
     let resultObj = {};
     let topSpot = 0;
     let topThree = 0;
+    let topTen = 0;
     let fourToTen = 0;
     let elevenToTwenty = 0;
     let twentyOneToFifty = 0;
@@ -1672,6 +1681,10 @@ exports.keywordDashboard = async (req, res) => {
         // top three 1-3
         if (keywordsData[i].rankGroup <= 3) {
           topThree = topThree + 1;
+        }
+
+        if (keywordsData[i].rankGroup <= 10) {
+          topTen = topTen + 1;
         }
 
         //4 to 10
@@ -1714,6 +1727,7 @@ exports.keywordDashboard = async (req, res) => {
     });
     resultObj.topSpot = topSpot;
     resultObj.topThree = topThree;
+    resultObj.topTen = topTen;
     resultObj.fourToTen = fourToTen;
     resultObj.elevenToTwenty = elevenToTwenty;
     resultObj.twentyOneToFifty = twentyOneToFifty;
