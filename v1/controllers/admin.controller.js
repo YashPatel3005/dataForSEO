@@ -795,115 +795,6 @@ exports.addSubProject = async (req, res) => {
     });
 
     await updateNewInsertedData(tagIDs);
-    // let createTask = await axios({
-    //   method: "post",
-    //   url: "https://api.dataforseo.com/v3/serp/google/organic/task_post",
-    //   auth: {
-    //     username: process.env.SERP_API_USERNAME,
-    //     password: process.env.SERP_API_PASSWORD,
-    //   },
-    //   data: [
-    //     {
-    //       keyword: encodeURI(keyword),
-    //       location_code: locationCode,
-    //       language_code: "en",
-    //       // url: domain,
-    //       // depth: "100",
-    //       // se_domain: "google.com.au",
-    //     },
-    //   ],
-    //   headers: {
-    //     "content-type": "application/json",
-    //   },
-    // });
-
-    // async function getTask() {
-    //   let taskId = createTask.data.tasks[0].id;
-    //   console.log(taskId);
-
-    //   let getTaskData = await axios({
-    //     method: "get",
-    //     url:
-    //       "https://api.dataforseo.com/v3/serp/google/organic/task_get/regular/" +
-    //       taskId,
-    //     auth: {
-    //       username: process.env.SERP_API_USERNAME,
-    //       password: process.env.SERP_API_PASSWORD,
-    //     },
-    //     headers: {
-    //       "content-type": "application/json",
-    //     },
-    //   });
-
-    //   let items;
-    //   let result;
-    //   if (getTaskData.data.tasks) {
-    //     items = getTaskData.data.tasks[0].result[0].items;
-    //     for (let i of items) {
-    //       if (
-    //         getTaskData.data.tasks[0].result[0].type == "organic" &&
-    //         i.domain == domain
-    //       ) {
-    //         result = i;
-    //       }
-    //     }
-    //   }
-
-    //   let currentDate = dateFunc.currentUtcTime();
-    //   console.log(currentDate);
-
-    //   let nextDate;
-    //   if (keywordCheckFrequency === appConstant.keywordCheckFrequency.weekly) {
-    //     nextDate = dateFunc.addDate(currentDate, 7, "days");
-    //     nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
-    //     console.log(nextDate);
-    //   } else if (
-    //     keywordCheckFrequency === appConstant.keywordCheckFrequency.fortnightly
-    //   ) {
-    //     nextDate = dateFunc.addDate(currentDate, 15, "days");
-    //     nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
-    //     console.log(nextDate);
-    //   } else {
-    //     nextDate = dateFunc.addDate(currentDate, 1, "months");
-    //     nextDate = dateFunc.getAfterMidnightTimeOfDate(nextDate);
-    //     console.log(nextDate);
-    //   }
-
-    //   if (result) {
-    //     result.keyword = getTaskData.data.tasks[0].result[0].keyword;
-    //     result.seDomain = getTaskData.data.tasks[0].result[0].se_domain;
-    //     result.locationCode = getTaskData.data.tasks[0].result[0].location_code;
-    //     result.languageCode = getTaskData.data.tasks[0].result[0].language_code;
-
-    //     result.currDate = dateFunc.getAfterMidnightTimeOfDate(currentDate);
-    //     result.createdAt = currentDate;
-    //     result.updatedAt = currentDate;
-
-    //     result.rankGroup = result.rank_group;
-    //     result.rankAbsolute = result.rank_absolute;
-
-    //     result.keywordCheckFrequency = keywordCheckFrequency;
-    //     result._projectId = _projectId;
-    //     result.nextDate = nextDate;
-
-    //     delete result.rank_group;
-    //     delete result.rank_absolute;
-    //     console.log(result);
-
-    //     await SubProject.create(result);
-    //   } else {
-    //     return res.status(400).send({
-    //       data: {},
-    //       message: commonMessage.TASK.VALID_DOMAIN,
-    //       status: false,
-    //     });
-    //   }
-
-    //}
-
-    // if (createTask.data.status_code === 20000) {
-    //   setTimeout(getTask, 8000);
-    // }
   } catch (error) {
     console.log("error in addSubProject()=> ", error);
 
@@ -917,7 +808,7 @@ exports.addSubProject = async (req, res) => {
 
 exports.editSubProject = async (req, res) => {
   try {
-    const { keyword } = req.body;
+    let { keyword, tags } = req.body;
     let _subProjectId = req.params.id;
 
     let subProjectData = await SubProject.findOne({ _id: _subProjectId });
@@ -925,6 +816,34 @@ exports.editSubProject = async (req, res) => {
     subProjectData.newAddedKeyword = keyword.join();
     subProjectData.newInserted = true;
     await subProjectData.save();
+
+    tags = [...new Set(tags)];
+
+    console.log(tags);
+
+    let tagIDs = [];
+    for (let i = 0; i < tags.length; i++) {
+      const tagData = await Tag.findOne({
+        tagName: tags[i].trim(),
+        _projectId: subProjectData._projectId,
+      });
+      console.log(tagData);
+
+      if (tagData) {
+        tagIDs.push(tagData._id);
+      }
+
+      if (!tagData) {
+        const newTag = await Tag.create({
+          tagName: tags[i].trim(),
+          createdAt: dateFunc.currentUtcTime(),
+          updatedAt: dateFunc.currentUtcTime(),
+          _projectId: subProjectData._projectId,
+        });
+        tagIDs.push(newTag._id);
+      }
+    }
+    console.log(tagIDs);
 
     res.status(200).send({
       data: {},
@@ -993,6 +912,8 @@ exports.editSubProject = async (req, res) => {
           result._subProjectId = subProjectData._id;
           result.keyword = keyword;
 
+          result.tags = tagIDs;
+
           // console.log(result);
 
           await Keyword.create(result);
@@ -1014,6 +935,8 @@ exports.editSubProject = async (req, res) => {
           dataObj._projectId = subProjectData._projectId;
           dataObj._subProjectId = subProjectData._id;
           dataObj.keyword = keyword;
+
+          dataObj.tags = tagIDs;
 
           dataObj.updatedAt = dateFunc.currentUtcTime();
           dataObj.createdAt = dateFunc.currentUtcTime();
