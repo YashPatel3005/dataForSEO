@@ -233,6 +233,16 @@ exports.editUser = async (req, res) => {
 
     await Admin.updateOne({ _id: id }, { $set: reqBody });
 
+    await Project.updateMany(
+      { assignedUsers: { $in: id } },
+      { $pull: { assignedUsers: id } }
+    );
+
+    await Project.updateMany(
+      { _id: { $in: reqBody.projectAccess } },
+      { $push: { assignedUsers: id } }
+    );
+
     return res.status(200).send({
       data: {},
       message: commonMessage.USER.USER_UPDATE_SUCCESS,
