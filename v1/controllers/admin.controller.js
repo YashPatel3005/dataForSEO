@@ -987,7 +987,7 @@ exports.editSubProject = async (req, res) => {
         $set: {
           newInserted: false,
           newAddedKeyword: null,
-          keyword: keyword.join().concat(",", subProjectData.keyword),
+          keyword: tempKeyword.join().concat(",", subProjectData.keyword),
         },
       }
     );
