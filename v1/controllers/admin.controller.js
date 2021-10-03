@@ -18,6 +18,7 @@ const Project = require("../../models/project.model");
 const SubProject = require("../../models/subProject.model");
 const Keyword = require("../../models/keywords.model");
 const Tag = require("../../models/tags.model");
+const KeywordHistory = require("../../models/keywordHistory.model");
 
 const sendEmail = require("../../services/email.service");
 
@@ -503,6 +504,11 @@ exports.deleteProject = async (req, res) => {
       _projectId: id,
     });
 
+    await Admin.updateMany(
+      { projectAccess: { $in: id } },
+      { $pull: { projectAccess: id } }
+    );
+
     return res.status(200).send({
       data: {},
       message: commonMessage.PROJECT.DELETE_PROJECT_SUCCESS,
@@ -811,6 +817,10 @@ exports.editSubProject = async (req, res) => {
     let { keyword, tags } = req.body;
     let _subProjectId = req.params.id;
 
+    let currentDate = dateFunc.currentUtcTime();
+    currentDate = dateFunc.getAfterMidnightTimeOfDate(currentDate);
+    console.log(currentDate);
+
     let subProjectData = await SubProject.findOne({ _id: _subProjectId });
 
     subProjectData.newAddedKeyword = keyword.join();
@@ -916,7 +926,21 @@ exports.editSubProject = async (req, res) => {
 
           // console.log(result);
 
-          await Keyword.create(result);
+          // await Keyword.create(result);
+
+          let keywordHistoryData = await new KeywordHistory({
+            keyword: keyword,
+            keywordData: [{ date: currentDate, rank: result.rankGroup }],
+            createdAt: dateFunc.currentUtcTime(),
+            updatedAt: dateFunc.currentUtcTime(),
+          });
+
+          result._keywordHistoryId = keywordHistoryData._id;
+
+          const insertedData = await Keyword.create(result);
+
+          keywordHistoryData._keywordId = insertedData._id;
+          await keywordHistoryData.save();
 
           console.log("keywords has been updated >>>");
         } else {
@@ -2027,6 +2051,32 @@ exports.keywordsForTags = async (req, res) => {
   }
 };
 
+exports.keywordGraph = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const keywordDetails = await Keyword.findOne({ _id: id });
+
+    const keywordHistoryData = await KeywordHistory.findOne({
+      _id: keywordDetails._keywordHistoryId,
+    });
+
+    return res.status(200).send({
+      data: keywordHistoryData.keywordData,
+      message: commonMessage.KEYWORD.KEYWORD_GRAPH_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in keywordGraph()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
 const updateNewInsertedData = async (tagIDs) => {
   try {
     const newData = await SubProject.find({ newInserted: true });
@@ -2098,7 +2148,19 @@ const updateNewInsertedData = async (tagIDs) => {
             result.tags = tagIDs;
             // console.log(result);
 
-            await Keyword.create(result);
+            let keywordHistoryData = await new KeywordHistory({
+              keyword: keyword,
+              keywordData: [{ date: data.currDate, rank: result.rankGroup }],
+              createdAt: dateFunc.currentUtcTime(),
+              updatedAt: dateFunc.currentUtcTime(),
+            });
+
+            result._keywordHistoryId = keywordHistoryData._id;
+
+            const insertedData = await Keyword.create(result);
+
+            keywordHistoryData._keywordId = insertedData._id;
+            await keywordHistoryData.save();
 
             console.log("keywords has been updated >>>");
           } else {

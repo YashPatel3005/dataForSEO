@@ -69,6 +69,8 @@ module.exports = {
       "Keywords analytical data fetched successfully.",
     DELETE_KEYWORD_SUCCESS: "Keywords deleted successfully.",
     KEYWORD_ID_REQUIRED: "Keywords id is required.",
+    KEYWORD_GRAPH_FETCH_SUCCESS:
+      "Keyword(s) graph details fetched successfully.",
   },
   TAG: {
     ADD_TAG_SUCCESS: "Tag added successfully.",

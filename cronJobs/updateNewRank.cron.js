@@ -3,6 +3,7 @@ const axios = require("axios");
 
 const SubProject = require("../models/subProject.model");
 const Keyword = require("../models/keywords.model");
+const KeywordHistory = require("../models/keywordHistory.model");
 const dateFunc = require("../helpers/dateFunctions.helper");
 const appConstant = require("../app.constant");
 
@@ -118,6 +119,26 @@ const updateNewRank = new CronJob({
 
               newObj.updatedAt = dateFunc.currentUtcTime();
               // console.log(newObj);
+
+              const keywordHistoryData = await KeywordHistory.findOne({
+                _keywordId: keyword._id,
+              });
+
+              if (keywordHistoryData) {
+                const isExists = keywordHistoryData.keywordData.find(
+                  (items) => items.date.toString() == currentDate.toString()
+                );
+
+                if (!isExists) {
+                  keywordHistoryData.updatedAt = dateFunc.currentUtcTime();
+                  keywordHistoryData.keywordData.push({
+                    date: currentDate,
+                    rank: newObj.rankGroup,
+                  });
+
+                  await keywordHistoryData.save();
+                }
+              }
 
               await Keyword.updateOne({ _id: keyword._id }, { $set: newObj });
 

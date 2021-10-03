@@ -115,6 +115,11 @@ let keywordsSchema = new mongoose.Schema({
       default: null,
     },
   ],
+  _keywordHistoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "KeywordHistory",
+    default: null,
+  },
 });
 
 const Keyword = mongoose.model("Keyword", keywordsSchema);
