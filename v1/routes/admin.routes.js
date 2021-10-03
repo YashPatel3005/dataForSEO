@@ -39,6 +39,7 @@ const {
   deleteTag,
   keywordsForTags,
   keywordGraph,
+  keywordsOfTagsGraph,
 } = require("../controllers/admin.controller");
 
 const {
@@ -170,5 +171,7 @@ router.delete("/deleteTag/:id", authenticate, deleteTag);
 router.get("/keywordsForTags/:id", authenticate, keywordsForTags);
 
 router.get("/keywordGraph/:id", authenticate, keywordGraph);
+
+router.get("/keywordsOfTagsGraph/:id", authenticate, keywordsOfTagsGraph);
 
 module.exports = router;

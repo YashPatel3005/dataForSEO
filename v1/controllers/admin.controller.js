@@ -724,6 +724,8 @@ exports.addSubProject = async (req, res) => {
       tags,
     } = req.body;
 
+    keyword = [...new Set(keyword)];
+
     tags = [...new Set(tags)];
 
     console.log(tags);
@@ -815,6 +817,8 @@ exports.addSubProject = async (req, res) => {
 exports.editSubProject = async (req, res) => {
   try {
     let { keyword, tags } = req.body;
+    keyword = [...new Set(keyword)];
+
     let _subProjectId = req.params.id;
 
     let currentDate = dateFunc.currentUtcTime();
@@ -823,7 +827,14 @@ exports.editSubProject = async (req, res) => {
 
     let subProjectData = await SubProject.findOne({ _id: _subProjectId });
 
-    subProjectData.newAddedKeyword = keyword.join();
+    let tempKeyword = [];
+    for (let i = 0; i < keyword.length; i++) {
+      if (subProjectData.keyword.includes(keyword[i]) === false) {
+        tempKeyword.push(keyword[i]);
+      }
+    }
+
+    subProjectData.newAddedKeyword = tempKeyword.join();
     subProjectData.newInserted = true;
     await subProjectData.save();
 
@@ -2055,19 +2066,51 @@ exports.keywordGraph = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const keywordDetails = await Keyword.findOne({ _id: id });
+    const keywordDetails = await Keyword.findOne({ _id: id })
+      .populate("_keywordHistoryId")
+      .lean()
+      .exec();
 
-    const keywordHistoryData = await KeywordHistory.findOne({
-      _id: keywordDetails._keywordHistoryId,
+    let data = keywordDetails._keywordHistoryId.keywordData;
+
+    data.sort((a, b) => {
+      return a.date - b.date;
     });
 
     return res.status(200).send({
-      data: keywordHistoryData.keywordData,
+      data: data,
       message: commonMessage.KEYWORD.KEYWORD_GRAPH_FETCH_SUCCESS,
       status: true,
     });
   } catch (error) {
     console.log("error in keywordGraph()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+exports.keywordsOfTagsGraph = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const tags = await Tag.find({ _id: id });
+
+    const keywordDetails = await Keyword.find({ tags: { $in: id } })
+      .populate("_keywordHistoryId")
+      .exec();
+    console.log(keywordDetails);
+
+    return res.status(200).send({
+      data: { keywordDetails },
+      message: commonMessage.KEYWORD.KEYWORD_GRAPH_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in keywordsOfTagsGraph()=> ", error);
 
     return res.status(400).send({
       data: {},
