@@ -1942,7 +1942,7 @@ exports.tagList = async (req, res) => {
     //   title: 0,
     // };
 
-    let query = { _projectId: id };
+    let query = { _subProjectId: id };
 
     const result = await Tag.find(query)
       .collation({ locale: "en" })
@@ -1973,7 +1973,7 @@ exports.tagListDropDown = async (req, res) => {
   try {
     let id = req.params.id;
 
-    let query = { _projectId: id };
+    let query = { _subProjectId: id };
 
     const result = await Tag.find(query)
       .collation({ locale: "en" })
