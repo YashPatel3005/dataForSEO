@@ -54,7 +54,7 @@ exports.createGoogleAuth = async (req, res) => {
       "https://www.googleapis.com/auth/drive",
       "https://www.googleapis.com/auth/plus.login",
       "https://www.googleapis.com/auth/drive.file",
-      // 'https://www.googleapis.com/auth/spreadsheets',
+      "https://www.googleapis.com/auth/spreadsheets",
     ];
 
     // STEP 2: RUN BELOW CODE TO GET URL
@@ -70,7 +70,7 @@ exports.createGoogleAuth = async (req, res) => {
     const generateToken = async () => {
       try {
         const { tokens } = await oauth2Client.getToken(
-          "4/0AX4XfWh3RGTxZdsH2U0ANXMrNg1xU0NbppEOELgTcEKISz8bCRc3-YS9q9xBfNi_Uj3r3A"
+          "4/0AX4XfWj09ckY-KbrgEsw4BFUqFouL9lXO9HDPZPd11pe9VhcgDaE-X22DC_iKByVObLFOg"
         );
         oauth2Client.setCredentials(tokens);
       } catch (error) {
