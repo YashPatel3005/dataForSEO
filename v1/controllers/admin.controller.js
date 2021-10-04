@@ -730,27 +730,6 @@ exports.addSubProject = async (req, res) => {
 
     console.log(tags);
 
-    let tagIDs = [];
-    for (let i = 0; i < tags.length; i++) {
-      const tagData = await Tag.findOne({ tagName: tags[i].trim() });
-      console.log(tagData);
-
-      if (tagData) {
-        tagIDs.push(tagData._id);
-      }
-
-      if (!tagData) {
-        const newTag = await Tag.create({
-          tagName: tags[i].trim(),
-          createdAt: dateFunc.currentUtcTime(),
-          updatedAt: dateFunc.currentUtcTime(),
-          _projectId: _projectId,
-        });
-        tagIDs.push(newTag._id);
-      }
-    }
-    console.log(tagIDs);
-
     let newData = {};
 
     let currentDate = dateFunc.currentUtcTime();
@@ -795,6 +774,33 @@ exports.addSubProject = async (req, res) => {
     newData.enableEmail = enableEmail;
 
     const subProjectData = await SubProject.create(newData);
+
+    let tagIDs = [];
+    for (let i = 0; i < tags.length; i++) {
+      const tagData = await Tag.findOne({
+        $and: [
+          { tagName: tags[i].trim() },
+          { _subProjectId: subProjectData._id },
+        ],
+      });
+      console.log(tagData);
+
+      if (tagData) {
+        tagIDs.push(tagData._id);
+      }
+
+      if (!tagData) {
+        const newTag = await Tag.create({
+          tagName: tags[i].trim(),
+          createdAt: dateFunc.currentUtcTime(),
+          updatedAt: dateFunc.currentUtcTime(),
+          _projectId: _projectId,
+          _subProjectId: subProjectData._id,
+        });
+        tagIDs.push(newTag._id);
+      }
+    }
+    console.log(tagIDs);
 
     res.status(200).send({
       data: subProjectData,
@@ -845,8 +851,8 @@ exports.editSubProject = async (req, res) => {
     let tagIDs = [];
     for (let i = 0; i < tags.length; i++) {
       const tagData = await Tag.findOne({
-        tagName: tags[i].trim(),
-        _projectId: subProjectData._projectId,
+        $and: [{ tagName: tags[i].trim() }, { _subProjectId: _subProjectId }],
+        // _projectId: subProjectData._projectId,
       });
       console.log(tagData);
 
@@ -860,6 +866,7 @@ exports.editSubProject = async (req, res) => {
           createdAt: dateFunc.currentUtcTime(),
           updatedAt: dateFunc.currentUtcTime(),
           _projectId: subProjectData._projectId,
+          _subProjectId: _subProjectId,
         });
         tagIDs.push(newTag._id);
       }
@@ -1565,6 +1572,7 @@ exports.getKeywords = async (req, res) => {
     let query = { _subProjectId: id };
 
     const result = await Keyword.find(query, projection)
+      .populate("tags", "tagName")
       .collation({ locale: "en" })
       .sort({ [field]: value })
       .skip(limit * (page - 1))
@@ -1845,44 +1853,41 @@ exports.deleteKeywords = async (req, res) => {
   }
 };
 
-// exports.addTag = async (req, res) => {
-//   try {
-//     const { tagName, keywords } = req.body;
+exports.addTag = async (req, res) => {
+  try {
+    const { tagName } = req.body;
 
-//     if (!keywords || keywords.length === 0) {
-//       return res.status(400).send({
-//         data: {},
-//         message: commonMessage.KEYWORD.KEYWORD_ID_REQUIRED,
-//         status: false,
-//       });
-//     }
+    const id = req.params.id;
 
-//     // const tags = await Tag.create({
-//     //   tagName: tagName,
-//     //   createdAt: dateFunc.currentUtcTime(),
-//     //   updatedAt: dateFunc.currentUtcTime(),
-//     // });
+    const tags = await new Tag({
+      tagName: tagName,
+      createdAt: dateFunc.currentUtcTime(),
+      updatedAt: dateFunc.currentUtcTime(),
+    });
 
-//     // await Keyword.updateMany(
-//     //   { _id: { $in: keywords } },
-//     //   { $push: { tags: tags._id } }
-//     // );
+    const keywordData = await Keyword.find({ _id: id });
 
-//     return res.status(200).send({
-//       data: {},
-//       message: commonMessage.TAG.ADD_TAG_SUCCESS,
-//       status: true,
-//     });
-//   } catch (error) {
-//     console.log("error in addTag()=> ", error);
+    tags._projectId = keywordData._projectId;
+    keywordData.tags.push(tags._id);
+    await tags.save();
 
-//     return res.status(400).send({
-//       data: {},
-//       message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
-//       status: false,
-//     });
-//   }
-// };
+    await keywordData.save();
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.TAG.ADD_TAG_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in addTag()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
 
 exports.tagList = async (req, res) => {
   try {
@@ -2030,11 +2035,15 @@ exports.keywordsForTags = async (req, res) => {
       title: 0,
     };
 
-    const tagData = await Tag.findOne({ _id: id });
+    // const tagData = await Tag.findOne({ _id: id });
 
     let query = { $and: [] };
 
-    query.$and.push({ tags: { $eq: id } }, { _projectId: tagData._projectId });
+    query.$and.push(
+      { tags: { $eq: id } }
+      // { _projectId: tagData._projectId },
+      // { _subProjectId: tagData._subProjectId }
+    );
 
     const result = await Keyword.find(query, projection)
       .populate("tags", "tagName")

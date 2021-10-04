@@ -7,6 +7,8 @@ const KeywordHistory = require("../models/keywordHistory.model");
 const dateFunc = require("../helpers/dateFunctions.helper");
 const appConstant = require("../app.constant");
 
+const sendEmail = require("../services/email.service");
+
 //update new rank at 00:00 AM
 const updateNewRank = new CronJob({
   cronTime: "00 00 * * *",
@@ -153,6 +155,53 @@ const updateNewRank = new CronJob({
         subProjectObj.updatedAt = dateFunc.currentUtcTime();
 
         await SubProject.updateOne({ _id: data.id }, { $set: subProjectObj });
+
+        if (data.enableEmail === true) {
+          const keywordData = await Keyword.find({ error: null });
+
+          let improvedCount = keywordData.filter(
+            (keywords) => keywords.rankGroup > keywords.prevRankGroup
+          ).length;
+          let declinedCount = keywordData.filter(
+            (keywords) => keywords.rankGroup < keywords.prevRankGroup
+          ).length;
+
+          let topSpot = 0;
+          let topTen = 0;
+          let aboveHundred = 0;
+
+          if (keywordData && keywordData.length > 0) {
+            for (let i = 0; i < keywordData.length; i++) {
+              //top spot
+              if (keywordData[i].rankGroup === 1) {
+                topSpot = topSpot + 1;
+              }
+
+              // top 10
+              if (keywordData[i].rankGroup <= 10) {
+                topTen = topTen + 1;
+              }
+
+              //Above 100
+              if (keywordData[i].rankGroup <= 100) {
+                aboveHundred = aboveHundred + 1;
+              }
+            }
+          }
+          console.log("topSpot" + topSpot);
+          console.log("topTen" + topTen);
+          console.log("aboveHundred" + aboveHundred);
+          console.log("improvedCount" + improvedCount);
+          console.log("declinedCount" + declinedCount);
+
+          let email = "pyash451190@gmail.com";
+
+          // await sendEmail(
+          //   email,
+          //   appConstant.email_template.new_rank_update_alert,
+          //   newRankUpdateTemplate({ url: resetPasswordUrl })
+          // );
+        }
       });
     } catch (error) {
       console.log("error in updateNewRank.cron =>", error);

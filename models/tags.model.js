@@ -7,6 +7,11 @@ let tagSchema = new mongoose.Schema({
   },
   _projectId: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "Project",
+    default: null,
+  },
+  _subProjectId: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: "SubProject",
     default: null,
   },

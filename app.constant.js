@@ -23,6 +23,7 @@ module.exports = {
   email_template: {
     account_created_mail: "Your account is created successfully !!",
     password_reset: "Your password reset request",
+    new_rank_update_alert: "New rank has been updated !!",
   },
   team_name: "SERP Team",
 };

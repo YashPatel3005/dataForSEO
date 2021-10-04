@@ -160,7 +160,7 @@ router.get(
 router.delete("/deleteKeywords", authenticate, deleteKeywords);
 
 //Tags
-// router.post("/addTag", authenticate, addTag);
+router.post("/addTag/:id", authenticate, addTag);
 
 router.get("/tagList/:id", authenticate, tagList);
 
