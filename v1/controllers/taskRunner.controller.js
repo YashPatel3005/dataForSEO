@@ -70,7 +70,7 @@ exports.createGoogleAuth = async (req, res) => {
     const generateToken = async () => {
       try {
         const { tokens } = await oauth2Client.getToken(
-          "4/0AX4XfWj09ckY-KbrgEsw4BFUqFouL9lXO9HDPZPd11pe9VhcgDaE-X22DC_iKByVObLFOg"
+          "4/0AX4XfWg3zxFCrV-pH4r1DSr2GB0owa3ylh04v9YRlZvek5Yx7O0zTWJTq5SjYMaD9BbYCw"
         );
         oauth2Client.setCredentials(tokens);
       } catch (error) {
