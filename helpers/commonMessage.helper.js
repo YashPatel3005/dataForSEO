@@ -76,5 +76,6 @@ module.exports = {
     ADD_TAG_SUCCESS: "Tag added successfully.",
     TAGS_FETCH_SUCCESS: "Tag list fetched successfully.",
     DELETE_TAG_SUCCESS: "Tag deleted successfully.",
+    TAG_ALREADY_EXISTS: "Tag is already exists!!! Please enter unique tag.",
   },
 };

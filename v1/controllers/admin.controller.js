@@ -1859,19 +1859,38 @@ exports.addTag = async (req, res) => {
 
     const id = req.params.id;
 
-    const tags = await new Tag({
-      tagName: tagName,
-      createdAt: dateFunc.currentUtcTime(),
-      updatedAt: dateFunc.currentUtcTime(),
+    let keywordData = await Keyword.findOne({ _id: id });
+    // console.log(keywordData);
+
+    let tagData = await Tag.findOne({
+      $and: [
+        { tagName: tagName },
+        { _projectId: keywordData._projectId },
+        { _subProjectId: keywordData._subProjectId },
+      ],
     });
-
-    const keywordData = await Keyword.find({ _id: id });
-
-    tags._projectId = keywordData._projectId;
-    keywordData.tags.push(tags._id);
-    await tags.save();
-
-    await keywordData.save();
+    // console.log(tagData);
+    if (tagData && !keywordData.tags.includes(tagData._id)) {
+      keywordData.tags.push(tagData._id);
+      await keywordData.save();
+    } else if (!tagData) {
+      const tags = await new Tag({
+        tagName: tagName,
+        _projectId: keywordData._projectId,
+        _subProjectId: keywordData._subProjectId,
+        createdAt: dateFunc.currentUtcTime(),
+        updatedAt: dateFunc.currentUtcTime(),
+      });
+      keywordData.tags.push(tags._id);
+      await tags.save();
+      await keywordData.save();
+    } else {
+      return res.status(400).send({
+        data: {},
+        message: commonMessage.TAG.TAG_ALREADY_EXISTS,
+        status: false,
+      });
+    }
 
     return res.status(200).send({
       data: {},
