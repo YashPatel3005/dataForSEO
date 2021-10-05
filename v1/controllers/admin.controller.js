@@ -2101,9 +2101,11 @@ exports.keywordGraph = async (req, res) => {
 
     let data = keywordDetails._keywordHistoryId.keywordData;
 
-    data.sort((a, b) => {
-      return a.date - b.date;
+    data = data.sort((a, b) => {
+      return b.date - a.date;
     });
+
+    data = data.slice(0, 30);
 
     return res.status(200).send({
       data: data,
@@ -2125,7 +2127,7 @@ exports.keywordsOfTagsGraph = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const tags = await Tag.find({ _id: id });
+    // const tags = await Tag.find({ _id: id });
 
     const keywordDetails = await Keyword.find({ tags: { $in: id } })
       .populate("_keywordHistoryId")
