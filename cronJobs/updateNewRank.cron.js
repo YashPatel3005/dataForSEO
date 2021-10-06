@@ -4,14 +4,17 @@ const axios = require("axios");
 const SubProject = require("../models/subProject.model");
 const Keyword = require("../models/keywords.model");
 const KeywordHistory = require("../models/keywordHistory.model");
+const Project = require("../models/project.model");
+const Admin = require("../models/admin.model");
 const dateFunc = require("../helpers/dateFunctions.helper");
 const appConstant = require("../app.constant");
 
 const sendEmail = require("../services/email.service");
+const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateTemplate");
 
 //update new rank at 00:00 AM
 const updateNewRank = new CronJob({
-  cronTime: "00 00 * * *",
+  cronTime: "* * * * * *",
   onTick: async () => {
     if (updateNewRank.taskRunning) {
       return;
@@ -194,13 +197,33 @@ const updateNewRank = new CronJob({
           console.log("improvedCount" + improvedCount);
           console.log("declinedCount" + declinedCount);
 
-          let email = "pyash451190@gmail.com";
+          // let email = "pyash451190@gmail.com";
 
-          // await sendEmail(
-          //   email,
-          //   appConstant.email_template.new_rank_update_alert,
-          //   newRankUpdateTemplate(topSpot,topTen,aboveHundred,improvedCount,declinedCount)
-          // );
+          const projectData = await Project.findOne({ _id: data._projectId });
+
+          for (let i = 0; i < projectData.assignedUsers.length; i++) {
+            const user = await Admin.findOne({
+              _id: projectData.assignedUsers[i],
+            });
+
+            let firstName = user.firstName;
+            let email = user.email;
+            let subProjectName = projectData.projectName;
+
+            await sendEmail(
+              email,
+              appConstant.email_template.new_rank_update_alert,
+              newRankUpdateTemplate(
+                topSpot,
+                topTen,
+                aboveHundred,
+                improvedCount,
+                declinedCount,
+                firstName,
+                subProjectName
+              )
+            );
+          }
         }
       });
     } catch (error) {

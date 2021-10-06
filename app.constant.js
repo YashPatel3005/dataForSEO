@@ -25,5 +25,5 @@ module.exports = {
     password_reset: "Your password reset request",
     new_rank_update_alert: "New rank has been updated !!",
   },
-  team_name: "SERP Team",
+  team_name: "Akvitek Team",
 };
