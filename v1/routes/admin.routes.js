@@ -40,6 +40,7 @@ const {
   keywordsForTags,
   keywordGraph,
   keywordsOfTagsGraph,
+  allTagsCombineGraph,
 } = require("../controllers/admin.controller");
 
 const {
@@ -173,5 +174,7 @@ router.get("/keywordsForTags/:id", authenticate, keywordsForTags);
 router.get("/keywordGraph/:id", authenticate, keywordGraph);
 
 router.get("/keywordsOfTagsGraph/:id", authenticate, keywordsOfTagsGraph);
+
+router.get("/allTagsCombineGraph/:id", authenticate, allTagsCombineGraph);
 
 module.exports = router;

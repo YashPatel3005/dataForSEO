@@ -199,7 +199,7 @@ const updateNewRank = new CronJob({
           // await sendEmail(
           //   email,
           //   appConstant.email_template.new_rank_update_alert,
-          //   newRankUpdateTemplate({ url: resetPasswordUrl })
+          //   newRankUpdateTemplate(topSpot,topTen,aboveHundred,improvedCount,declinedCount)
           // );
         }
       });

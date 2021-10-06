@@ -2090,6 +2090,12 @@ exports.keywordsForTags = async (req, res) => {
   }
 };
 
+/**
+ *
+ * @param {id}  - keyword ID
+ * return Specific keywords graph
+ */
+
 exports.keywordGraph = async (req, res) => {
   try {
     const id = req.params.id;
@@ -2123,24 +2129,125 @@ exports.keywordGraph = async (req, res) => {
   }
 };
 
+/**
+ *
+ * @param {id} - id of tags
+ * return Graph of all keywords that has same tags
+ */
+
 exports.keywordsOfTagsGraph = async (req, res) => {
   try {
     const id = req.params.id;
 
-    // const tags = await Tag.find({ _id: id });
+    const keywordDetails = await Keyword.find({ tags: { $in: id } });
 
-    const keywordDetails = await Keyword.find({ tags: { $in: id } })
-      .populate("_keywordHistoryId")
-      .exec();
-    console.log(keywordDetails);
+    let keywordHistoryIDsArr = [];
+    for (let i = 0; i < keywordDetails.length; i++) {
+      keywordHistoryIDsArr.push(keywordDetails[i]._keywordHistoryId);
+    }
+
+    let keywordHistoryData = await KeywordHistory.aggregate([
+      { $match: { _id: { $in: keywordHistoryIDsArr } } },
+      { $unwind: "$keywordData" },
+      {
+        $group: {
+          _id: { date: "$keywordData.date" },
+          rank: { $avg: "$keywordData.rank" },
+        },
+      },
+      { $sort: { _id: -1 } },
+      { $limit: 30 },
+    ]);
+
+    if (keywordHistoryData && keywordHistoryData.length > 0) {
+      for (let j = 0; j < keywordHistoryData.length; j++) {
+        keywordHistoryData[j].date = keywordHistoryData[j]._id.date;
+        keywordHistoryData[j].rank = +keywordHistoryData[j].rank.toFixed(2);
+        delete keywordHistoryData[j]._id;
+      }
+    }
 
     return res.status(200).send({
-      data: { keywordDetails },
+      data: keywordHistoryData,
       message: commonMessage.KEYWORD.KEYWORD_GRAPH_FETCH_SUCCESS,
       status: true,
     });
   } catch (error) {
     console.log("error in keywordsOfTagsGraph()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
+/**
+ *
+ * @param {id} - id of sub-project
+ * return Graph of all tags which is assigned for sub project
+ */
+
+exports.allTagsCombineGraph = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const tagData = await Tag.find({ _subProjectId: id });
+
+    let tagsArr = [];
+    for (let i = 0; i < tagData.length; i++) {
+      tagsArr.push({ tagId: tagData[i]._id, tagName: tagData[i].tagName });
+    }
+
+    let resultObject = [];
+
+    for (let j = 0; j < tagsArr.length; j++) {
+      const keywordDetails = await Keyword.find({
+        tags: { $in: tagsArr[j].tagId },
+      });
+
+      let keywordHistoryIDsArr = [];
+      for (let i = 0; i < keywordDetails.length; i++) {
+        keywordHistoryIDsArr.push(keywordDetails[i]._keywordHistoryId);
+      }
+
+      let keywordHistoryData = await KeywordHistory.aggregate([
+        { $match: { _id: { $in: keywordHistoryIDsArr } } },
+        { $unwind: "$keywordData" },
+        {
+          $group: {
+            _id: { date: "$keywordData.date" },
+            rank: { $avg: "$keywordData.rank" },
+          },
+        },
+        { $sort: { _id: -1 } },
+        { $limit: 30 },
+      ]);
+
+      if (keywordHistoryData && keywordHistoryData.length > 0) {
+        for (let j = 0; j < keywordHistoryData.length; j++) {
+          keywordHistoryData[j].date = keywordHistoryData[j]._id.date;
+          keywordHistoryData[j].rank = +keywordHistoryData[j].rank.toFixed(2);
+          delete keywordHistoryData[j]._id;
+        }
+      }
+
+      let newObj = {
+        tagName: tagsArr[j].tagName,
+        keywords: keywordHistoryData,
+      };
+
+      resultObject.push(newObj);
+    }
+
+    return res.status(200).send({
+      data: resultObject,
+      message: commonMessage.KEYWORD.KEYWORD_GRAPH_FETCH_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in allTagsCombineGraph()=> ", error);
 
     return res.status(400).send({
       data: {},
