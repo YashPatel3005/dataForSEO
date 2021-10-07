@@ -7,7 +7,8 @@ module.exports = (
   improvedCount,
   declinedCount,
   firstName,
-  subProjectName
+  subProjectName,
+  viewSubProjectUrl
 ) => {
   return `
     <!DOCTYPE html>
@@ -104,7 +105,7 @@ module.exports = (
       </style>
     
     </head>
-    <body style="background-color: #e9ecef;">
+    <body style="background-color: #e9ecef; padding-top:20px;">
     
       <!-- start preheader -->
       <div class="preheader" style="display: none; max-width: 0; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #fff; opacity: 0;">
@@ -138,7 +139,7 @@ module.exports = (
                   <li><pre>Improved keywords         -  ${improvedCount}</pre></li>
                   <li><pre>Declined keywords         -  ${declinedCount}</pre></li>
                   </ol><br>
-                  <p style="margin: 0; word-break: break-all;"><a href="www.google.com" target="_blank" style="word-break: break-all;">Click here to view the project</a></p>
+                  <p style="margin: 0; word-break: break-all;"><a href="${viewSubProjectUrl}" target="_blank" style="word-break: break-all;">Click here to view the project</a></p>
                 </td>
               </tr>
               <!-- end copy -->

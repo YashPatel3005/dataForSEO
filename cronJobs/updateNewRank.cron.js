@@ -157,7 +157,7 @@ const updateNewRank = new CronJob({
         subProjectObj.nextDate = nextDate;
         subProjectObj.updatedAt = dateFunc.currentUtcTime();
 
-        await SubProject.updateOne({ _id: data.id }, { $set: subProjectObj });
+        await SubProject.updateOne({ _id: data._id }, { $set: subProjectObj });
 
         if (data.enableEmail === true) {
           const keywordData = await Keyword.find({ error: null });
@@ -207,6 +207,7 @@ const updateNewRank = new CronJob({
             let firstName = user.firstName;
             let email = user.email;
             let subProjectName = projectData.projectName;
+            let viewSubProjectUrl = process.env.VIEW_SUB_PROJECT_URL + data._id;
 
             await sendEmail(
               email,
@@ -218,7 +219,8 @@ const updateNewRank = new CronJob({
                 improvedCount,
                 declinedCount,
                 firstName,
-                subProjectName
+                subProjectName,
+                viewSubProjectUrl
               )
             );
           }
