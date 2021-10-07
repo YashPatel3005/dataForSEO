@@ -129,16 +129,16 @@ module.exports = (
               <!-- start copy -->
               <tr>
                 <td align="left" bgcolor="#ffffff" style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-                  <p style="margin: 0;">Hello ${firstName}</p><br><br>
-                  <p style="margin: 0;">Here is the update for your project - ${subProjectName}</p><br><br>
+                  <p style="margin: 0;">Hello ${firstName},</p><br>
+                  <p style="margin: 0;">Here is the update for your project - ${subProjectName}</p><br>
                   <ol>
-                  <li>Keywords in top spot - ${topSpot}</li>
-                  <li>Keywords in top 10 - ${topTen}</li>
-                  <li>Keywords not in top 100 - ${aboveHundred}</li>
-                  <li>Improved keywords - ${improvedCount}</li>
-                  <li>Declined keywords - ${declinedCount}</li>
-                  </ol>  <br><br>
-                  <p style="margin: 0;">Click here to view the project</p><br><br>
+                  <li><pre>Keywords in top spot      -  ${topSpot}</pre></li>
+                  <li><pre>Keywords in top 10        -  ${topTen}</pre></li>
+                  <li><pre>Keywords not in top 100   -  ${aboveHundred}</pre></li>
+                  <li><pre>Improved keywords         -  ${improvedCount}</pre></li>
+                  <li><pre>Declined keywords         -  ${declinedCount}</pre></li>
+                  </ol><br>
+                  <p style="margin: 0; word-break: break-all;"><a href="www.google.com" target="_blank" style="word-break: break-all;">Click here to view the project</a></p>
                 </td>
               </tr>
               <!-- end copy -->

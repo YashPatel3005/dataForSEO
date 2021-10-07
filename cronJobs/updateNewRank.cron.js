@@ -197,8 +197,6 @@ const updateNewRank = new CronJob({
           console.log("improvedCount" + improvedCount);
           console.log("declinedCount" + declinedCount);
 
-          // let email = "pyash451190@gmail.com";
-
           const projectData = await Project.findOne({ _id: data._projectId });
 
           for (let i = 0; i < projectData.assignedUsers.length; i++) {
