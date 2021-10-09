@@ -832,11 +832,16 @@ exports.editSubProject = async (req, res) => {
     console.log(currentDate);
 
     let subProjectData = await SubProject.findOne({ _id: _subProjectId });
+    let existingKeywords = [];
 
     let tempKeyword = [];
     for (let i = 0; i < keyword.length; i++) {
       if (subProjectData.keyword.includes(keyword[i]) === false) {
         tempKeyword.push(keyword[i]);
+      }
+
+      if (subProjectData.keyword.includes(keyword[i]) === true) {
+        existingKeywords.push(keyword[i]);
       }
     }
 
@@ -848,31 +853,68 @@ exports.editSubProject = async (req, res) => {
 
     console.log(tags);
 
-    let tagIDs = [];
-    for (let i = 0; i < tags.length; i++) {
-      const tagData = await Tag.findOne({
-        $and: [{ tagName: tags[i].trim() }, { _subProjectId: _subProjectId }],
-        // _projectId: subProjectData._projectId,
-      });
-      console.log(tagData);
-
-      if (tagData) {
-        tagIDs.push(tagData._id);
-      }
-
-      if (!tagData) {
-        const newTag = await Tag.create({
-          tagName: tags[i].trim(),
-          createdAt: dateFunc.currentUtcTime(),
-          updatedAt: dateFunc.currentUtcTime(),
-          _projectId: subProjectData._projectId,
-          _subProjectId: _subProjectId,
+    if (existingKeywords && existingKeywords.length > 0) {
+      for (let j = 0; j < existingKeywords.length; j++) {
+        let keywordData = await Keyword.findOne({
+          keyword: existingKeywords[j],
         });
-        tagIDs.push(newTag._id);
-      }
-    }
-    console.log(tagIDs);
+        // console.log(keywordData);
 
+        if (tags && tags.length > 0) {
+          for (let i = 0; i < tags.length; i++) {
+            let tagData = await Tag.findOne({
+              $and: [
+                { tagName: tags[i] },
+                { _projectId: keywordData._projectId },
+                { _subProjectId: keywordData._subProjectId },
+              ],
+            });
+            console.log(tagData);
+
+            if (tagData && !keywordData.tags.includes(tagData._id)) {
+              keywordData.tags.push(tagData._id);
+              await keywordData.save();
+            } else if (!tagData) {
+              const newTag = await new Tag({
+                tagName: tags[i],
+                _projectId: keywordData._projectId,
+                _subProjectId: keywordData._subProjectId,
+                createdAt: dateFunc.currentUtcTime(),
+                updatedAt: dateFunc.currentUtcTime(),
+              });
+              keywordData.tags.push(newTag._id);
+              await newTag.save();
+              await keywordData.save();
+            }
+          }
+        }
+      }
+    } else {
+      let tagIDs = [];
+      for (let i = 0; i < tags.length; i++) {
+        const tagData = await Tag.findOne({
+          $and: [{ tagName: tags[i].trim() }, { _subProjectId: _subProjectId }],
+          // _projectId: subProjectData._projectId,
+        });
+        console.log(tagData);
+
+        if (tagData) {
+          tagIDs.push(tagData._id);
+        }
+
+        if (!tagData) {
+          const newTag = await Tag.create({
+            tagName: tags[i].trim(),
+            createdAt: dateFunc.currentUtcTime(),
+            updatedAt: dateFunc.currentUtcTime(),
+            _projectId: subProjectData._projectId,
+            _subProjectId: _subProjectId,
+          });
+          tagIDs.push(newTag._id);
+        }
+      }
+      console.log(tagIDs);
+    }
     res.status(200).send({
       data: {},
       message: commonMessage.SUB_PROJECT.EDIT_SUB_PROJECT_SUCCESS,
@@ -881,123 +923,128 @@ exports.editSubProject = async (req, res) => {
 
     let keywordList = subProjectData.newAddedKeyword.split(",");
 
-    const promiseResult = Promise.all(
-      keywordList.map(async (keyword) => {
-        let seoData = await axios({
-          method: "post",
-          url: process.env.SERP_API,
-          auth: {
-            username: process.env.SERP_API_USERNAME,
-            password: process.env.SERP_API_PASSWORD,
-          },
-          data: [
-            {
-              keyword: encodeURI(keyword),
-              location_code: subProjectData.locationCode,
-              language_code: "en",
-              depth: 100,
-              se_domain: "google.com.au",
+    if (keywordList && keywordList.length > 0 && !keywordList.includes("")) {
+      const promiseResult = Promise.all(
+        keywordList.map(async (keyword) => {
+          let seoData = await axios({
+            method: "post",
+            url: process.env.SERP_API,
+            auth: {
+              username: process.env.SERP_API_USERNAME,
+              password: process.env.SERP_API_PASSWORD,
             },
-          ],
-          headers: {
-            "content-type": "application/json",
-          },
-        });
-
-        let items;
-        let result;
-
-        if (seoData.data.tasks) {
-          items = seoData.data.tasks[0].result[0].items;
-          for (let item of items) {
-            if (
-              seoData.data.tasks[0].result[0].type == "organic" &&
-              item.domain == subProjectData.domain
-            ) {
-              result = item;
-            }
-          }
-        }
-
-        if (result) {
-          result.seDomain = seoData.data.tasks[0].result[0].se_domain;
-          result.languageCode = seoData.data.tasks[0].result[0].language_code;
-          result.updatedAt = dateFunc.currentUtcTime();
-          result.createdAt = dateFunc.currentUtcTime();
-
-          result.rankGroup = result.rank_group;
-          result.rankAbsolute = result.rank_absolute;
-          result.difference = result.rank_group;
-          delete result.rank_group;
-          delete result.rank_absolute;
-
-          result.locationCode = subProjectData.locationCode;
-          result.prevDate = subProjectData.prevDate;
-          result.currDate = subProjectData.currDate;
-          result.nextDate = subProjectData.nextDate;
-          result.keywordCheckFrequency = subProjectData.keywordCheckFrequency;
-          result._projectId = subProjectData._projectId;
-          result._subProjectId = subProjectData._id;
-          result.keyword = keyword;
-
-          result.tags = tagIDs;
-
-          // console.log(result);
-
-          // await Keyword.create(result);
-
-          let keywordHistoryData = await new KeywordHistory({
-            keyword: keyword,
-            keywordData: [{ date: currentDate, rank: result.rankGroup }],
-            createdAt: dateFunc.currentUtcTime(),
-            updatedAt: dateFunc.currentUtcTime(),
+            data: [
+              {
+                keyword: encodeURI(keyword),
+                location_code: subProjectData.locationCode,
+                language_code: "en",
+                depth: 100,
+                se_domain: "google.com.au",
+              },
+            ],
+            headers: {
+              "content-type": "application/json",
+            },
           });
 
-          result._keywordHistoryId = keywordHistoryData._id;
+          let items;
+          let result;
 
-          const insertedData = await Keyword.create(result);
+          if (seoData.data.tasks) {
+            items = seoData.data.tasks[0].result[0].items;
+            for (let item of items) {
+              if (
+                seoData.data.tasks[0].result[0].type == "organic" &&
+                item.domain == subProjectData.domain
+              ) {
+                result = item;
+              }
+            }
+          }
 
-          keywordHistoryData._keywordId = insertedData._id;
-          await keywordHistoryData.save();
+          if (result) {
+            result.seDomain = seoData.data.tasks[0].result[0].se_domain;
+            result.languageCode = seoData.data.tasks[0].result[0].language_code;
+            result.updatedAt = dateFunc.currentUtcTime();
+            result.createdAt = dateFunc.currentUtcTime();
 
-          console.log("keywords has been updated >>>");
-        } else {
-          console.log("Domain and keyword is not match >>>");
+            result.rankGroup = result.rank_group;
+            result.rankAbsolute = result.rank_absolute;
+            result.difference = result.rank_group;
+            delete result.rank_group;
+            delete result.rank_absolute;
 
-          let dataObj = {
-            error: true,
-            errorMessage: "Domain and keyword is not valid!!!",
-          };
+            result.locationCode = subProjectData.locationCode;
+            result.prevDate = subProjectData.prevDate;
+            result.currDate = subProjectData.currDate;
+            result.nextDate = subProjectData.nextDate;
+            result.keywordCheckFrequency = subProjectData.keywordCheckFrequency;
+            result._projectId = subProjectData._projectId;
+            result._subProjectId = subProjectData._id;
+            result.keyword = keyword;
 
-          dataObj.locationCode = subProjectData.locationCode;
-          dataObj.prevDate = subProjectData.prevDate;
-          dataObj.currDate = subProjectData.currDate;
-          dataObj.nextDate = subProjectData.nextDate;
-          dataObj.keywordCheckFrequency = subProjectData.keywordCheckFrequency;
-          dataObj._projectId = subProjectData._projectId;
-          dataObj._subProjectId = subProjectData._id;
-          dataObj.keyword = keyword;
+            result.tags = tagIDs;
 
-          dataObj.tags = tagIDs;
+            // console.log(result);
 
-          dataObj.updatedAt = dateFunc.currentUtcTime();
-          dataObj.createdAt = dateFunc.currentUtcTime();
+            // await Keyword.create(result);
 
-          await Keyword.create(dataObj);
+            let keywordHistoryData = await new KeywordHistory({
+              keyword: keyword,
+              keywordData: [{ date: currentDate, rank: result.rankGroup }],
+              createdAt: dateFunc.currentUtcTime(),
+              updatedAt: dateFunc.currentUtcTime(),
+            });
+
+            result._keywordHistoryId = keywordHistoryData._id;
+
+            const insertedData = await Keyword.create(result);
+
+            keywordHistoryData._keywordId = insertedData._id;
+            await keywordHistoryData.save();
+
+            console.log("keywords has been updated >>>");
+          } else {
+            console.log("Domain and keyword is not match >>>");
+
+            let dataObj = {
+              error: true,
+              errorMessage: "Domain and keyword is not valid!!!",
+            };
+
+            dataObj.locationCode = subProjectData.locationCode;
+            dataObj.prevDate = subProjectData.prevDate;
+            dataObj.currDate = subProjectData.currDate;
+            dataObj.nextDate = subProjectData.nextDate;
+            dataObj.keywordCheckFrequency =
+              subProjectData.keywordCheckFrequency;
+            dataObj._projectId = subProjectData._projectId;
+            dataObj._subProjectId = subProjectData._id;
+            dataObj.keyword = keyword;
+
+            dataObj.tags = tagIDs;
+
+            dataObj.updatedAt = dateFunc.currentUtcTime();
+            dataObj.createdAt = dateFunc.currentUtcTime();
+
+            await Keyword.create(dataObj);
+          }
+        })
+      );
+
+      await SubProject.updateOne(
+        { _id: subProjectData._id },
+        {
+          $set: {
+            newInserted: false,
+            newAddedKeyword: null,
+            keyword: tempKeyword.join().concat(",", subProjectData.keyword),
+          },
         }
-      })
-    );
-
-    await SubProject.updateOne(
-      { _id: subProjectData._id },
-      {
-        $set: {
-          newInserted: false,
-          newAddedKeyword: null,
-          keyword: tempKeyword.join().concat(",", subProjectData.keyword),
-        },
-      }
-    );
+      );
+    } else {
+      console.log("Keyword already exists");
+    }
   } catch (error) {
     console.log("error in editSubProject()=> ", error);
 
