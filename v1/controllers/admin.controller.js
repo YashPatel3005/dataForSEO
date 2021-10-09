@@ -889,32 +889,33 @@ exports.editSubProject = async (req, res) => {
           }
         }
       }
-    } else {
-      let tagIDs = [];
-      for (let i = 0; i < tags.length; i++) {
-        const tagData = await Tag.findOne({
-          $and: [{ tagName: tags[i].trim() }, { _subProjectId: _subProjectId }],
-          // _projectId: subProjectData._projectId,
-        });
-        console.log(tagData);
-
-        if (tagData) {
-          tagIDs.push(tagData._id);
-        }
-
-        if (!tagData) {
-          const newTag = await Tag.create({
-            tagName: tags[i].trim(),
-            createdAt: dateFunc.currentUtcTime(),
-            updatedAt: dateFunc.currentUtcTime(),
-            _projectId: subProjectData._projectId,
-            _subProjectId: _subProjectId,
-          });
-          tagIDs.push(newTag._id);
-        }
-      }
-      console.log(tagIDs);
     }
+    // else {
+    let tagIDs = [];
+    for (let i = 0; i < tags.length; i++) {
+      const tagData = await Tag.findOne({
+        $and: [{ tagName: tags[i].trim() }, { _subProjectId: _subProjectId }],
+        // _projectId: subProjectData._projectId,
+      });
+      console.log(tagData);
+
+      if (tagData) {
+        tagIDs.push(tagData._id);
+      }
+
+      if (!tagData) {
+        const newTag = await Tag.create({
+          tagName: tags[i].trim(),
+          createdAt: dateFunc.currentUtcTime(),
+          updatedAt: dateFunc.currentUtcTime(),
+          _projectId: subProjectData._projectId,
+          _subProjectId: _subProjectId,
+        });
+        tagIDs.push(newTag._id);
+      }
+    }
+    console.log(tagIDs);
+    // }
     res.status(200).send({
       data: {},
       message: commonMessage.SUB_PROJECT.EDIT_SUB_PROJECT_SUCCESS,
@@ -1882,7 +1883,25 @@ exports.deleteKeywords = async (req, res) => {
       });
     }
 
-    await Keyword.deleteMany({ _id: { $in: _id } });
+    const keywordData = await Keyword.find({ _id: { $in: _id } });
+
+    if (keywordData && keywordData.length > 0) {
+      for (let i = 0; i < keywordData.length; i++) {
+        let subProjectData = await SubProject.findOne({
+          _id: keywordData[i]._subProjectId,
+        });
+
+        let keywordArr = subProjectData.keyword.split(",");
+        keywordArr = keywordArr.filter(
+          (keyword) => keyword !== keywordData[i].keyword
+        );
+
+        subProjectData.keyword = keywordArr.join();
+        await subProjectData.save();
+        console.log(keywordArr.join());
+      }
+      await Keyword.deleteMany({ _id: { $in: _id } });
+    }
 
     return res.status(200).send({
       data: {},
