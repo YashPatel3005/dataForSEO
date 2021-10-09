@@ -1855,41 +1855,41 @@ exports.deleteKeywords = async (req, res) => {
 
 exports.addTag = async (req, res) => {
   try {
-    const { tagName } = req.body;
+    let { tagName } = req.body;
+    tagName = [...new Set(tagName)];
 
     const id = req.params.id;
 
     let keywordData = await Keyword.findOne({ _id: id });
     // console.log(keywordData);
 
-    let tagData = await Tag.findOne({
-      $and: [
-        { tagName: tagName },
-        { _projectId: keywordData._projectId },
-        { _subProjectId: keywordData._subProjectId },
-      ],
-    });
-    // console.log(tagData);
-    if (tagData && !keywordData.tags.includes(tagData._id)) {
-      keywordData.tags.push(tagData._id);
-      await keywordData.save();
-    } else if (!tagData) {
-      const tags = await new Tag({
-        tagName: tagName,
-        _projectId: keywordData._projectId,
-        _subProjectId: keywordData._subProjectId,
-        createdAt: dateFunc.currentUtcTime(),
-        updatedAt: dateFunc.currentUtcTime(),
-      });
-      keywordData.tags.push(tags._id);
-      await tags.save();
-      await keywordData.save();
-    } else {
-      return res.status(400).send({
-        data: {},
-        message: commonMessage.TAG.TAG_ALREADY_EXISTS,
-        status: false,
-      });
+    if (tagName && tagName.length > 0) {
+      for (let i = 0; i < tagName.length; i++) {
+        let tagData = await Tag.findOne({
+          $and: [
+            { tagName: tagName[i] },
+            { _projectId: keywordData._projectId },
+            { _subProjectId: keywordData._subProjectId },
+          ],
+        });
+        console.log(tagData);
+
+        if (tagData && !keywordData.tags.includes(tagData._id)) {
+          keywordData.tags.push(tagData._id);
+          await keywordData.save();
+        } else if (!tagData) {
+          const tags = await new Tag({
+            tagName: tagName[i],
+            _projectId: keywordData._projectId,
+            _subProjectId: keywordData._subProjectId,
+            createdAt: dateFunc.currentUtcTime(),
+            updatedAt: dateFunc.currentUtcTime(),
+          });
+          keywordData.tags.push(tags._id);
+          await tags.save();
+          await keywordData.save();
+        }
+      }
     }
 
     return res.status(200).send({
