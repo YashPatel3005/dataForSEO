@@ -41,6 +41,7 @@ const {
   keywordGraph,
   keywordsOfTagsGraph,
   allTagsCombineGraph,
+  removeTag,
 } = require("../controllers/admin.controller");
 
 const {
@@ -162,6 +163,8 @@ router.delete("/deleteKeywords", authenticate, deleteKeywords);
 
 //Tags
 router.post("/addTag/:id", authenticate, addTag);
+
+router.post("/removeTag", authenticate, removeTag);
 
 router.get("/tagList/:id", authenticate, tagList);
 

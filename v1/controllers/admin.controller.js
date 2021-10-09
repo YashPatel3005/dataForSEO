@@ -1908,6 +1908,33 @@ exports.addTag = async (req, res) => {
   }
 };
 
+exports.removeTag = async (req, res) => {
+  try {
+    const { _tagId, _keywordId } = req.body;
+
+    await Keyword.updateOne(
+      {
+        $and: [{ _id: _keywordId }, { tags: { $eq: _tagId } }],
+      },
+      { $pull: { tags: _tagId } }
+    );
+
+    return res.status(200).send({
+      data: {},
+      message: commonMessage.TAG.REMOVE_TAG_SUCCESS,
+      status: true,
+    });
+  } catch (error) {
+    console.log("error in removeTag()=> ", error);
+
+    return res.status(400).send({
+      data: {},
+      message: commonMessage.ERROR_MESSAGE.GENERAL_CATCH_MESSAGE,
+      status: false,
+    });
+  }
+};
+
 exports.tagList = async (req, res) => {
   try {
     let id = req.params.id;
