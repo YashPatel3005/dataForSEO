@@ -1885,6 +1885,8 @@ exports.deleteKeywords = async (req, res) => {
 
     const keywordData = await Keyword.find({ _id: { $in: _id } });
 
+    await KeywordHistory.deleteOne({ _keywordId: _id });
+
     if (keywordData && keywordData.length > 0) {
       for (let i = 0; i < keywordData.length; i++) {
         let subProjectData = await SubProject.findOne({
