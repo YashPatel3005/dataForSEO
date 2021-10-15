@@ -2203,7 +2203,7 @@ exports.keywordGraph = async (req, res) => {
     let data = keywordDetails._keywordHistoryId.keywordData;
 
     data = data.sort((a, b) => {
-      return b.date - a.date;
+      return a.date - b.date;
     });
 
     data = data.slice(0, 30);
