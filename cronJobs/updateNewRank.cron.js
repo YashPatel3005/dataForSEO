@@ -117,7 +117,7 @@ const updateNewRank = new CronJob({
               newObj.prevDate = keyword.currDate;
               newObj.prevRankAbsolute = keyword.rankAbsolute;
               newObj.prevRankGroup = keyword.rankGroup;
-              newObj.difference = newObj.rankGroup - newObj.prevRankGroup;
+              newObj.difference = newObj.prevRankGroup - newObj.rankGroup;
 
               newObj.currDate = currentDate;
               newObj.nextDate = nextDate;
@@ -199,31 +199,59 @@ const updateNewRank = new CronJob({
 
           const projectData = await Project.findOne({ _id: data._projectId });
 
-          for (let i = 0; i < projectData.assignedUsers.length; i++) {
-            const user = await Admin.findOne({
-              _id: projectData.assignedUsers[i],
-            });
+          if (projectData && projectData.assignedUsers.length > 0) {
+            for (let i = 0; i < projectData.assignedUsers.length; i++) {
+              const user = await Admin.findOne({
+                _id: projectData.assignedUsers[i],
+              });
 
-            let firstName = user.firstName;
-            let email = user.email;
-            let subProjectName = projectData.projectName;
-            let viewSubProjectUrl = process.env.VIEW_SUB_PROJECT_URL + data._id;
+              let firstName = user.firstName;
+              let email = user.email;
+              let subProjectName = projectData.projectName;
+              let viewSubProjectUrl =
+                process.env.VIEW_SUB_PROJECT_URL + data._id;
 
-            await sendEmail(
-              email,
-              appConstant.email_template.new_rank_update_alert,
-              newRankUpdateTemplate(
-                topSpot,
-                topTen,
-                aboveHundred,
-                improvedCount,
-                declinedCount,
-                firstName,
-                subProjectName,
-                viewSubProjectUrl
-              )
-            );
+              await sendEmail(
+                email,
+                appConstant.email_template.new_rank_update_alert,
+                newRankUpdateTemplate(
+                  topSpot,
+                  topTen,
+                  aboveHundred,
+                  improvedCount,
+                  declinedCount,
+                  firstName,
+                  subProjectName,
+                  viewSubProjectUrl
+                )
+              );
+            }
           }
+
+          //Send mail to main Admin
+          const admin = await Admin.findOne({
+            permissionLevel: appConstant.adminPermissionLevel.admin,
+          });
+
+          let firstName = admin.firstName;
+          let email = admin.email;
+          let subProjectName = projectData.projectName;
+          let viewSubProjectUrl = process.env.VIEW_SUB_PROJECT_URL + data._id;
+
+          await sendEmail(
+            email,
+            appConstant.email_template.new_rank_update_alert,
+            newRankUpdateTemplate(
+              topSpot,
+              topTen,
+              aboveHundred,
+              improvedCount,
+              declinedCount,
+              firstName,
+              subProjectName,
+              viewSubProjectUrl
+            )
+          );
         }
       });
     } catch (error) {
