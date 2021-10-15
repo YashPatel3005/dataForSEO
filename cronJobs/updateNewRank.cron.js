@@ -117,7 +117,7 @@ const updateNewRank = new CronJob({
               newObj.prevDate = keyword.currDate;
               newObj.prevRankAbsolute = keyword.rankAbsolute;
               newObj.prevRankGroup = keyword.rankGroup;
-              newObj.difference = newObj.prevRankGroup - newObj.rankGroup;
+              newObj.difference = newObj.rankGroup - newObj.prevRankGroup;
 
               newObj.currDate = currentDate;
               newObj.nextDate = nextDate;
