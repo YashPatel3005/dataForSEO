@@ -2250,7 +2250,7 @@ exports.keywordsOfTagsGraph = async (req, res) => {
           rank: { $avg: "$keywordData.rank" },
         },
       },
-      { $sort: { _id: -1 } },
+      { $sort: { _id: 1 } },
       { $limit: 30 },
     ]);
 
@@ -2316,7 +2316,7 @@ exports.allTagsCombineGraph = async (req, res) => {
             rank: { $avg: "$keywordData.rank" },
           },
         },
-        { $sort: { _id: -1 } },
+        { $sort: { _id: 1 } },
         { $limit: 30 },
       ]);
 
