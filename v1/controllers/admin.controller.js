@@ -2203,7 +2203,7 @@ exports.keywordGraph = async (req, res) => {
     let data = keywordDetails._keywordHistoryId.keywordData;
 
     data = data.sort((a, b) => {
-      return a.date - b.date;
+      return b.date - a.date;
     });
 
     data = data.slice(0, 30);
@@ -2250,7 +2250,7 @@ exports.keywordsOfTagsGraph = async (req, res) => {
           rank: { $avg: "$keywordData.rank" },
         },
       },
-      { $sort: { _id: 1 } },
+      { $sort: { _id: -1 } },
       { $limit: 30 },
     ]);
 
@@ -2316,7 +2316,7 @@ exports.allTagsCombineGraph = async (req, res) => {
             rank: { $avg: "$keywordData.rank" },
           },
         },
-        { $sort: { _id: 1 } },
+        { $sort: { _id: -1 } },
         { $limit: 30 },
       ]);
 
