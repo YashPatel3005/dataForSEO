@@ -1179,10 +1179,14 @@ exports.subProjectDashboard = async (req, res) => {
     const keywordData = await Keyword.find({ _projectId: id, error: null });
 
     let improvedCount = keywordData.filter(
-      (keywords) => keywords.rankGroup < keywords.prevRankGroup
+      (keywords) =>
+        keywords.prevRankGroup !== null &&
+        keywords.rankGroup < keywords.prevRankGroup
     ).length;
     let declinedCount = keywordData.filter(
-      (keywords) => keywords.rankGroup > keywords.prevRankGroup
+      (keywords) =>
+        keywords.prevRankGroup !== null &&
+        keywords.rankGroup > keywords.prevRankGroup
     ).length;
 
     let resultObj = {};
@@ -1280,10 +1284,14 @@ exports.projectDashboard = async (req, res) => {
     const keywordData = await Keyword.find({ error: null });
 
     let improvedCount = keywordData.filter(
-      (keywords) => keywords.rankGroup < keywords.prevRankGroup
+      (keywords) =>
+        keywords.prevRankGroup !== null &&
+        keywords.rankGroup < keywords.prevRankGroup
     ).length;
     let declinedCount = keywordData.filter(
-      (keywords) => keywords.rankGroup > keywords.prevRankGroup
+      (keywords) =>
+        keywords.prevRankGroup !== null &&
+        keywords.rankGroup > keywords.prevRankGroup
     ).length;
 
     let resultObj = {};
