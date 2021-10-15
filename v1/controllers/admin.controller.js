@@ -1772,10 +1772,14 @@ exports.keywordDashboard = async (req, res) => {
     const keywordsData = await Keyword.find({ _subProjectId: id, error: null });
 
     let improvedCount = keywordsData.filter(
-      (keywords) => keywords.rankGroup < keywords.prevRankGroup
+      (keywords) =>
+        keywords.prevRankGroup !== null &&
+        keywords.rankGroup < keywords.prevRankGroup
     ).length;
     let declinedCount = keywordsData.filter(
-      (keywords) => keywords.rankGroup > keywords.prevRankGroup
+      (keywords) =>
+        keywords.prevRankGroup !== null &&
+        keywords.rankGroup > keywords.prevRankGroup
     ).length;
 
     let resultObj = {};
