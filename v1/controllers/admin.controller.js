@@ -1631,6 +1631,7 @@ exports.getKeywords = async (req, res) => {
       .populate("tags", "tagName")
       .collation({ locale: "en" })
       .sort({ [field]: value })
+      .sort({ difference: -1 })
       .skip(limit * (page - 1))
       .limit(limit)
       .lean();
