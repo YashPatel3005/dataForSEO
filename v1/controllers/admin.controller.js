@@ -1627,14 +1627,25 @@ exports.getKeywords = async (req, res) => {
 
     let query = { _subProjectId: id };
 
-    const result = await Keyword.find(query, projection)
+    let result = await Keyword.find(query, projection)
       .populate("tags", "tagName")
       .collation({ locale: "en" })
       .sort({ [field]: value })
-      .sort({ difference: -1 })
       .skip(limit * (page - 1))
       .limit(limit)
       .lean();
+
+    let filterArr = result.filter((data) => {
+      return data.difference == null;
+    });
+
+    result = result.filter((data) => {
+      return data.difference !== null;
+    });
+
+    for (let i = 0; i < filterArr.length; i++) {
+      result.push(filterArr[i]);
+    }
 
     let total = await Keyword.countDocuments(query);
 
