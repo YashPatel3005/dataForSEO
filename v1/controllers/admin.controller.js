@@ -724,7 +724,14 @@ exports.addSubProject = async (req, res) => {
       tags,
     } = req.body;
 
-    keyword = [...new Set(keyword)];
+    let tempKeywordArr = [];
+    if (keyword && keyword.length > 0) {
+      for (let k = 0; k < keyword.length; k++) {
+        tempKeywordArr.push(keyword[k].toLowerCase());
+      }
+    }
+
+    keyword = [...new Set(tempKeywordArr)];
 
     tags = [...new Set(tags)];
 
