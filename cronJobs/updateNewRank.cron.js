@@ -160,7 +160,10 @@ const updateNewRank = new CronJob({
         await SubProject.updateOne({ _id: data._id }, { $set: subProjectObj });
 
         if (data.enableEmail === true) {
-          const keywordData = await Keyword.find({ error: null });
+          const keywordData = await Keyword.find({
+            _projectId: data._projectId,
+            error: null,
+          });
 
           let improvedCount = keywordData.filter(
             (keywords) => keywords.rankGroup > keywords.prevRankGroup
