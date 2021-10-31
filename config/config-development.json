@@ -17,7 +17,11 @@
       "enableXssFilter": true
     },
     "CORS": {
-      "allowedHosts": ["http://3.26.55.39:3001", "http://localhost:3001"],
+      "allowedHosts": [
+        "http://3.26.55.39:3001",
+        "http://localhost:3001",
+        "http://52.65.242.21:3001"
+      ],
       "allowedMethods": "GET,POST,PUT,DELETE,OPTIONS",
       "allowedHeaders": "*",
       "exposedHeaders": "XSRF-TOKEN"
