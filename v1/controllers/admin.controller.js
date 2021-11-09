@@ -727,7 +727,7 @@ exports.addSubProject = async (req, res) => {
     let tempKeywordArr = [];
     if (keyword && keyword.length > 0) {
       for (let k = 0; k < keyword.length; k++) {
-        tempKeywordArr.push(keyword[k].toLowerCase());
+        tempKeywordArr.push(keyword[k].toLowerCase().trim());
       }
     }
 
