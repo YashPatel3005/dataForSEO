@@ -210,6 +210,17 @@ const updateNewRank = new CronJob({
           console.log("improvedCount" + improvedCount);
           console.log("declinedCount" + declinedCount);
 
+          //Email Subject
+          let locationArr = appConstant.locationArray;
+
+          let foundLocation = locationArr.find((locationData) => {
+            if (locationData.locationCode === data.locationCode) {
+              return true;
+            }
+          });
+
+          let emailSubject;
+
           const projectData = await Project.findOne({ _id: data._projectId });
 
           if (projectData && projectData.assignedUsers.length > 0) {
@@ -223,10 +234,11 @@ const updateNewRank = new CronJob({
               let subProjectName = projectData.projectName;
               let viewSubProjectUrl =
                 process.env.VIEW_SUB_PROJECT_URL + data._projectId;
+              emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
 
               await sendEmail(
                 email,
-                appConstant.email_template.new_rank_update_alert,
+                emailSubject,
                 newRankUpdateTemplate(
                   topSpot,
                   topTen,
@@ -251,10 +263,11 @@ const updateNewRank = new CronJob({
           let subProjectName = projectData.projectName;
           let viewSubProjectUrl =
             process.env.VIEW_SUB_PROJECT_URL + data._projectId;
+          emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
 
           await sendEmail(
             email,
-            appConstant.email_template.new_rank_update_alert,
+            emailSubject,
             newRankUpdateTemplate(
               topSpot,
               topTen,
