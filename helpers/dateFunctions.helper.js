@@ -29,3 +29,8 @@ exports.getAfterMidnightTimeOfDate = (date) => {
 exports.getDateFromTimestamp = (date) => {
   return moment(date).utc().format();
 };
+
+//add time to current UTC time
+exports.addTimeToCurrentTimestamp = function (number, timeformat) {
+  return moment().utc().add(number, timeformat).format();
+};

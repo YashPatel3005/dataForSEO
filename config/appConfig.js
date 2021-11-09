@@ -3,6 +3,9 @@ const convict = require("convict");
 
 let env = process.env.NODE_ENV;
 
+defaultDirectives = helmet.contentSecurityPolicy.getDefaultDirectives();
+delete defaultDirectives["upgrade-insecure-requests"];
+
 let config = convict({
   env: {
     doc: "The applicaton environment.",
@@ -78,7 +81,11 @@ let config = convict({
       allowedHosts: {
         doc: "Allowed Host for CORS",
         format: Array,
-        default: ["http://localhost:3001", "http://3.26.55.39:3001"],
+        default: [
+          "http://localhost:3001",
+          "http://3.26.55.39:3001",
+          "http://52.65.242.21:3001",
+        ],
       },
       allowedMethods: {
         doc: "Allowed HTTP Methods for CORS",
@@ -88,7 +95,7 @@ let config = convict({
       allowedHeaders: {
         doc: "Allowed HTTP Headers for CORS",
         format: String,
-        default: "accept, x-xsrf-token,content-type, x-location, certificate",
+        default: "*",
       },
       exposedHeaders: {
         doc: "Exposed HTTP Headers for CORS",
@@ -102,6 +109,11 @@ let config = convict({
         format: String,
         default: "100kb",
       },
+    },
+  },
+  csp: {
+    directives: {
+      ...defaultDirectives,
     },
   },
 });

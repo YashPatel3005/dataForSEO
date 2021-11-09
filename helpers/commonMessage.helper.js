@@ -19,6 +19,23 @@ module.exports = {
     INVALID_PASSWORD: "Invalid password!!!",
     LOGIN_SUCCESS: "Login successfully.",
   },
+  USER: {
+    USER_ALREADY_EXISTS:
+      "User is already exists. Please enter different email id.",
+    CREATED_USER_SUCCESS: "User created successfully.",
+    DELETE_USER_SUCCESS: "User deleted successfully.",
+    VIEW_USER_PROFILE_SUCCESS: "User profile fetched successfully.",
+    INVALID_CURRENT_PASSWORD: "Please enter a valid current password.",
+    PASSWORD_MISMATCH: "New password and confirm password not matched.",
+    PASSWORD_MATCH_ERROR: "New password should not be same as old password.",
+    PASSWORD_UPDATE_SUCCESS: "Your password successfully changed.",
+    USERS_FETCH_SUCCESS: "User list fetched successfully.",
+    USER_UPDATE_SUCCESS: "User updated successfully.",
+    EMAIL_NOT_REGISTERED: "You are not registered with this email.",
+    FORGOT_PASSWORD_EMAIL_SUCCESS: "Please check your email to reset password.",
+    RESET_LINK_EXPIRED: "Your reset password link has been expired.",
+    RESET_PASSWORD_SUCCESS: "Your password successfully changed.",
+  },
   PROJECT: {
     ADD_PROJECT_SUCCESS: "Project created successfully.",
     PROJECT_ALREADY_EXITS: "Project is already exists.",
@@ -42,6 +59,7 @@ module.exports = {
       "Sub projects analytical data fetched successfully.",
     SUB_PROJECT_EXPORT_TO_GOOGLE_SHEET_SUCCESS:
       "Sub project list has been successfully exported to google sheet.",
+    SUB_PROJECT_ID_REQUIRED: "Sub project id is required.",
   },
   KEYWORD: {
     KEYWORD_FETCH_SUCCESS: "Keywords list fetched successfully.",
@@ -49,5 +67,16 @@ module.exports = {
       "Keywords list has been successfully exported to google sheet.",
     KEYWORD_ANALYTICAL_DATA_SUCCESS:
       "Keywords analytical data fetched successfully.",
+    DELETE_KEYWORD_SUCCESS: "Keywords deleted successfully.",
+    KEYWORD_ID_REQUIRED: "Keywords id is required.",
+    KEYWORD_GRAPH_FETCH_SUCCESS:
+      "Keyword(s) graph details fetched successfully.",
+  },
+  TAG: {
+    ADD_TAG_SUCCESS: "Tag added successfully.",
+    REMOVE_TAG_SUCCESS: "Tag removed successfully.",
+    TAGS_FETCH_SUCCESS: "Tag list fetched successfully.",
+    DELETE_TAG_SUCCESS: "Tag deleted successfully.",
+    TAG_ALREADY_EXISTS: "Tag is already exists!!! Please enter unique tag.",
   },
 };

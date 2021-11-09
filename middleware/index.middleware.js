@@ -4,16 +4,17 @@ const logger = require("morgan");
 const path = require("path");
 const bodyParser = require("body-parser");
 const config = require("../config/appConfig");
+const flash = require("connect-flash");
 
 module.exports = (app) => {
   // Allow loading resources only from white-listed domains
-  // if (config.get("server.security.enableCSP")) {
-  //   app.use(
-  //     helmet.contentSecurityPolicy({
-  //       directives: config.get("csp.directives"),
-  //     })
-  //   );
-  // }
+  if (config.get("server.security.enableCSP")) {
+    app.use(
+      helmet.contentSecurityPolicy({
+        directives: config.get("csp.directives"),
+      })
+    );
+  }
 
   if (config.get("server.security.enableDPC")) {
     app.use(helmet.dnsPrefetchControl());
@@ -83,7 +84,12 @@ module.exports = (app) => {
 
   app.use(express.static(path.join(appRootPath, "public")));
 
+  app.set("views", path.join(appRootPath, "web/views"));
+
+  app.set("view engine", "ejs");
+
   app.use(logger("dev"));
+  app.use(flash());
 
   app.use(
     session({

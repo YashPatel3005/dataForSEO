@@ -17,10 +17,20 @@
       "enableXssFilter": true
     },
     "CORS": {
-      "allowedHosts": ["http://3.26.55.39:3001", "http://localhost:3001"],
+      "allowedHosts": [
+        "http://3.26.55.39:3001",
+        "http://localhost:3001",
+        "http://52.65.242.21:3001"
+      ],
       "allowedMethods": "GET,POST,PUT,DELETE,OPTIONS",
-      "allowedHeaders": "accept, x-xsrf-token,content-type, x-location, certificate",
+      "allowedHeaders": "*",
       "exposedHeaders": "XSRF-TOKEN"
+    }
+  },
+  "csp": {
+    "directives": {
+      "img-src": ["'self'"],
+      "script-src": ["'self'", "code.jquery.com", "maxcdn.bootstrapcdn.com"]
     }
   }
 }

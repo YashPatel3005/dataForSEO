@@ -154,3 +154,33 @@ exports.appendDataInSheet = async (accessToken, sheetId, sheetBody) => {
     throw error;
   }
 };
+
+exports.generateRandomPassword = function () {
+  try {
+    let chars = [
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+      "0123456789",
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+      "!@#%$&",
+    ];
+    let randPwd = [3, 3, 3, 1]
+      .map(function (len, i) {
+        return Array(len)
+          .fill(chars[i])
+          .map(function (x) {
+            return x[Math.floor(Math.random() * x.length)];
+          })
+          .join("");
+      })
+      .concat()
+      .join("")
+      .split("")
+      .sort(function () {
+        return 0.5 - Math.random();
+      })
+      .join("");
+    return randPwd;
+  } catch (error) {
+    console.log("Generating Random password error::>>>>" + error);
+  }
+};

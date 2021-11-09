@@ -3,8 +3,14 @@ const axios = require("axios");
 
 const SubProject = require("../models/subProject.model");
 const Keyword = require("../models/keywords.model");
+const KeywordHistory = require("../models/keywordHistory.model");
+const Project = require("../models/project.model");
+const Admin = require("../models/admin.model");
 const dateFunc = require("../helpers/dateFunctions.helper");
 const appConstant = require("../app.constant");
+
+const sendEmail = require("../services/email.service");
+const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateTemplate");
 
 //update new rank at 00:00 AM
 const updateNewRank = new CronJob({
@@ -119,6 +125,26 @@ const updateNewRank = new CronJob({
               newObj.updatedAt = dateFunc.currentUtcTime();
               // console.log(newObj);
 
+              const keywordHistoryData = await KeywordHistory.findOne({
+                _keywordId: keyword._id,
+              });
+
+              if (keywordHistoryData) {
+                const isExists = keywordHistoryData.keywordData.find(
+                  (items) => items.date.toString() == currentDate.toString()
+                );
+
+                if (!isExists) {
+                  keywordHistoryData.updatedAt = dateFunc.currentUtcTime();
+                  keywordHistoryData.keywordData.push({
+                    date: currentDate,
+                    rank: newObj.rankGroup,
+                  });
+
+                  await keywordHistoryData.save();
+                }
+              }
+
               await Keyword.updateOne({ _id: keyword._id }, { $set: newObj });
 
               console.log("keywords has been updated >>>");
@@ -131,7 +157,115 @@ const updateNewRank = new CronJob({
         subProjectObj.nextDate = nextDate;
         subProjectObj.updatedAt = dateFunc.currentUtcTime();
 
-        await SubProject.updateOne({ _id: data.id }, { $set: subProjectObj });
+        await SubProject.updateOne({ _id: data._id }, { $set: subProjectObj });
+
+        if (data.enableEmail === true) {
+          const keywordData = await Keyword.find({
+            _projectId: data._projectId,
+            error: null,
+          });
+
+          // let improvedCount = keywordData.filter(
+          //   (keywords) => keywords.rankGroup > keywords.prevRankGroup
+          // ).length;
+          // let declinedCount = keywordData.filter(
+          //   (keywords) => keywords.rankGroup < keywords.prevRankGroup
+          // ).length;
+          let improvedCount = keywordData.filter(
+            (keywords) =>
+              keywords.prevRankGroup !== null &&
+              keywords.rankGroup < keywords.prevRankGroup
+          ).length;
+          let declinedCount = keywordData.filter(
+            (keywords) =>
+              keywords.prevRankGroup !== null &&
+              keywords.rankGroup > keywords.prevRankGroup
+          ).length;
+
+          let topSpot = 0;
+          let topTen = 0;
+          let aboveHundred = 0;
+
+          if (keywordData && keywordData.length > 0) {
+            for (let i = 0; i < keywordData.length; i++) {
+              //top spot
+              if (keywordData[i].rankGroup === 1) {
+                topSpot = topSpot + 1;
+              }
+
+              // top 10
+              if (keywordData[i].rankGroup <= 10) {
+                topTen = topTen + 1;
+              }
+
+              //Above 100
+              if (keywordData[i].rankGroup > 100) {
+                aboveHundred = aboveHundred + 1;
+              }
+            }
+          }
+          console.log("topSpot" + topSpot);
+          console.log("topTen" + topTen);
+          console.log("aboveHundred" + aboveHundred);
+          console.log("improvedCount" + improvedCount);
+          console.log("declinedCount" + declinedCount);
+
+          const projectData = await Project.findOne({ _id: data._projectId });
+
+          if (projectData && projectData.assignedUsers.length > 0) {
+            for (let i = 0; i < projectData.assignedUsers.length; i++) {
+              const user = await Admin.findOne({
+                _id: projectData.assignedUsers[i],
+              });
+
+              let firstName = user.firstName;
+              let email = user.email;
+              let subProjectName = projectData.projectName;
+              let viewSubProjectUrl =
+                process.env.VIEW_SUB_PROJECT_URL + data._id;
+
+              await sendEmail(
+                email,
+                appConstant.email_template.new_rank_update_alert,
+                newRankUpdateTemplate(
+                  topSpot,
+                  topTen,
+                  aboveHundred,
+                  improvedCount,
+                  declinedCount,
+                  firstName,
+                  subProjectName,
+                  viewSubProjectUrl
+                )
+              );
+            }
+          }
+
+          //Send mail to main Admin
+          const admin = await Admin.findOne({
+            permissionLevel: appConstant.adminPermissionLevel.admin,
+          });
+
+          let firstName = admin.firstName;
+          let email = admin.email;
+          let subProjectName = projectData.projectName;
+          let viewSubProjectUrl = process.env.VIEW_SUB_PROJECT_URL + data._id;
+
+          await sendEmail(
+            email,
+            appConstant.email_template.new_rank_update_alert,
+            newRankUpdateTemplate(
+              topSpot,
+              topTen,
+              aboveHundred,
+              improvedCount,
+              declinedCount,
+              firstName,
+              subProjectName,
+              viewSubProjectUrl
+            )
+          );
+        }
       });
     } catch (error) {
       console.log("error in updateNewRank.cron =>", error);

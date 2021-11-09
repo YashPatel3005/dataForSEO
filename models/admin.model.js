@@ -20,16 +20,15 @@ let adminSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 6,
   },
-  // firstName: {
-  //   type: String,
-  //   require: true,
-  // },
-  // lastName: {
-  //   type: String,
-  //   require: true,
-  // },
+  firstName: {
+    type: String,
+    require: true,
+  },
+  lastName: {
+    type: String,
+    require: true,
+  },
   tokens: [
     {
       token: {
@@ -38,6 +37,14 @@ let adminSchema = new mongoose.Schema({
       },
     },
   ],
+  resetPasswordToken: {
+    type: String,
+    default: null,
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: null,
@@ -46,21 +53,27 @@ let adminSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  projectAccess: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+    },
+  ],
 });
 
-// adminSchema.pre("save", function (next) {
-//   let admin = this;
-//   if (admin.isModified("password")) {
-//     bcrypt.genSalt(10, (err, salt) => {
-//       bcrypt.hash(admin.password, salt, (err, hash) => {
-//         admin.password = hash;
-//         next();
-//       });
-//     });
-//   } else {
-//     next();
-//   }
-// });
+adminSchema.pre("save", function (next) {
+  let admin = this;
+  if (admin.isModified("password")) {
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(admin.password, salt, (err, hash) => {
+        admin.password = hash;
+        next();
+      });
+    });
+  } else {
+    next();
+  }
+});
 
 //Generating auth token
 adminSchema.methods.generateAuthToken = async function () {
@@ -84,24 +97,24 @@ adminSchema.methods.generateAuthToken = async function () {
 };
 
 //Checking if password is valid
-// adminSchema.methods.validPassword = function (password) {
-//   return bcrypt.compareSync(password, this.password);
-// };
+adminSchema.methods.validPassword = function (password) {
+  return bcrypt.compareSync(password, this.password);
+};
 
 //Checking for user credentials
-// adminSchema.statics.findByCredentials = async function (email, password) {
-//   const admin = await Admin.findOne({ email: email });
+adminSchema.statics.findByCredentials = async function (email, password) {
+  const admin = await Admin.findOne({ email: email });
 
-//   if (!admin) {
-//     return 1;
-//   }
+  if (!admin) {
+    return 1;
+  }
 
-//   if (!admin.validPassword(password)) {
-//     return 2;
-//   }
+  if (!admin.validPassword(password)) {
+    return 2;
+  }
 
-//   return admin;
-// };
+  return admin;
+};
 
 const Admin = mongoose.model("Admin", adminSchema);
 module.exports = Admin;

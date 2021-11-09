@@ -83,14 +83,10 @@ let subProjectSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
-  // error: {
-  //   type: Boolean,
-  //   default: null,
-  // },
-  // errorMessage: {
-  //   type: String,
-  //   default: null,
-  // },
+  enableEmail: {
+    type: Boolean,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: null,

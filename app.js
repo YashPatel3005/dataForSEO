@@ -20,8 +20,13 @@ middleWares(app);
 // VERSION 1:
 app.use("/api/v1", require("./v1/routes/index.routes"));
 
+app.use("/web", require("./web/routes/web.routes"));
+
 require("./cronJobs/updateNewRank.cron");
 require("./cronJobs/removeOldData.cron");
+
+//Global BASE_URL
+global.appBaseUrl = process.env.BASEURL;
 
 if (process.env.STAGE == "LIVE") {
   // let options = {

@@ -1,7 +1,8 @@
 module.exports = {
   adminPermissionLevel: {
     admin: 1,
-    // appTeam: 2,
+    appTeam: 2,
+    client: 3,
   },
   keywordCheckFrequency: {
     daily: 0,
@@ -19,4 +20,10 @@ module.exports = {
     hobart: 1000480,
     philippines: 2608,
   },
+  email_template: {
+    account_created_mail: "Your account is created successfully !!",
+    password_reset: "Your password reset request",
+    new_rank_update_alert: "New rank has been updated !!",
+  },
+  team_name: "Akvitek Team",
 };
