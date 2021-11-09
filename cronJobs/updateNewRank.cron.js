@@ -165,11 +165,21 @@ const updateNewRank = new CronJob({
             error: null,
           });
 
+          // let improvedCount = keywordData.filter(
+          //   (keywords) => keywords.rankGroup > keywords.prevRankGroup
+          // ).length;
+          // let declinedCount = keywordData.filter(
+          //   (keywords) => keywords.rankGroup < keywords.prevRankGroup
+          // ).length;
           let improvedCount = keywordData.filter(
-            (keywords) => keywords.rankGroup > keywords.prevRankGroup
+            (keywords) =>
+              keywords.prevRankGroup !== null &&
+              keywords.rankGroup < keywords.prevRankGroup
           ).length;
           let declinedCount = keywordData.filter(
-            (keywords) => keywords.rankGroup < keywords.prevRankGroup
+            (keywords) =>
+              keywords.prevRankGroup !== null &&
+              keywords.rankGroup > keywords.prevRankGroup
           ).length;
 
           let topSpot = 0;
@@ -189,7 +199,7 @@ const updateNewRank = new CronJob({
               }
 
               //Above 100
-              if (keywordData[i].rankGroup <= 100) {
+              if (keywordData[i].rankGroup > 100) {
                 aboveHundred = aboveHundred + 1;
               }
             }
