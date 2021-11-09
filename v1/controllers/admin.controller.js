@@ -956,7 +956,7 @@ exports.editSubProject = async (req, res) => {
     });
 
     let keywordList = subProjectData.newAddedKeyword.split(",");
-
+    console.log("keywordList" + keywordList);
     if (keywordList && keywordList.length > 0 && !keywordList.includes("")) {
       const promiseResult = Promise.all(
         keywordList.map(async (keyword) => {
