@@ -26,4 +26,14 @@ module.exports = {
     new_rank_update_alert: "New rank has been updated !!",
   },
   team_name: "Akvitek Team",
+  locationArray: [
+    { locationCode: 1000567, locationName: "Melbourne" },
+    { locationCode: 1000422, locationName: "adelaide" },
+    { locationCode: 1000286, locationName: "sydney" },
+    { locationCode: 1000339, locationName: "brisbane" },
+    { locationCode: 1000676, locationName: "perth" },
+    { locationCode: 1000142, locationName: "canberra" },
+    { locationCode: 1000480, locationName: "hobart" },
+    { locationCode: 2608, locationName: "philippines" },
+  ],
 };
