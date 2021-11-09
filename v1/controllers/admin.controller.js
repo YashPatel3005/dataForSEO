@@ -830,7 +830,33 @@ exports.addSubProject = async (req, res) => {
 exports.editSubProject = async (req, res) => {
   try {
     let { keyword, tags } = req.body;
-    keyword = [...new Set(keyword)];
+    let tempKeywordArr = [];
+    if (keyword && keyword.length > 0) {
+      for (let k = 0; k < keyword.length; k++) {
+        tempKeywordArr.push(keyword[k].toLowerCase().trim());
+      }
+    }
+
+    keyword = [...new Set(tempKeywordArr)];
+
+    let alreadyExistedKeywords = [];
+    for (let j = 0; j < keyword.length; j++) {
+      let existingKeywordData = await Keyword.findOne({
+        keyword: keyword[j],
+      });
+
+      if (existingKeywordData && existingKeywordData !== null) {
+        console.log(existingKeywordData.keyword);
+        alreadyExistedKeywords.push(existingKeywordData.keyword);
+      }
+    }
+
+    let keywordToDeleteSet = new Set(alreadyExistedKeywords);
+
+    keyword = keyword.filter((key) => {
+      return !keywordToDeleteSet.has(key);
+    });
+    console.log(keyword);
 
     let _subProjectId = req.params.id;
 
