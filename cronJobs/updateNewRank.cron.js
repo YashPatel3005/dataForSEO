@@ -222,7 +222,7 @@ const updateNewRank = new CronJob({
               let email = user.email;
               let subProjectName = projectData.projectName;
               let viewSubProjectUrl =
-                process.env.VIEW_SUB_PROJECT_URL + data._id;
+                process.env.VIEW_SUB_PROJECT_URL + data._projectId;
 
               await sendEmail(
                 email,
