@@ -85,6 +85,7 @@ let config = convict({
           "http://localhost:3001",
           "http://3.26.55.39:3001",
           "http://52.65.242.21:3001",
+          "https://rankingsonly.com",
         ],
       },
       allowedMethods: {
