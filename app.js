@@ -24,22 +24,7 @@ app.use("/web", require("./web/routes/web.routes"));
 
 require("./cronJobs/updateNewRank.cron");
 require("./cronJobs/removeOldData.cron");
-const sendEmail = require("./services/email.service");
-const newRankUpdateTemplate = require("./services/emailTemplates/newRankUpdateTemplate");
-sendEmail(
-  "pyash451190@gmail.com",
-  "emailSubject",
-  newRankUpdateTemplate(
-    21,
-    123,
-    22,
-    2,
-    2,
-    "firstName",
-    "subProjectName",
-    "viewSubProjectUrl"
-  )
-);
+
 //Global BASE_URL
 global.appBaseUrl = process.env.BASEURL;
 
