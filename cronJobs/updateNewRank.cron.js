@@ -14,7 +14,7 @@ const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateT
 
 //update new rank at 00:00 AM
 const updateNewRank = new CronJob({
-  cronTime: "27 22 * * *",
+  cronTime: "00 00 * * *",
   onTick: async () => {
     if (updateNewRank.taskRunning) {
       return;
@@ -35,7 +35,7 @@ const updateNewRank = new CronJob({
         const keywords = await Keyword.find({
           _subProjectId: data._id,
         });
-        console.log(keywords.length);
+        console.log(keywords);
 
         let nextDate;
         if (
@@ -298,5 +298,4 @@ const updateNewRank = new CronJob({
     updateNewRank.taskRunning = false;
   },
   start: true,
-  timeZone: "UTC",
 });
