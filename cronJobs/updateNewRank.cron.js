@@ -29,13 +29,13 @@ const updateNewRank = new CronJob({
       console.log(currentDate);
 
       const subProjectList = await SubProject.find({ nextDate: currentDate });
-      console.log(subProjectList);
+      console.log("subProjectList >>> " + subProjectList.length);
 
       subProjectList.forEach(async (data) => {
         const keywords = await Keyword.find({
           _subProjectId: data._id,
         });
-        console.log(keywords);
+        console.log("keywords >>>" + keywords.length);
 
         let nextDate;
         if (
