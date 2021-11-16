@@ -35,7 +35,7 @@ const updateNewRank = new CronJob({
         const keywords = await Keyword.find({
           _subProjectId: data._id,
         });
-        console.log(keywords);
+        console.log(keywords.length);
 
         let nextDate;
         if (
@@ -298,4 +298,5 @@ const updateNewRank = new CronJob({
     updateNewRank.taskRunning = false;
   },
   start: true,
+  timeZone: "UTC",
 });
