@@ -14,7 +14,7 @@ const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateT
 
 //update new rank at 00:00 AM
 const updateNewRank = new CronJob({
-  cronTime: "00 00 * * *",
+  cronTime: "22 17 * * *",
   onTick: async () => {
     if (updateNewRank.taskRunning) {
       return;
