@@ -10,8 +10,9 @@ const appConstant = require("../app.constant");
 const sendEmail = require("../services/email.service");
 const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateTemplate");
 
+//send updated rank mail daily at 03:00 UTC
 const sendUpdatedRankMail = new CronJob({
-  cronTime: "06 01 * * *",
+  cronTime: "00 03 * * *",
   onTick: async () => {
     if (sendUpdatedRankMail.taskRunning) {
       return;
@@ -152,5 +153,4 @@ const sendUpdatedRankMail = new CronJob({
     sendUpdatedRankMail.taskRunning = false;
   },
   start: true,
-  timeZone: "Asia/Kolkata",
 });
