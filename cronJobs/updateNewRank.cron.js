@@ -9,7 +9,7 @@ const appConstant = require("../app.constant");
 
 //update new rank at 00:00 AM
 const updateNewRank = new CronJob({
-  cronTime: "00 00 * * *",
+  cronTime: "50 00 * * *",
   onTick: async () => {
     if (updateNewRank.taskRunning) {
       return;
@@ -300,4 +300,5 @@ const updateNewRank = new CronJob({
     updateNewRank.taskRunning = false;
   },
   start: true,
+  timeZone: "Asia/Kolkata",
 });
