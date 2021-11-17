@@ -11,7 +11,7 @@ const sendEmail = require("../services/email.service");
 const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateTemplate");
 
 const sendUpdatedRankMail = new CronJob({
-  cronTime: "00 01 * * *",
+  cronTime: "06 01 * * *",
   onTick: async () => {
     if (sendUpdatedRankMail.taskRunning) {
       return;
@@ -152,4 +152,5 @@ const sendUpdatedRankMail = new CronJob({
     sendUpdatedRankMail.taskRunning = false;
   },
   start: true,
+  timeZone: "Asia/Kolkata",
 });
