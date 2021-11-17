@@ -24,6 +24,7 @@ app.use("/web", require("./web/routes/web.routes"));
 
 require("./cronJobs/updateNewRank.cron");
 require("./cronJobs/removeOldData.cron");
+require("./cronJobs/sendUpdatedRankMail.cron");
 
 //Global BASE_URL
 global.appBaseUrl = process.env.BASEURL;

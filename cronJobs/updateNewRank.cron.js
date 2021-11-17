@@ -4,13 +4,8 @@ const axios = require("axios");
 const SubProject = require("../models/subProject.model");
 const Keyword = require("../models/keywords.model");
 const KeywordHistory = require("../models/keywordHistory.model");
-const Project = require("../models/project.model");
-const Admin = require("../models/admin.model");
 const dateFunc = require("../helpers/dateFunctions.helper");
 const appConstant = require("../app.constant");
-
-const sendEmail = require("../services/email.service");
-const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateTemplate");
 
 //update new rank at 00:00 AM
 const updateNewRank = new CronJob({
@@ -150,147 +145,154 @@ const updateNewRank = new CronJob({
               console.log("keywords has been updated >>>");
             }
           })
-        )
-          .then(async () => {
-            let subProjectObj = {};
-            subProjectObj.prevDate = data.currDate;
-            subProjectObj.currDate = currentDate;
-            subProjectObj.nextDate = nextDate;
-            subProjectObj.updatedAt = dateFunc.currentUtcTime();
+        );
+        let subProjectObj = {};
+        subProjectObj.prevDate = data.currDate;
+        subProjectObj.currDate = currentDate;
+        subProjectObj.nextDate = nextDate;
+        subProjectObj.updatedAt = currentDate;
 
-            await SubProject.updateOne(
-              { _id: data._id },
-              { $set: subProjectObj }
-            );
+        await SubProject.updateOne({ _id: data._id }, { $set: subProjectObj });
+        // .then(async () => {
+        //   let subProjectObj = {};
+        //   subProjectObj.prevDate = data.currDate;
+        //   subProjectObj.currDate = currentDate;
+        //   subProjectObj.nextDate = nextDate;
+        //   subProjectObj.updatedAt = dateFunc.currentUtcTime();
 
-            console.log("SEND EMAIL >>>");
-            if (data.enableEmail === true) {
-              const keywordData = await Keyword.find({
-                _projectId: data._projectId,
-                error: null,
-              });
+        //   await SubProject.updateOne(
+        //     { _id: data._id },
+        //     { $set: subProjectObj }
+        //   );
 
-              // let improvedCount = keywordData.filter(
-              //   (keywords) => keywords.rankGroup > keywords.prevRankGroup
-              // ).length;
-              // let declinedCount = keywordData.filter(
-              //   (keywords) => keywords.rankGroup < keywords.prevRankGroup
-              // ).length;
-              let improvedCount = keywordData.filter(
-                (keywords) =>
-                  keywords.prevRankGroup !== null &&
-                  keywords.rankGroup < keywords.prevRankGroup
-              ).length;
-              let declinedCount = keywordData.filter(
-                (keywords) =>
-                  keywords.prevRankGroup !== null &&
-                  keywords.rankGroup > keywords.prevRankGroup
-              ).length;
+        //   console.log("SEND EMAIL >>>");
+        //   if (data.enableEmail === true) {
+        //     const keywordData = await Keyword.find({
+        //       _projectId: data._projectId,
+        //       error: null,
+        //     });
 
-              let topSpot = 0;
-              let topTen = 0;
-              let aboveHundred = 0;
+        //     // let improvedCount = keywordData.filter(
+        //     //   (keywords) => keywords.rankGroup > keywords.prevRankGroup
+        //     // ).length;
+        //     // let declinedCount = keywordData.filter(
+        //     //   (keywords) => keywords.rankGroup < keywords.prevRankGroup
+        //     // ).length;
+        //     let improvedCount = keywordData.filter(
+        //       (keywords) =>
+        //         keywords.prevRankGroup !== null &&
+        //         keywords.rankGroup < keywords.prevRankGroup
+        //     ).length;
+        //     let declinedCount = keywordData.filter(
+        //       (keywords) =>
+        //         keywords.prevRankGroup !== null &&
+        //         keywords.rankGroup > keywords.prevRankGroup
+        //     ).length;
 
-              if (keywordData && keywordData.length > 0) {
-                for (let i = 0; i < keywordData.length; i++) {
-                  //top spot
-                  if (keywordData[i].rankGroup === 1) {
-                    topSpot = topSpot + 1;
-                  }
+        //     let topSpot = 0;
+        //     let topTen = 0;
+        //     let aboveHundred = 0;
 
-                  // top 10
-                  if (keywordData[i].rankGroup <= 10) {
-                    topTen = topTen + 1;
-                  }
+        //     if (keywordData && keywordData.length > 0) {
+        //       for (let i = 0; i < keywordData.length; i++) {
+        //         //top spot
+        //         if (keywordData[i].rankGroup === 1) {
+        //           topSpot = topSpot + 1;
+        //         }
 
-                  //Above 100
-                  if (keywordData[i].rankGroup > 100) {
-                    aboveHundred = aboveHundred + 1;
-                  }
-                }
-              }
-              console.log("topSpot" + topSpot);
-              console.log("topTen" + topTen);
-              console.log("aboveHundred" + aboveHundred);
-              console.log("improvedCount" + improvedCount);
-              console.log("declinedCount" + declinedCount);
+        //         // top 10
+        //         if (keywordData[i].rankGroup <= 10) {
+        //           topTen = topTen + 1;
+        //         }
 
-              //Email Subject
-              let locationArr = appConstant.locationArray;
+        //         //Above 100
+        //         if (keywordData[i].rankGroup > 100) {
+        //           aboveHundred = aboveHundred + 1;
+        //         }
+        //       }
+        //     }
+        //     console.log("topSpot" + topSpot);
+        //     console.log("topTen" + topTen);
+        //     console.log("aboveHundred" + aboveHundred);
+        //     console.log("improvedCount" + improvedCount);
+        //     console.log("declinedCount" + declinedCount);
 
-              let foundLocation = locationArr.find((locationData) => {
-                if (locationData.locationCode === data.locationCode) {
-                  return true;
-                }
-              });
+        //     //Email Subject
+        //     let locationArr = appConstant.locationArray;
 
-              let emailSubject;
+        //     let foundLocation = locationArr.find((locationData) => {
+        //       if (locationData.locationCode === data.locationCode) {
+        //         return true;
+        //       }
+        //     });
 
-              const projectData = await Project.findOne({
-                _id: data._projectId,
-              });
+        //     let emailSubject;
 
-              if (projectData && projectData.assignedUsers.length > 0) {
-                for (let i = 0; i < projectData.assignedUsers.length; i++) {
-                  const user = await Admin.findOne({
-                    _id: projectData.assignedUsers[i],
-                  });
+        //     const projectData = await Project.findOne({
+        //       _id: data._projectId,
+        //     });
 
-                  let firstName = user.firstName;
-                  let email = user.email;
-                  let subProjectName = projectData.projectName;
-                  let viewSubProjectUrl =
-                    process.env.VIEW_SUB_PROJECT_URL + data._projectId;
-                  emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
+        //     if (projectData && projectData.assignedUsers.length > 0) {
+        //       for (let i = 0; i < projectData.assignedUsers.length; i++) {
+        //         const user = await Admin.findOne({
+        //           _id: projectData.assignedUsers[i],
+        //         });
 
-                  await sendEmail(
-                    email,
-                    emailSubject,
-                    newRankUpdateTemplate(
-                      topSpot,
-                      topTen,
-                      aboveHundred,
-                      improvedCount,
-                      declinedCount,
-                      firstName,
-                      subProjectName,
-                      viewSubProjectUrl
-                    )
-                  );
-                }
-              }
+        //         let firstName = user.firstName;
+        //         let email = user.email;
+        //         let subProjectName = projectData.projectName;
+        //         let viewSubProjectUrl =
+        //           process.env.VIEW_SUB_PROJECT_URL + data._projectId;
+        //         emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
 
-              //Send mail to main Admin
-              const admin = await Admin.findOne({
-                permissionLevel: appConstant.adminPermissionLevel.admin,
-              });
+        //         await sendEmail(
+        //           email,
+        //           emailSubject,
+        //           newRankUpdateTemplate(
+        //             topSpot,
+        //             topTen,
+        //             aboveHundred,
+        //             improvedCount,
+        //             declinedCount,
+        //             firstName,
+        //             subProjectName,
+        //             viewSubProjectUrl
+        //           )
+        //         );
+        //       }
+        //     }
 
-              let firstName = admin.firstName;
-              let email = admin.email;
-              let subProjectName = projectData.projectName;
-              let viewSubProjectUrl =
-                process.env.VIEW_SUB_PROJECT_URL + data._projectId;
-              emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
+        //     //Send mail to main Admin
+        //     const admin = await Admin.findOne({
+        //       permissionLevel: appConstant.adminPermissionLevel.admin,
+        //     });
 
-              await sendEmail(
-                email,
-                emailSubject,
-                newRankUpdateTemplate(
-                  topSpot,
-                  topTen,
-                  aboveHundred,
-                  improvedCount,
-                  declinedCount,
-                  firstName,
-                  subProjectName,
-                  viewSubProjectUrl
-                )
-              );
-            }
-          })
-          .catch((error) => {
-            console.log("error" + error);
-          });
+        //     let firstName = admin.firstName;
+        //     let email = admin.email;
+        //     let subProjectName = projectData.projectName;
+        //     let viewSubProjectUrl =
+        //       process.env.VIEW_SUB_PROJECT_URL + data._projectId;
+        //     emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
+
+        //     await sendEmail(
+        //       email,
+        //       emailSubject,
+        //       newRankUpdateTemplate(
+        //         topSpot,
+        //         topTen,
+        //         aboveHundred,
+        //         improvedCount,
+        //         declinedCount,
+        //         firstName,
+        //         subProjectName,
+        //         viewSubProjectUrl
+        //       )
+        //     );
+        //   }
+        // })
+        // .catch((error) => {
+        //   console.log("error" + error);
+        // });
       });
     } catch (error) {
       console.log("error in updateNewRank.cron =>", error);
