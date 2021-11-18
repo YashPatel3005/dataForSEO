@@ -12,7 +12,7 @@ const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateT
 
 //send updated rank mail daily at 03:00 UTC
 const sendUpdatedRankMail = new CronJob({
-  cronTime: "16 12 * * *",
+  cronTime: "49 12 * * *",
   onTick: async () => {
     if (sendUpdatedRankMail.taskRunning) {
       return;
@@ -35,6 +35,12 @@ const sendUpdatedRankMail = new CronJob({
             error: null,
           });
           console.log(keywordData.length);
+
+          const errorKeywordsCount = await Keyword.countDocuments({
+            _subProjectId: subProjectList[i]._id,
+            error: true,
+          });
+
           let improvedCount = keywordData.filter(
             (keywords) =>
               keywords.prevRankGroup !== null &&
@@ -68,6 +74,7 @@ const sendUpdatedRankMail = new CronJob({
               }
             }
           }
+          aboveHundred = aboveHundred + errorKeywordsCount;
           console.log("topSpot" + topSpot);
           console.log("topTen" + topTen);
           console.log("aboveHundred" + aboveHundred);
@@ -88,9 +95,7 @@ const sendUpdatedRankMail = new CronJob({
           const projectData = await Project.findOne({
             _id: subProjectList[i]._projectId,
           });
-          console.log(subProjectList[i]);
-          console.log(subProjectList[i]._projectId);
-          console.log(subProjectList[i]._id);
+
           if (projectData && projectData.assignedUsers.length > 0) {
             for (let k = 0; k < projectData.assignedUsers.length; k++) {
               const user = await Admin.findOne({
@@ -105,7 +110,7 @@ const sendUpdatedRankMail = new CronJob({
                 subProjectList[i]._projectId +
                 "/keyword/" +
                 subProjectList[i]._id;
-              console.log(viewSubProjectUrl);
+
               emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
 
               await sendEmail(
@@ -139,7 +144,7 @@ const sendUpdatedRankMail = new CronJob({
             "/keyword/" +
             subProjectList[i]._id;
           emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
-          console.log(viewSubProjectUrl);
+
           await sendEmail(
             email,
             emailSubject,
