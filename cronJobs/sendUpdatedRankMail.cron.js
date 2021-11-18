@@ -12,7 +12,7 @@ const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateT
 
 //send updated rank mail daily at 03:00 UTC
 const sendUpdatedRankMail = new CronJob({
-  cronTime: "52 12 * * *",
+  cronTime: "00 03 * * *",
   onTick: async () => {
     if (sendUpdatedRankMail.taskRunning) {
       return;
@@ -167,5 +167,4 @@ const sendUpdatedRankMail = new CronJob({
     sendUpdatedRankMail.taskRunning = false;
   },
   start: true,
-  timeZone: "Asia/Kolkata",
 });
