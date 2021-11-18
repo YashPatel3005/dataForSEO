@@ -12,7 +12,7 @@ const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateT
 
 //send updated rank mail daily at 03:00 UTC
 const sendUpdatedRankMail = new CronJob({
-  cronTime: "03 12 * * *",
+  cronTime: "13 12 * * *",
   onTick: async () => {
     if (sendUpdatedRankMail.taskRunning) {
       return;
@@ -92,9 +92,9 @@ const sendUpdatedRankMail = new CronJob({
           console.log(subProjectList[i]._projectId);
           console.log(subProjectList[i]._id);
           if (projectData && projectData.assignedUsers.length > 0) {
-            for (let i = 0; i < projectData.assignedUsers.length; i++) {
+            for (let k = 0; k < projectData.assignedUsers.length; k++) {
               const user = await Admin.findOne({
-                _id: projectData.assignedUsers[i],
+                _id: projectData.assignedUsers[k],
               });
 
               let firstName = user.firstName;
