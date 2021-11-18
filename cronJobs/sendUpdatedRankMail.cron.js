@@ -12,7 +12,7 @@ const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateT
 
 //send updated rank mail daily at 03:00 UTC
 const sendUpdatedRankMail = new CronJob({
-  cronTime: "58 11 * * *",
+  cronTime: "03 12 * * *",
   onTick: async () => {
     if (sendUpdatedRankMail.taskRunning) {
       return;
@@ -51,19 +51,19 @@ const sendUpdatedRankMail = new CronJob({
           let aboveHundred = 0;
 
           if (keywordData && keywordData.length > 0) {
-            for (let i = 0; i < keywordData.length; i++) {
+            for (let j = 0; j < keywordData.length; j++) {
               //top spot
-              if (keywordData[i].rankGroup === 1) {
+              if (keywordData[j].rankGroup === 1) {
                 topSpot = topSpot + 1;
               }
 
               // top 10
-              if (keywordData[i].rankGroup <= 10) {
+              if (keywordData[j].rankGroup <= 10) {
                 topTen = topTen + 1;
               }
 
               //Above 100
-              if (keywordData[i].rankGroup > 100) {
+              if (keywordData[j].rankGroup > 100) {
                 aboveHundred = aboveHundred + 1;
               }
             }
@@ -105,6 +105,7 @@ const sendUpdatedRankMail = new CronJob({
                 subProjectList[i]._projectId +
                 "/keyword/" +
                 subProjectList[i]._id;
+              console.log(viewSubProjectUrl);
               emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
 
               await sendEmail(
@@ -138,7 +139,7 @@ const sendUpdatedRankMail = new CronJob({
             "/keyword/" +
             subProjectList[i]._id;
           emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
-
+          console.log(viewSubProjectUrl);
           await sendEmail(
             email,
             emailSubject,
