@@ -830,6 +830,7 @@ exports.addSubProject = async (req, res) => {
 exports.editSubProject = async (req, res) => {
   try {
     let { keyword, tags } = req.body;
+    let _subProjectId = req.params.id;
     let tempKeywordArr = [];
     if (keyword && keyword.length > 0) {
       for (let k = 0; k < keyword.length; k++) {
@@ -843,6 +844,7 @@ exports.editSubProject = async (req, res) => {
     for (let j = 0; j < keyword.length; j++) {
       let existingKeywordData = await Keyword.findOne({
         keyword: keyword[j],
+        _subProjectId: _subProjectId,
       });
 
       if (existingKeywordData && existingKeywordData !== null) {
@@ -857,8 +859,6 @@ exports.editSubProject = async (req, res) => {
       return !keywordToDeleteSet.has(key);
     });
     console.log(keyword);
-
-    let _subProjectId = req.params.id;
 
     let currentDate = dateFunc.currentUtcTime();
     currentDate = dateFunc.getAfterMidnightTimeOfDate(currentDate);
