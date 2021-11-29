@@ -853,11 +853,13 @@ exports.editSubProject = async (req, res) => {
       }
     }
 
-    let keywordToDeleteSet = new Set(alreadyExistedKeywords);
+    if (alreadyExistedKeywords.length > 0) {
+      let keywordToDeleteSet = new Set(alreadyExistedKeywords);
 
-    keyword = keyword.filter((key) => {
-      return !keywordToDeleteSet.has(key);
-    });
+      keyword = keyword.filter((key) => {
+        return !keywordToDeleteSet.has(key);
+      });
+    }
     console.log(keyword);
 
     let currentDate = dateFunc.currentUtcTime();
@@ -869,12 +871,11 @@ exports.editSubProject = async (req, res) => {
 
     let tempKeyword = [];
     for (let i = 0; i < keyword.length; i++) {
-      if (subProjectData.keyword.includes(keyword[i]) === false) {
-        tempKeyword.push(keyword[i]);
-      }
-
-      if (subProjectData.keyword.includes(keyword[i]) === true) {
+      let keywordName = subProjectData.keyword.split(",");
+      if (keywordName.includes(keyword[i]) === true) {
         existingKeywords.push(keyword[i]);
+      } else if (keywordName.includes(keyword[i]) === false) {
+        tempKeyword.push(keyword[i]);
       }
     }
 
@@ -884,7 +885,7 @@ exports.editSubProject = async (req, res) => {
 
     tags = [...new Set(tags)];
 
-    console.log(tags);
+    // console.log(tags);
 
     if (existingKeywords && existingKeywords.length > 0) {
       for (let j = 0; j < existingKeywords.length; j++) {
@@ -947,7 +948,7 @@ exports.editSubProject = async (req, res) => {
         tagIDs.push(newTag._id);
       }
     }
-    console.log(tagIDs);
+    // console.log(tagIDs);
     // }
     res.status(200).send({
       data: {},
