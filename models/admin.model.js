@@ -83,7 +83,7 @@ adminSchema.methods.generateAuthToken = async function () {
       _id: admin._id.toString(),
     },
     process.env.JWT_SECRET,
-    { expiresIn: "24h" }
+    // { expiresIn: "24h" }
   );
   admin.tokens = admin.tokens.concat({
     token,
