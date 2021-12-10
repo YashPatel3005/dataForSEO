@@ -2425,7 +2425,7 @@ const updateNewInsertedData = async (tagIDs) => {
   try {
     const newData = await SubProject.find({ newInserted: true });
 
-    newData.forEach(async (data) => {
+    for(let data of newData){
       let keywordList = data.keyword.split(",");
 
       const promiseResult = Promise.all(
@@ -2538,7 +2538,122 @@ const updateNewInsertedData = async (tagIDs) => {
         { _id: data._id },
         { $set: { newInserted: false } }
       );
-    });
+    }
+
+    // newData.forEach(async (data) => {
+    //   let keywordList = data.keyword.split(",");
+
+    //   const promiseResult = Promise.all(
+    //     keywordList.map(async (keyword) => {
+    //       let seoData = await axios({
+    //         method: "post",
+    //         url: process.env.SERP_API,
+    //         auth: {
+    //           username: process.env.SERP_API_USERNAME,
+    //           password: process.env.SERP_API_PASSWORD,
+    //         },
+    //         data: [
+    //           {
+    //             keyword: encodeURI(keyword),
+    //             location_code: data.locationCode,
+    //             language_code: "en",
+    //             depth: 100,
+    //             se_domain: "google.com.au",
+    //           },
+    //         ],
+    //         headers: {
+    //           "content-type": "application/json",
+    //         },
+    //       });
+
+    //       let items;
+    //       let result;
+    //       // console.log(seoData.data.tasks);
+
+    //       if (seoData.data.tasks) {
+    //         items = seoData.data.tasks[0].result[0].items;
+    //         for (let item of items) {
+    //           if (
+    //             seoData.data.tasks[0].result[0].type == "organic" &&
+    //             item.domain == data.domain
+    //           ) {
+    //             result = item;
+    //           }
+    //         }
+    //       }
+
+    //       if (result) {
+    //         result.seDomain = seoData.data.tasks[0].result[0].se_domain;
+    //         result.languageCode = seoData.data.tasks[0].result[0].language_code;
+    //         result.updatedAt = dateFunc.currentUtcTime();
+    //         result.createdAt = dateFunc.currentUtcTime();
+
+    //         result.rankGroup = result.rank_group;
+    //         result.rankAbsolute = result.rank_absolute;
+    //         result.difference = result.rank_group;
+
+    //         delete result.rank_group;
+    //         delete result.rank_absolute;
+
+    //         result.locationCode = data.locationCode;
+    //         result.prevDate = data.prevDate;
+    //         result.currDate = data.currDate;
+    //         result.nextDate = data.nextDate;
+    //         result.keywordCheckFrequency = data.keywordCheckFrequency;
+    //         result._projectId = data._projectId;
+    //         result._subProjectId = data._id;
+    //         result.keyword = keyword;
+
+    //         result.tags = tagIDs;
+    //         // console.log(result);
+
+    //         let keywordHistoryData = await new KeywordHistory({
+    //           keyword: keyword,
+    //           keywordData: [{ date: data.currDate, rank: result.rankGroup }],
+    //           createdAt: dateFunc.currentUtcTime(),
+    //           updatedAt: dateFunc.currentUtcTime(),
+    //         });
+
+    //         result._keywordHistoryId = keywordHistoryData._id;
+
+    //         const insertedData = await Keyword.create(result);
+
+    //         keywordHistoryData._keywordId = insertedData._id;
+    //         await keywordHistoryData.save();
+
+    //         console.log("keywords has been updated >>>");
+    //       } else {
+    //         console.log("Domain and keyword is not match >>>");
+
+    //         let dataObj = {
+    //           error: true,
+    //           errorMessage: "Domain and keyword is not valid!!!",
+    //         };
+
+    //         dataObj.locationCode = data.locationCode;
+    //         dataObj.prevDate = data.prevDate;
+    //         dataObj.currDate = data.currDate;
+    //         dataObj.nextDate = data.nextDate;
+    //         dataObj.keywordCheckFrequency = data.keywordCheckFrequency;
+    //         dataObj._projectId = data._projectId;
+    //         dataObj._subProjectId = data._id;
+    //         dataObj.keyword = keyword;
+
+    //         dataObj.tags = tagIDs;
+
+    //         dataObj.updatedAt = dateFunc.currentUtcTime();
+    //         dataObj.createdAt = dateFunc.currentUtcTime();
+
+    //         await Keyword.create(dataObj);
+    //       }
+    //     })
+    //   ).catch((error) => console.log(error));
+
+    //   await SubProject.updateOne(
+    //     { _id: data._id },
+    //     { $set: { newInserted: false } }
+    //   );
+    // });
 
     //Using async await
     // const newData = await SubProject.find({ newInserted: true });
