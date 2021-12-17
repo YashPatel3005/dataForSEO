@@ -10,6 +10,7 @@ const appConstant = require("../app.constant");
 const sendEmail = require("../services/email.service");
 const newRankUpdateTemplate = require("../services/emailTemplates/newRankUpdateTemplate");
 
+//send updated rank mail daily at 03:00 UTC
 const sendUpdatedRankMail = new CronJob({
   cronTime: "00 03 * * *",
   onTick: async () => {
@@ -30,10 +31,16 @@ const sendUpdatedRankMail = new CronJob({
       for (let i = 0; i < subProjectList.length; i++) {
         if (subProjectList[i].enableEmail === true) {
           const keywordData = await Keyword.find({
-            _projectId: subProjectList[i]._projectId,
+            _subProjectId: subProjectList[i]._id,
             error: null,
           });
           console.log(keywordData.length);
+
+          const errorKeywordsCount = await Keyword.countDocuments({
+            _subProjectId: subProjectList[i]._id,
+            error: true,
+          });
+
           let improvedCount = keywordData.filter(
             (keywords) =>
               keywords.prevRankGroup !== null &&
@@ -50,23 +57,24 @@ const sendUpdatedRankMail = new CronJob({
           let aboveHundred = 0;
 
           if (keywordData && keywordData.length > 0) {
-            for (let i = 0; i < keywordData.length; i++) {
+            for (let j = 0; j < keywordData.length; j++) {
               //top spot
-              if (keywordData[i].rankGroup === 1) {
+              if (keywordData[j].rankGroup === 1) {
                 topSpot = topSpot + 1;
               }
 
               // top 10
-              if (keywordData[i].rankGroup <= 10) {
+              if (keywordData[j].rankGroup <= 10) {
                 topTen = topTen + 1;
               }
 
               //Above 100
-              if (keywordData[i].rankGroup > 100) {
+              if (keywordData[j].rankGroup > 100) {
                 aboveHundred = aboveHundred + 1;
               }
             }
           }
+          aboveHundred = aboveHundred + errorKeywordsCount;
           console.log("topSpot" + topSpot);
           console.log("topTen" + topTen);
           console.log("aboveHundred" + aboveHundred);
@@ -89,16 +97,20 @@ const sendUpdatedRankMail = new CronJob({
           });
 
           if (projectData && projectData.assignedUsers.length > 0) {
-            for (let i = 0; i < projectData.assignedUsers.length; i++) {
+            for (let k = 0; k < projectData.assignedUsers.length; k++) {
               const user = await Admin.findOne({
-                _id: projectData.assignedUsers[i],
+                _id: projectData.assignedUsers[k],
               });
 
               let firstName = user.firstName;
               let email = user.email;
               let subProjectName = projectData.projectName;
               let viewSubProjectUrl =
-                process.env.VIEW_SUB_PROJECT_URL + subProjectList[i]._projectId;
+                process.env.VIEW_SUB_PROJECT_URL +
+                subProjectList[i]._projectId +
+                "/keyword/" +
+                subProjectList[i]._id;
+
               emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
 
               await sendEmail(
@@ -127,7 +139,10 @@ const sendUpdatedRankMail = new CronJob({
           let email = admin.email;
           let subProjectName = projectData.projectName;
           let viewSubProjectUrl =
-            process.env.VIEW_SUB_PROJECT_URL + subProjectList[i]._projectId;
+            process.env.VIEW_SUB_PROJECT_URL +
+            subProjectList[i]._projectId +
+            "/keyword/" +
+            subProjectList[i]._id;
           emailSubject = `${subProjectName} - ${foundLocation.locationName} - Ranking Update`;
 
           await sendEmail(
